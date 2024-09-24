@@ -1,8 +1,31 @@
 from flask import Flask, render_template
+from database import engine
+from sqlalchemy import text
 
 app = Flask(__name__)
 
+def load_users_from_db():
+  with engine.connect() as conn:
+    result = conn.execute(text("select * from Users"))
+    #print("type(result.all())", type(result.all()))
+    #print(result.all())
+    user_list = []
+    for row in result.all():
+      user_list.append(row)
 
+    return user_list
+
+def load_tickers_from_db():
+  with engine.connect() as conn:
+    result = conn.execute(text("select * from Tickers"))
+    #print("type(result.all())", type(result.all()))
+    #print(result.all())
+    ticker_list = []
+    for row in result.all():
+      ticker_list.append(row)
+
+    return ticker_list
+    
 @app.route("/")
 def investment_app():
   return render_template('home.html')
@@ -30,12 +53,14 @@ def create_ticker():
 
 @app.route("/showtickers")
 def show_tickers():
-  return render_template('show-tickers.html')
+  alltickers = load_tickers_from_db()
+  return render_template('show-tickers.html', tickers=alltickers)
 
 
 @app.route("/showusers")
 def show_users():
-  return render_template('show-users.html')
+  allusers = load_users_from_db()
+  return render_template('show-users.html', users=allusers)
 
 
 print(__name__)

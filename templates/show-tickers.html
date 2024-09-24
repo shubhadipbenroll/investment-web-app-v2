@@ -1,8 +1,59 @@
 <!DOCTYPE html>
 <html>
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Table with Border and Box</title>
+      <style>
+          table {
+              width: 90%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              font-size: 15px;
+          }
+
+          table, th, td {
+              border: 1px solid black;
+          }
+
+          th, td {
+              padding: 20px;
+              text-align: left;
+          }
+
+          th {
+              background-color: #f2f2f2;
+          }
+      </style>
+  </head>
 <body>
 
 <h1>List of all Tickers</h1>
-
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Ticker-Id</th>
+        <th>User-Name</th>
+        <th>Ticker-Name</th>
+        <th>Entry Price</th>
+        <th>Stop %</th>
+        <th>Stop Price</th>
+        <th>Target-1</th>
+        <th>Target-2</th>
+        <th>Target-3</th>
+        <th>Target-4</th>
+        <th>Created-Date</th>
+        <th>Ticker-Status</th>
+      </tr>
+    </thead>
+  {% for t in tickers %}
+      <tr>
+      {% for i in t %}
+          <td>{{ i }}</td>
+      {% endfor %}
+      </tr>
+  {% endfor %}
+   </table>
 </body>
 </html>
