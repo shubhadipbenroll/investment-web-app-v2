@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Invenstment Portal</title>
+        <style>
+        .container {
+          position: relative;
+          width: 100%;
+          max-width: 400px;
+        }
+
+        .container img {
+          width: 100%;
+          height: auto;
+        }
+
+        .container .btn {
+          position: absolute;
+          top: 70%;
+          left: 60%;
+          transform: translate(-50%, -50%);
+          -ms-transform: translate(-50%, -50%);
+          background-color: #555;
+          color: white;
+          font-size: 16px;
+          padding: 12px 24px;
+          border: none;
+          cursor: pointer;
+          border-radius: 5px;
+          text-align: center;
+        }
+
+        .container .btn:hover {
+          background-color: black;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Welcome to our Invenstment Portal!</h1>
+        <div class="container">
+            <img src="/static/home-banner.jpg" style="width:500px;height:600px;">
+            <a href="/login">
+                <button class="btn">Login</button>
+            </a>
+        </div>
+    </body>
+</html>
