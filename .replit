@@ -1,5 +1,5 @@
 run = "python3 app.py"
-modules = ["python-3.11"]
+modules = ["web", "python-3.11"]
 [nix]
 channel = "stable-24_05"
 

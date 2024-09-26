@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from database import engine
 from sqlalchemy import text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
@@ -32,11 +32,11 @@ def load_tickers_from_db():
 
 
 @app.route("/")
-def investment_app():
-  return render_template('home.html')
+def home():
+  return render_template('login-page.html')
 
 
-@app.route("/login")
+@app.route("/loginpage")
 def login_page():
   return render_template('login-page.html')
 
@@ -82,8 +82,13 @@ class User(Base):
   UserPassword = Column(String, nullable=False)
   UserRole = Column(String, nullable=False)
 
+
 # Create the users table if it doesn't exist already
 Base.metadata.create_all(engine)
+
+# Set up the session maker
+Session = sessionmaker(bind=engine)
+
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
@@ -98,10 +103,10 @@ def create_user():
 
   try:
     # Create a new user instance
-    new_user = __tablename__(UserName=username,
-                     Email=email,
-                     UserPassword=password,
-                     UserRole=role)
+    new_user = User(UserName=username,
+                    Email=email,
+                    UserPassword=password,
+                    UserRole=role)
 
     # Add the new user to the session
     session.add(new_user)
@@ -115,6 +120,55 @@ def create_user():
     session.close()  # Close the session
 
   return 'User created successfully'
+
+
+@app.route('/login', methods=['POST'])
+def login():
+  # Get the form data
+  username = request.form['username']
+  password = request.form['psw']
+
+  # Create a session
+  db_session = Session()
+
+  try:
+    # Query the User table to check if the user exists with the provided username and password
+    user = db_session.query(User).filter_by(UserName=username,
+                                            UserPassword=password).first()
+
+    if user:
+      # If user is found, store user information in the session
+      session['username'] = user.UserName
+      flash('Login successful!', 'success')
+      return redirect(
+          url_for('dashboard')
+      )  # Redirect to a dashboard or another page after successful login
+    else:
+      # If no user is found, show error message
+      flash('Invalid username or password. Please try again.', 'danger')
+      return redirect(url_for('home'))
+  except Exception as e:
+    db_session.rollback()
+    flash(f'An error occurred: {e}', 'danger')
+    return redirect(url_for('home'))
+  finally:
+    db_session.close()
+
+
+@app.route('/dashboard')
+def dashboard():
+  if 'username' in session:
+    return f'Welcome, {session["username"]}! This is your dashboard.'
+  else:
+    flash('You are not logged in. Please log in first.', 'danger')
+    return redirect(url_for('home'))
+
+
+@app.route('/logout')
+def logout():
+  session.pop('username', None)
+  flash('You have been logged out.', 'success')
+  return redirect(url_for('home'))
 
 
 print(__name__)
