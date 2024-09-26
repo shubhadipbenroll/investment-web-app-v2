@@ -1,54 +1,229 @@
 <!DOCTYPE html>
-<html>
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Table with Border and Box</title>
-      <style>
-          table {
-              width: 50%;
-              border-collapse: collapse;
-              margin: 20px 0;
-              font-size: 18px;
-          }
+<html lang="en">
 
-          table, th, td {
-              border: 1px solid black;
-          }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of All Users</title>
+    <style>
+        /* General body styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-          th, td {
-              padding: 10px;
-              text-align: left;
-          }
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 15px 30px;
+            color: #fff;
+        }
 
-          th {
-              background-color: #f2f2f2;
-          }
-      </style>
-  </head>
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        /* User profile on the top right */
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .user-profile .username {
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        .user-profile .logout-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Main container */
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Search bar styles */
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-bar button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #218838;
+        }
+
+        /* User management button */
+        .user-manage-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .user-manage-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+
+            .header,
+            .container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .search-bar input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
 <body>
 
-<h1>List of all Users</h1>
-  
-  
+    <!-- Header section with title and user profile -->
+    <div class="header">
+        <h1>List of All Users</h1>
+        <div class="user-profile">
+            <img src="/static/user-profile.jpg" alt="User Profile">
+            <span class="username">Admin</span>
+            <button class="logout-btn">Logout</button>
+        </div>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>User-Name</th>
-        <th>Email-Address</th>
-        <th>Password</th>
-        <th>Role</th>
-      </tr>
-    </thead>
-  {% for t in users %}
-      <tr>
-      {% for i in t %}
-          <td>{{ i }}</td>
-      {% endfor %}
-      </tr>
-  {% endfor %}
-   </table>
+    <!-- Main container -->
+    <div class="container">
+        <!-- Search bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search users...">
+            <button onclick="filterTable()">Search</button>
+            <a href="/usermanage"><button class="user-manage-btn">User Management</button></a>
+        </div>
+
+        <!-- Table -->
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>User-Name</th>
+                    <th>Email-Address</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    {% for info in user %}
+                    <td>{{ info }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Function to filter table rows based on search input
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('userTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let tdArray = tr[i].getElementsByTagName('td');
+                let matchFound = false;
+
+                for (let j = 0; j < tdArray.length; j++) {
+                    let td = tdArray[j];
+                    if (td) {
+                        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                            matchFound = true;
+                        }
+                    }
+                }
+
+                tr[i].style.display = matchFound ? "" : "none";
+            }
+        }
+    </script>
 </body>
+
 </html>

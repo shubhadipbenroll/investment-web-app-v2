@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Table with Search and Profile</title>
+    <title>User Management</title>
     <style>
         /* General body styles */
         body {
@@ -56,12 +56,17 @@
             cursor: pointer;
         }
 
-        /* Table styles */
+        .logout-btn:hover {
+            background-color: #e60000;
+        }
+
+        /* Main container */
         .container {
             width: 90%;
             margin: 30px auto;
         }
 
+        /* Table styles */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -93,33 +98,25 @@
             background-color: #f1f1f1;
         }
 
-        /* Search bar styles */
-        .search-bar {
-            margin: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-bar input[type="text"] {
-            width: 200px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .search-bar button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
+        /* Action buttons (Disable, Delete) */
+        .action-btn {
+            padding: 8px 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            color: white;
         }
 
-        .search-bar button:hover {
-            background-color: #218838;
+        .disable-btn {
+            background-color: #ffcc00;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
         }
 
         /* Responsive adjustments */
@@ -130,11 +127,6 @@
                 width: 100%;
                 padding: 10px;
             }
-
-            .search-bar input[type="text"] {
-                width: 100%;
-                margin-bottom: 10px;
-            }
         }
     </style>
 </head>
@@ -143,7 +135,7 @@
 
     <!-- Header section with title and user profile -->
     <div class="header">
-        <h1>List of All Tickers</h1>
+        <h1>User Management</h1>
         <div class="user-profile">
             <img src="/static/user-profile.jpg" alt="User Profile">
             <span class="username">Admin</span>
@@ -153,67 +145,52 @@
 
     <!-- Main container -->
     <div class="container">
-        <!-- Search bar -->
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search tickers...">
-            <button onclick="filterTable()">Search</button>
-        </div>
-
         <!-- Table -->
-        <table id="tickerTable">
+        <table>
             <thead>
                 <tr>
-                    <th>Ticker-Id</th>
+                    <th>Id</th>
                     <th>User-Name</th>
-                    <th>Ticker-Name</th>
-                    <th>Entry Price</th>
-                    <th>Stop %</th>
-                    <th>Stop Price</th>
-                    <th>Target-1</th>
-                    <th>Target-2</th>
-                    <th>Target-3</th>
-                    <th>Target-4</th>
-                    <th>Created-Date</th>
-                    <th>Ticker-Status</th>
+                    <th>Email-Address</th>
+                    <th>Role</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for t in tickers %}
+                <!-- Dummy Data -->
                 <tr>
-                    {% for i in t %}
-                    <td>{{ i }}</td>
-                    {% endfor %}
+                    <td>1</td>
+                    <td>alice</td>
+                    <td>alice@example.com</td>
+                    <td>Admin</td>
+                    <td>
+                        <button class="action-btn disable-btn">Disable</button>
+                        <button class="action-btn delete-btn">Delete</button>
+                    </td>
                 </tr>
-                {% endfor %}
+                <tr>
+                    <td>2</td>
+                    <td>bob</td>
+                    <td>bob@example.com</td>
+                    <td>User</td>
+                    <td>
+                        <button class="action-btn disable-btn">Disable</button>
+                        <button class="action-btn delete-btn">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>charlie</td>
+                    <td>charlie@example.com</td>
+                    <td>Moderator</td>
+                    <td>
+                        <button class="action-btn disable-btn">Disable</button>
+                        <button class="action-btn delete-btn">Delete</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
-
-    <script>
-        // Function to filter table rows based on search input
-        function filterTable() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById('tickerTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                let tdArray = tr[i].getElementsByTagName('td');
-                let matchFound = false;
-
-                for (let j = 0; j < tdArray.length; j++) {
-                    let td = tdArray[j];
-                    if (td) {
-                        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                            matchFound = true;
-                        }
-                    }
-                }
-
-                tr[i].style.display = matchFound ? "" : "none";
-            }
-        }
-    </script>
 </body>
 
 </html>

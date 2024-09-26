@@ -68,6 +68,16 @@ def show_users():
   return render_template('show-users.html', users=allusers)
 
 
+@app.route("/resetpass")
+def reset_pass():
+  return render_template('reset-pass.html')
+
+
+@app.route("/usermanage")
+def user_manage():
+  return render_template('user-manage.html')
+
+
 Base = declarative_base()
 
 

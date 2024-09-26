@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Reset password container */
+        .reset-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /* Input fields */
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 12px 10px 12px 40px; /* Adjusted padding for better fit */
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            background-color: #f1f1f1;
+            border: 1px solid #04AA6D;
+            outline: none;
+        }
+
+        /* Label styles */
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Button styles */
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #04AA6D;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background-color: #039F5B;
+        }
+
+        /* Icon in input fields */
+        .icon-input {
+            position: relative;
+        }
+
+        .icon-input i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        input[type="text"], input[type="password"] {
+            padding-left: 40px; /* Makes room for the icon */
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .reset-container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .reset-btn {
+                font-size: 16px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Reset Password Form -->
+    <div class="reset-container">
+        <h1>Reset Password</h1>
+
+        <form onsubmit="return validatePasswords()" action="/reset-password" method="POST">
+            <div class="icon-input">
+                <label for="current-password"><b>Current Password</b></label>
+                <i class="fa fa-lock fa-lg"></i>
+                <input type="password" id="current-password" name="current-password" placeholder="Enter your current password" required>
+            </div>
+
+            <div class="icon-input">
+                <label for="new-password"><b>New Password</b></label>
+                <i class="fa fa-lock fa-lg"></i>
+                <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
+            </div>
+
+            <div class="icon-input">
+                <label for="retype-password"><b>Retype Password</b></label>
+                <i class="fa fa-lock fa-lg"></i>
+                <input type="password" id="retype-password" name="retype-password" placeholder="Retype new password" required>
+            </div>
+
+            <button type="submit" class="reset-btn">Reset Password</button>
+        </form>
+    </div>
+
+    <script>
+        function validatePasswords() {
+            const newPassword = document.getElementById('new-password').value;
+            const retypePassword = document.getElementById('retype-password').value;
+
+            if (newPassword !== retypePassword) {
+                alert("New password and Retype password do not match.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>
