@@ -4,6 +4,20 @@ from sqlalchemy import text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 
+
+"""
+File Name: myapp.py
+Purpose: Handles routing and server setup for the investment web application.
+Version: 1.0.0
+Author: Shubhadip Bera
+Date Created: 2024-09-29
+Last Modified: 2024-09-29
+Modified By: Shubhadip Bera
+Description:
+    This file sets up the Flask application, handles routes for user interactions, 
+    and manages the integration with the backend services.
+"""
+
 app = Flask(__name__)
 
 
