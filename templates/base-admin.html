@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base-admin.css') }}">
+</head>
+
+<body>
+    <!-- Navigation bar -->
+    <div class="navbar">
+        <!-- Logo Placeholder -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" style="height:40px;">
+        </div>
+        
+        <!-- Menu Buttons -->
+        <div class="menu">
+            <button class="menu-btn" title="Click to go to the Dashboard">
+                <i class="fa fa-dashboard"></i> <a href="/admindashboard">Dashboard</a>
+            </button>
+            <button class="menu-btn" title="Click to go to Admin Panel">
+                <i class="fa fa-cog"></i> <a href="/adminpanel">Admin Panel</a>
+            </button>
+            <button class="menu-btn" title="Click to manage tickers">
+                <i class="fa fa-line-chart"></i> <a href="/manageticker">Manage Ticker</a>
+            </button>
+            <button class="menu-btn" title="Click to manage users">
+                <i class="fa fa-users"></i> <a href="/manageuser">Manage User</a>
+            </button>
+        </div>
+
+        <!-- Right Side User Profile and Logout -->
+        <div class="right-menu">
+            <button class="menu-btn" title="Click to view your profile">
+                <i class="fa fa-user-circle"></i> <a href="/userprofile">Admin</a>
+            </button>
+            <button class="menu-btn" title="Click to logout">
+                <i class="fa fa-sign-out"></i> <a href="/logout">Logout</a>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer">
+            <p style="text-align: center;">&copy; 2024 investinbulls.net company. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -5,22 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 
 
-"""
-File Name: myapp.py
-Purpose: Handles routing and server setup for the investment web application.
-Version: 1.0.0
-Author: Shubhadip Bera
-Date Created: 2024-09-29
-Last Modified: 2024-09-29
-Modified By: Shubhadip Bera
-Description:
-    This file sets up the Flask application, handles routes for user interactions, 
-    and manages the integration with the backend services.
-"""
 
 app = Flask(__name__)
+#app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
+app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
 
-
+# DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 def load_users_from_db():
   with engine.connect() as conn:
     result = conn.execute(text("select * from Users"))
@@ -44,37 +34,43 @@ def load_tickers_from_db():
 
     return ticker_list
 
+# DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
+
+# All view and redirects link !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#Login Page modules
 @app.route("/")
 def home():
   return render_template('login-page.html')
 
-
 @app.route("/loginpage")
-def login_page():
+def loginpage():
   return render_template('login-page.html')
-
 
 @app.route("/register")
 def user_register():
   return render_template('user-register.html')
 
+@app.route("/resetpass")
+def reset_pass():
+  return render_template('reset-pass.html')
 
-@app.route("/dashboard")
-def dashboard_page():
-  return render_template('dashboard.html')
 
+#Dashboard modules - Admin ||||||||||||||||||||||||||||||||||||||||||||||||||||||
+@app.route("/admindashboard")
+def dashboard_admin():
+  print(f"Username: {loggedinuser.UserName}")
+  return render_template('dashboard-admin.html')
 
-@app.route("/ticker")
+@app.route("/createticker")
 def create_ticker():
   return render_template('ticker-create.html')
 
-
-@app.route("/showtickers")
-def show_tickers():
+@app.route("/showadmintickers")
+def show_tickers_admin():
   alltickers = load_tickers_from_db()
-  return render_template('show-tickers.html', tickers=alltickers)
-
+  return render_template('show-tickers-admin.html', tickers=alltickers)
 
 @app.route("/showusers")
 def show_users():
@@ -82,18 +78,21 @@ def show_users():
   return render_template('show-users.html', users=allusers)
 
 
-@app.route("/resetpass")
-def reset_pass():
-  return render_template('reset-pass.html')
+#Dashboard modules - Users |||||||||||||||||||||||||||||||||||||||||||||||||||||
+@app.route("/userdashboard")
+def dashboard_user():
+  return render_template('dashboard-user.html')
+
+@app.route("/showtickers")
+def show_tickers():
+  alltickers = load_tickers_from_db()
+  return render_template('show-tickers-basic.html', tickers=alltickers)
 
 
-@app.route("/usermanage")
-def user_manage():
-  return render_template('user-manage.html')
 
 
+# Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Base = declarative_base()
-
 
 # Define the User model
 class User(Base):
@@ -112,7 +111,8 @@ Base.metadata.create_all(engine)
 
 # Set up the session maker
 Session = sessionmaker(bind=engine)
-
+session = Session()
+loggedinuser = User()
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
@@ -122,8 +122,8 @@ def create_user():
   role = request.form['users']
 
   # Create a session
-  Session = sessionmaker(bind=engine)
-  session = Session()
+  #Session = sessionmaker(bind=engine)
+  #session = Session()
 
   try:
     # Create a new user instance
@@ -140,46 +140,177 @@ def create_user():
   except Exception as e:
     session.rollback()  # Rollback in case of error
     return f'An error occurred: {e}'
-  finally:
-    session.close()  # Close the session
+  #finally:
+    #session.close()  # Close the session
 
-  return 'User created successfully'
+  return render_template('login-page.html')
+  #return 'User created successfully'
 
 
-@app.route('/login', methods=['POST'])
-def login():
+
+#This method calls when login clicks
+@app.route('/load_dashboard', methods=['POST'])
+def load_dashboard():
   # Get the form data
   username = request.form['username']
   password = request.form['psw']
 
+  """if username == "Admin" and password == "Admin":
+    return render_template('dashboard-admin.html')
+  else:
+    flash('Wrong username or password!', 'error')
+    return render_template('login-page.html')"""
+    
   # Create a session
-  db_session = Session()
+  #Session = sessionmaker(bind=engine)
+  #session = Session()
 
   try:
-    # Query the User table to check if the user exists with the provided username and password
-    user = db_session.query(User).filter_by(UserName=username,
-                                            UserPassword=password).first()
-
-    if user:
-      # If user is found, store user information in the session
-      session['username'] = user.UserName
-      flash('Login successful!', 'success')
-      return redirect(
-          url_for('dashboard')
-      )  # Redirect to a dashboard or another page after successful login
-    else:
-      # If no user is found, show error message
-      flash('Invalid username or password. Please try again.', 'danger')
-      return redirect(url_for('home'))
+      # Query the user by username and password
+      user = session.query(User).filter_by(UserName=username, UserPassword=password).first()
+      # Add the new user to the session
+      loggedinuser = user
+      session.add(loggedinuser)
+      if user:
+          
+          # User found, return user details
+          if user.UserRole == "Admin":
+            return render_template('dashboard-admin.html')
+          else:
+            return render_template('dashboard-user.html')
+      else:
+          flash('Wrong username or password! Try again !', 'error')
+          return render_template('login-page.html')
   except Exception as e:
-    db_session.rollback()
-    flash(f'An error occurred: {e}', 'danger')
-    return redirect(url_for('home'))
-  finally:
-    db_session.close()
+      return f'An error occurred: {e}'
+  #finally:
+      #session.close()  # Close the session
 
 
-@app.route('/dashboard')
+@app.route('/update_user', methods=['POST'])
+def update_user():
+  username = request.form['username']
+  new_email = request.form['email']
+  new_password = request.form['psw']
+  new_role = request.form['users']
+
+  # Create a session
+  #Session = sessionmaker(bind=engine)
+  #session = Session()
+
+  try:
+      # Query the user by username
+      user = session.query(User).filter_by(UserName=username).first()
+
+      if user:
+          # Update the user's details
+          user.Email = new_email
+          user.UserPassword = new_password
+          user.UserRole = new_role
+
+          # Commit the session to save changes to the database
+          session.commit()
+          return f'User {username} updated successfully'
+      else:
+          return 'User not found'
+  except Exception as e:
+      session.rollback()  # Rollback in case of error
+      return f'An error occurred: {e}'
+  #finally:
+      #session.close()  # Close the session
+
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+  username = request.form['username']
+
+  # Create a session
+  #Session = sessionmaker(bind=engine)
+  #session = Session()
+
+  try:
+      # Query the user by username
+      user = session.query(User).filter_by(UserName=username).first()
+
+      if user:
+          # Delete the user from the session
+          session.delete(user)
+
+          # Commit the session to remove the user from the database
+          session.commit()
+          return f'User {username} deleted successfully'
+      else:
+          return 'User not found'
+  except Exception as e:
+      session.rollback()  # Rollback in case of error
+      return f'An error occurred: {e}'
+  #finally:
+      #session.close()  # Close the session
+
+
+
+class Ticker(Base):
+  __tablename__ = 'Tickers'  # The name of the table in the database
+
+  TickerID = Column(Integer, primary_key=True, autoincrement=True
+                  )  # Assuming UserID is the primary key with AUTO_INCREMENT
+  UserName = Column(String, nullable=False)
+  TickerName  = Column(String, nullable=False)
+  EntryPrice = Column(Integer, nullable=False)
+  StopPercent = Column(Integer, nullable=False)
+  StopPrice = Column(Integer, nullable=False)
+  Target1  = Column(Integer, nullable=False)
+  Target2 = Column(Integer, nullable=False)
+  Target3 = Column(Integer, nullable=False)
+  Target4 = Column(Integer, nullable=False)
+  #CreateDate  = Column(timestamp, nullable=False)
+  TickerStatus  = Column(String, nullable=False)
+
+@app.route('/save_ticker', methods=['POST'])
+def save_ticker():
+  username = "Admin" #session['username']
+  tickername = request.form['tickername']
+  entryprice = float(request.form['entryprice'].replace('$', '').replace(',', ''))
+  stoppercent = float(request.form['stoppercent'].replace('$', '').replace(',', ''))
+  stopprice = float(request.form['stopprice'].replace('$', '').replace(',', ''))
+  target1 = float(request.form['target1'].replace('$', '').replace(',', ''))
+  target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
+  target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
+  target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
+  tickerstatus = "Active"
+
+  # Create a session
+  #Session = sessionmaker(bind=engine)
+  #session = Session()
+
+  try:
+    # Create a new user instance
+    new_ticker = Ticker(UserName=username,
+                    TickerName=tickername,
+                    EntryPrice=entryprice,
+                    StopPercent=stoppercent,
+                    StopPrice=stopprice,
+                    Target1=target1,
+                    Target2=target2,
+                    Target3=target3,
+                    Target4=target4,
+                    TickerStatus=tickerstatus)
+
+    # Add the new user to the session
+    session.add(new_ticker)
+
+    # Commit the session to save changes to the database
+    session.commit()
+  except Exception as e:
+    session.rollback()  # Rollback in case of error
+    return f'An error occurred while adding ticker in DB: {e}'
+  #finally:
+    #session.close()  # Close the session
+
+  return render_template('dashboard-admin.html')
+
+
+@app.route('/admindashboard')
 def dashboard():
   if 'username' in session:
     return f'Welcome, {session["username"]}! This is your dashboard.'
@@ -188,14 +319,36 @@ def dashboard():
     return redirect(url_for('home'))
 
 
+
+
+
+#print(__name__)
+
+# Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
+@app.route("/adminpanel")
+def adminpanel():
+  return render_template('draft.html')
+
+@app.route("/manageticker")
+def manageticker():
+  return render_template('draft.html')
+
+@app.route("/manageuser")
+def manageuser():
+  return render_template('user-manage.html')
+
+@app.route("/userprofile")
+def userprofile():
+  return render_template('draft.html')
+
 @app.route('/logout')
 def logout():
-  session.pop('username', None)
-  flash('You have been logged out.', 'success')
-  return redirect(url_for('home'))
+  session.clear()  # Clear all session data
+  return render_template('login-page.html')
+# Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
 
 
-print(__name__)
+# Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port='3001', debug=True)

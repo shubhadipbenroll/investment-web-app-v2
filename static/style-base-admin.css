@@ -1,0 +1,110 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Navigation bar */
+.navbar {
+    background-color: #4682B4; /* Bluish color */
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    padding: 1px 20px;
+    align-items: center;
+}
+
+/* Left-side buttons for Dashboard and Admin Panel */
+.left-menu {
+    display: flex;
+    align-items: center;
+}
+
+/* Dashboard Button */
+.dashboard-btn {
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* Admin Panel Button */
+.admin-panel-btn {
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Right-side menu containing User Profile and Logout */
+.right-menu {
+    display: flex;
+    align-items: center;
+}
+
+/* Profile dropdown */
+.profile-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-btn {
+    background-color: transparent;
+    color: white;
+    padding: 5px 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Logout button */
+.logout-btn {
+    background-color: #FF6347;
+    color: white;
+    padding: 5px 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Left-side panel for Dashboard options */
+.side-panel {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 200px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard container */
+.dashboard-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+    .dashboard-container {
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    .dashboard-btn,
+    .admin-panel-btn {
+        font-size: 16px;
+        padding: 12px 25px;
+    }
+}

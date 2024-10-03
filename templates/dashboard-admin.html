@@ -1,0 +1,25 @@
+{% extends "base-admin.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<body>
+
+  <!-- Dashboard content -->
+  <div class="dashboard-container">
+    <p><b>Select an option to proceed:</b></p>
+
+    <!-- Middle of the Page Buttons -->
+    <a href="/createticker" class="dashboard-btn">
+      <i class="fa fa-plus-circle"></i> Create Ticker
+    </a>
+    <a href="/showtickers" class="dashboard-btn">
+      <i class="fa fa-list-alt"></i> Show Tickers
+    </a>
+    <a href="/showusers" class="dashboard-btn">
+      <i class="fa fa-users"></i> Show Users
+    </a>
+  </div>
+
+</body>
+{% endblock %}

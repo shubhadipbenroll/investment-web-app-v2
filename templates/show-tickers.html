@@ -1,219 +1,203 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base-admin.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Table with Search and Profile</title>
-    <style>
-        /* General body styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+{% block title %}Ticker List{% endblock %}
 
-        /* Header styles */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #333;
-            padding: 15px 30px;
-            color: #fff;
-        }
+{% block content %}
+<style>
+    /* General body styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        width: 100vw;
+        height: 100vh;
+    }
 
-        .header h1 {
-            font-size: 24px;
-            margin: 0;
-        }
+    /* Header styles */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        padding: 15px 30px;
+        color: #fff;
+    }
 
-        /* User profile on the top right */
-        .user-profile {
-            display: flex;
-            align-items: center;
-        }
+    .header h1 {
+        font-size: 24px;
+        margin: 0;
+    }
 
-        .user-profile img {
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
+    /* User profile on the top right */
+    .user-profile {
+        display: flex;
+        align-items: center;
+    }
 
-        .user-profile .username {
-            margin-right: 15px;
-            font-size: 16px;
-        }
+    .user-profile img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
 
-        .user-profile .logout-btn {
-            background-color: #ff4d4d;
-            color: #fff;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .user-profile .username {
+        margin-right: 15px;
+        font-size: 16px;
+    }
 
-        /* Table styles */
+    .user-profile .logout-btn {
+        background-color: #ff4d4d;
+        color: #fff;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* Table styles */
+    .container {
+        width: 90%;
+        margin: 30px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Search bar styles */
+    .search-bar {
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-bar input[type="text"] {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .search-bar button {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .search-bar button:hover {
+        background-color: #218838;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+
+        .header,
         .container {
-            width: 90%;
-            margin: 30px auto;
-        }
-
-        table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ddd;
-        }
-
-        th,
-        td {
-            padding: 12px 15px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Search bar styles */
-        .search-bar {
-            margin: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 10px;
         }
 
         .search-bar input[type="text"] {
-            width: 200px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
         }
-
-        .search-bar button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .search-bar button:hover {
-            background-color: #218838;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-
-            .header,
-            .container {
-                width: 100%;
-                padding: 10px;
-            }
-
-            .search-bar input[type="text"] {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- Header section with title and user profile -->
-    <div class="header">
-        <h1>List of All Tickers</h1>
-        <div class="user-profile">
-            <img src="/static/user-profile.jpg" alt="User Profile">
-            <span class="username">Admin</span>
-            <button class="logout-btn">Logout</button>
-        </div>
+    }
+</style>
+<!-- Main container -->
+<div class="container">
+    <!-- Search bar -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search tickers...">
+        <button onclick="filterTable()">Search</button>
     </div>
 
-    <!-- Main container -->
-    <div class="container">
-        <!-- Search bar -->
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search tickers...">
-            <button onclick="filterTable()">Search</button>
-        </div>
-
-        <!-- Table -->
-        <table id="tickerTable">
-            <thead>
-                <tr>
-                    <th>Ticker-Id</th>
-                    <th>User-Name</th>
-                    <th>Ticker-Name</th>
-                    <th>Entry Price</th>
-                    <th>Stop %</th>
-                    <th>Stop Price</th>
-                    <th>Target-1</th>
-                    <th>Target-2</th>
-                    <th>Target-3</th>
-                    <th>Target-4</th>
-                    <th>Created-Date</th>
-                    <th>Ticker-Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in tickers %}
-                <tr>
-                    {% for i in t %}
-                    <td>{{ i }}</td>
-                    {% endfor %}
-                </tr>
+    <!-- Table -->
+    <table id="tickerTable">
+        <thead>
+            <tr>
+                <th>Ticker-Id</th>
+                <th>User-Name</th>
+                <th>Ticker-Name</th>
+                <th>Entry Price</th>
+                <th>Stop %</th>
+                <th>Stop Price</th>
+                <th>Target-1</th>
+                <th>Target-2</th>
+                <th>Target-3</th>
+                <th>Target-4</th>
+                <th>Created-Date</th>
+                <th>Ticker-Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickers %}
+            <tr>
+                {% for i in t %}
+                <td>{{ i }}</td>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-    <script>
-        // Function to filter table rows based on search input
-        function filterTable() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById('tickerTable');
-            const tr = table.getElementsByTagName('tr');
+<script>
+    // Function to filter table rows based on search input
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('tickerTable');
+        const tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) {
-                let tdArray = tr[i].getElementsByTagName('td');
-                let matchFound = false;
+        for (let i = 1; i < tr.length; i++) {
+            let tdArray = tr[i].getElementsByTagName('td');
+            let matchFound = false;
 
-                for (let j = 0; j < tdArray.length; j++) {
-                    let td = tdArray[j];
-                    if (td) {
-                        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                            matchFound = true;
-                        }
+            for (let j = 0; j < tdArray.length; j++) {
+                let td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        matchFound = true;
                     }
                 }
-
-                tr[i].style.display = matchFound ? "" : "none";
             }
-        }
-    </script>
-</body>
 
-</html>
+            tr[i].style.display = matchFound ? "" : "none";
+        }
+    }
+</script>
+{% endblock %}

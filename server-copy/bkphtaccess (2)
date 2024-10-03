@@ -1,0 +1,12 @@
+# BEGIN WordPress
+
+RewriteEngine On
+RewriteBase /
+RewriteRule ^app\.py$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /app.py [L]
+
+# END WordPress
+
+DirectoryIndex app.py

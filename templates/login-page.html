@@ -12,7 +12,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      background-color: #ffffff; /* Light bluish background */
     }
 
     /* Login container */
@@ -20,49 +20,56 @@
       max-width: 400px;
       margin: 100px auto;
       padding: 30px;
-      background-color: #fff;
+      background-color: #ffffff; /* White background for the container */
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Logo styles */
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 100px; /* Adjust as needed */
+      height: auto; /* Maintain aspect ratio */
     }
 
     .login-container h1 {
       text-align: center;
       margin-bottom: 30px;
-      color: #333;
+      color: #4682B4; /* Darker bluish color for text */
     }
 
     /* Input fields */
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      padding: 12px 10px 12px 40px;
-      /* Adjusted padding for better fit */
+      padding: 12px 10px 12px 40px; /* Adjusted padding for better fit */
       margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 5px;
-      background-color: #f9f9f9;
+      background-color: #f1f1f1; /* Light background for input */
       font-size: 16px;
       box-sizing: border-box;
     }
 
     input[type="text"]:focus,
     input[type="password"]:focus {
-      background-color: #f1f1f1;
-      border: 1px solid #04AA6D;
+      background-color: #e0f2f1; /* Light bluish focus background */
+      border: 1px solid #4682B4; /* Darker border on focus */
       outline: none;
     }
 
     /* Label styles */
     label {
       font-weight: bold;
-      color: #333;
+      color: #4682B4; /* Darker bluish color */
     }
 
     /* Button styles */
     .login-btn {
       width: 100%;
       padding: 15px;
-      background-color: #04AA6D;
+      background-color:  #4682B4; /* Darker bluish button */
       color: white;
       border: none;
       border-radius: 5px;
@@ -72,18 +79,18 @@
     }
 
     .login-btn:hover {
-      background-color: #039F5B;
+      background-color:  #4682B4; /* Darker on hover */
     }
 
     /* Forgot and Register links */
     .signin {
       margin-top: 20px;
       text-align: center;
-      color: #333;
+      color: #4682B4; /* Darker bluish color */
     }
 
     .signin a {
-      color: #04AA6D;
+      color: #4682B4;
       text-decoration: none;
     }
 
@@ -106,8 +113,7 @@
 
     input[type="text"],
     input[type="password"] {
-      padding-left: 40px;
-      /* Makes room for the icon */
+      padding-left: 40px; /* Makes room for the icon */
     }
 
     /* Responsive design */
@@ -122,6 +128,16 @@
         padding: 12px;
       }
     }
+
+    /* Error message styling */
+    .flash-error {
+      color: #ff0000;
+      background-color: #fdd;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 
@@ -129,9 +145,19 @@
 
   <!-- Login Form -->
   <div class="login-container">
+    <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo"> <!-- Placeholder for logo -->
     <h1>Login</h1>
-
-    <form action="/dashboard">
+    <!-- Display flashed messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for category, message in messages %}
+            <div class="flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <form action="/load_dashboard" method="POST"> <!-- Updated to POST method -->
       <div class="icon-input">
         <label for="username"><b>User Name</b></label>
         <i class="fa fa-user fa-lg"></i>
@@ -143,15 +169,15 @@
         <i class="fa fa-lock fa-lg"></i>
         <input type="password" id="psw" name="psw" placeholder="Enter your password" required>
       </div>
-      <a href="/dashboard">
-        <button type="submit" class="login-btn">Login</button>
-      </a>
+      <button type="submit" class="login-btn">Login</button>
     </form>
 
     <div class="signin">
       <p><a href="/resetpass">Forgot Username / Password?</a></p>
       <p>New user? <a href="/register">Register here</a>.</p>
     </div>
+
+    <p>&copy; 2024 investinbulls.net company. All rights reserved.</p>
   </div>
 
 </body>
