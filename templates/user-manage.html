@@ -129,49 +129,41 @@
 </style>
 <!-- Main container -->
 <div class="container">
+    <!-- Search bar -->
+    <!--<div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search users...">
+        <button onclick="filterTable()">Search</button>
+        
+    </div>-->
+
     <!-- Table -->
-    <table>
+    <table id="userTable">
         <thead>
             <tr>
-                <th>Id</th>
+                <th>User-Id</th>
                 <th>User-Name</th>
                 <th>Email-Address</th>
+                <th>Password</th>
                 <th>Role</th>
-                <th>Actions</th>
+                <th>Action</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Dummy Data -->
+            {% for user in users %}
             <tr>
-                <td>1</td>
-                <td>alice</td>
-                <td>alice@example.com</td>
-                <td>Admin</td>
+                {% for info in user %}
+                <td>{{ info }} </td>
+                
+                {% endfor %}
                 <td>
                     <button class="action-btn disable-btn">Disable</button>
+                </td>    
+                <td>
                     <button class="action-btn delete-btn">Delete</button>
                 </td>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>bob</td>
-                <td>bob@example.com</td>
-                <td>User</td>
-                <td>
-                    <button class="action-btn disable-btn">Disable</button>
-                    <button class="action-btn delete-btn">Delete</button>
-                </td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>charlie</td>
-                <td>charlie@example.com</td>
-                <td>Moderator</td>
-                <td>
-                    <button class="action-btn disable-btn">Disable</button>
-                    <button class="action-btn delete-btn">Delete</button>
-                </td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

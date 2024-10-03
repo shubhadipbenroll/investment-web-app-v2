@@ -42,55 +42,126 @@
   }
 </script>
 
-<div class="container"></div>
-  <form action="/save_ticker" method="POST">
-    <h3>Please fill in Ticker details</h3>
-
-    <div class="row">
-      <div class="col-50">
-        <label for="fname">Ticker Name</label>
-        <input type="text" id="fname" name="tickername" placeholder="Ticker-Name" required>
+<div class="container">
+  <h3 class="form-title">Create a New Ticker Entry</h3>
+  <form action="/save_ticker" method="POST" class="form-grid">
+      <div class="form-group">
+          <label for="fname">Ticker Name</label>
+          <input type="text" id="fname" name="tickername" placeholder="Ticker-Name" required>
       </div>
 
-      <div class="col-50">
-        <label for="amount">Entry Price ($)</label>
-        <input type="text" id="amount" name="entryprice" placeholder="$USD"
-          oninput="calculatePercentage(); calculatePercentageTarget1(); calculatePercentageTarget2()" required>
+      <div class="form-group">
+          <label for="amount">Entry Price ($)</label>
+          <input type="text" id="amount" name="entryprice" placeholder="$USD" 
+                 oninput="calculatePercentage(); calculatePercentageTarget1(); calculatePercentageTarget2()" required>
       </div>
 
-      <div class="col-50">
-        <label for="discount">Stop %</label>
-        <input type="text" id="discount" name="stoppercent" placeholder="%"
-          oninput="calculatePercentage(); calculatePercentageTarget1(); calculatePercentageTarget2()" required>
+      <div class="form-group">
+          <label for="discount">Stop %</label>
+          <input type="text" id="discount" name="stoppercent" placeholder="%" 
+                 oninput="calculatePercentage(); calculatePercentageTarget1(); calculatePercentageTarget2()" required>
       </div>
 
-      <div class="col-50">
-        <label for="result">Stop Price ($)</label>
-        <input type="text" id="result" name="stopprice" readonly>
+      <div class="form-group">
+          <label for="result">Stop Price ($)</label>
+          <input type="text" id="result" name="stopprice" readonly>
       </div>
 
-      <div class="col-50">
-        <label for="target1">Target-1 ($)</label>
-        <input type="text" id="target1" name="target1" readonly>
+      <div class="form-group">
+          <label for="target1">Target-1 ($)</label>
+          <input type="text" id="target1" name="target1" readonly>
       </div>
 
-      <div class="col-50">
-        <label for="target2">Target-2 ($)</label>
-        <input type="text" id="target2" name="target2" readonly>
+      <div class="form-group">
+          <label for="target2">Target-2 ($)</label>
+          <input type="text" id="target2" name="target2" readonly>
       </div>
 
-      <div class="col-50">
-        <label for="target3">Target-3 ($)</label>
-        <input type="text" id="target3" name="target3" value="0">
+      <div class="form-group">
+          <label for="target3">Target-3 ($)</label>
+          <input type="text" id="target3" name="target3" value="0">
       </div>
 
-      <div class="col-50">
-        <label for="target4">Target-4 ($)</label>
-        <input type="text" id="target4" name="target4" value="0">
+      <div class="form-group">
+          <label for="target4">Target-4 ($)</label>
+          <input type="text" id="target4" name="target4" value="0">
       </div>
-    </div>
 
-    <input type="submit" value="Create Ticker" class="btn">
+      <div class="form-group center-btn">
+          <input type="submit" value="Create Ticker" class="btn">
+      </div>
   </form>
 </div>
+
+<style>
+.center-btn {
+    display: flex;
+    justify-content: center; /* Centers the button horizontally */
+}
+
+.center-btn input[type="submit"] {
+    width: 50%; /* Optional: Adjust the width of the button */
+    max-width: 200px; /* Optional: Limit the maximum width of the button */
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.form-title {
+    text-align: left;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"] {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group input[type="submit"] {
+    grid-column: span 2;
+    background-color: #4682B4;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.form-group input[type="submit"]:hover {
+    background-color: #4169E1;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}

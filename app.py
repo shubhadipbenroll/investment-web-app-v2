@@ -3,7 +3,7 @@ from database import engine
 from sqlalchemy import text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -40,6 +40,16 @@ def load_tickers_from_db():
 # All view and redirects link !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #Login Page modules
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:  # Check if user is logged in
+            flash('Please log in to access this page.', 'warning')
+            return redirect(url_for('login'))  # Redirect to login
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route("/")
 def home():
   return render_template('login-page.html')
@@ -335,7 +345,8 @@ def manageticker():
 
 @app.route("/manageuser")
 def manageuser():
-  return render_template('user-manage.html')
+  allusers = load_users_from_db()
+  return render_template('user-manage.html', users=allusers)
 
 @app.route("/userprofile")
 def userprofile():
@@ -347,6 +358,7 @@ def logout():
   flash('You have been logged out successfully!', 'info')
   #return render_template('login-page.html')
   return redirect(url_for('loginpage'))
+
 # Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
 
 
