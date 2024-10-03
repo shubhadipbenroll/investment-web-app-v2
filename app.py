@@ -147,9 +147,12 @@ def create_user():
 
     # Commit the session to save changes to the database
     session.commit()
+    flash('User registration done, please Login !', 'info')
   except Exception as e:
     session.rollback()  # Rollback in case of error
-    return f'An error occurred: {e}'
+    flash('Seems like User is already exists !', 'error')
+    return render_template('login-page.html')
+    #return f'An error occurred: {e}'
   finally:
     session.close()  # Close the session
 

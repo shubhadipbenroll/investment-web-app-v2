@@ -130,7 +130,7 @@
 
 <body>
 
-  <form action="/create_user" method="POST">
+  <form action="/create_user" method="POST" onsubmit="return validatePasswords()" >
     <div class="container">
       <h1>User Registration</h1>
 
@@ -162,6 +162,28 @@
     </div>
   </form>
 
+  <script>
+    function validatePasswords() {
+      // Retrieve the password and repeat password input values
+      var password = document.getElementById("psw").value;
+      var repeatPassword = document.getElementById("psw-repeat").value;
+
+      // Get the error message element
+      var errorMessage = document.getElementById("error-message");
+
+      // Check if the passwords match
+      if (password !== repeatPassword) {
+        // Display error message and prevent form submission
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Passwords do not match!";
+        return false;
+      } else {
+        // Hide error message and allow form submission
+        errorMessage.style.display = "none";
+        return true;
+      }
+    }
+  </script>
 </body>
 
 </html>
