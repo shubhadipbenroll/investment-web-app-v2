@@ -7,7 +7,7 @@ from sqlalchemy.orm import declarative_base
 
 
 app = Flask(__name__)
-#app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
+app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
 
 # DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -70,7 +70,7 @@ def create_ticker():
 @app.route("/showadmintickers")
 def show_tickers_admin():
   alltickers = load_tickers_from_db()
-  return render_template('show-tickers-admin.html', tickers=alltickers)
+  return render_template('show-ticker-admin.html', tickers=alltickers)
 
 @app.route("/showusers")
 def show_users():
@@ -122,8 +122,8 @@ def create_user():
   role = request.form['users']
 
   # Create a session
-  #Session = sessionmaker(bind=engine)
-  #session = Session()
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
   try:
     # Create a new user instance
@@ -140,15 +140,15 @@ def create_user():
   except Exception as e:
     session.rollback()  # Rollback in case of error
     return f'An error occurred: {e}'
-  #finally:
-    #session.close()  # Close the session
+  finally:
+    session.close()  # Close the session
 
   return render_template('login-page.html')
   #return 'User created successfully'
 
 
 
-#This method calls when login clicks
+#<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/load_dashboard', methods=['POST'])
 def load_dashboard():
   # Get the form data
@@ -162,17 +162,17 @@ def load_dashboard():
     return render_template('login-page.html')"""
     
   # Create a session
-  #Session = sessionmaker(bind=engine)
-  #session = Session()
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
   try:
       # Query the user by username and password
       user = session.query(User).filter_by(UserName=username, UserPassword=password).first()
       # Add the new user to the session
-      loggedinuser = user
-      session.add(loggedinuser)
+      
       if user:
-          
+          loggedinuser = user
+          session.add(loggedinuser)
           # User found, return user details
           if user.UserRole == "Admin":
             return render_template('dashboard-admin.html')
@@ -183,8 +183,8 @@ def load_dashboard():
           return render_template('login-page.html')
   except Exception as e:
       return f'An error occurred: {e}'
-  #finally:
-      #session.close()  # Close the session
+  finally:
+      session.close()  # Close the session
 
 
 @app.route('/update_user', methods=['POST'])
@@ -195,8 +195,8 @@ def update_user():
   new_role = request.form['users']
 
   # Create a session
-  #Session = sessionmaker(bind=engine)
-  #session = Session()
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
   try:
       # Query the user by username
@@ -216,8 +216,8 @@ def update_user():
   except Exception as e:
       session.rollback()  # Rollback in case of error
       return f'An error occurred: {e}'
-  #finally:
-      #session.close()  # Close the session
+  finally:
+      session.close()  # Close the session
 
 
 @app.route('/delete_user', methods=['POST'])
@@ -225,8 +225,8 @@ def delete_user():
   username = request.form['username']
 
   # Create a session
-  #Session = sessionmaker(bind=engine)
-  #session = Session()
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
   try:
       # Query the user by username
@@ -244,8 +244,8 @@ def delete_user():
   except Exception as e:
       session.rollback()  # Rollback in case of error
       return f'An error occurred: {e}'
-  #finally:
-      #session.close()  # Close the session
+  finally:
+      session.close()  # Close the session
 
 
 
@@ -280,8 +280,8 @@ def save_ticker():
   tickerstatus = "Active"
 
   # Create a session
-  #Session = sessionmaker(bind=engine)
-  #session = Session()
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
   try:
     # Create a new user instance
@@ -304,8 +304,8 @@ def save_ticker():
   except Exception as e:
     session.rollback()  # Rollback in case of error
     return f'An error occurred while adding ticker in DB: {e}'
-  #finally:
-    #session.close()  # Close the session
+  finally:
+    session.close()  # Close the session
 
   return render_template('dashboard-admin.html')
 
@@ -343,8 +343,10 @@ def userprofile():
 
 @app.route('/logout')
 def logout():
-  session.clear()  # Clear all session data
-  return render_template('login-page.html')
+  #session.clear()  # Clear all session data
+  flash('You have been logged out successfully!', 'info')
+  #return render_template('login-page.html')
+  return redirect(url_for('loginpage'))
 # Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
 
 
