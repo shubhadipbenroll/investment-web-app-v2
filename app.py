@@ -355,6 +355,10 @@ def manageuser():
 def userprofile():
   return render_template('draft.html')
 
+@app.route("/generaluserprofile")
+def generaluserprofile():
+  return render_template('draft-user.html')
+
 @app.route('/logout')
 def logout():
   #session.clear()  # Clear all session data

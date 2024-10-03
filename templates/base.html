@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}User Dashboard{% endblock %}</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-base-admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
 </head>
 
 <body>
@@ -27,7 +28,7 @@
         <div class="right-menu">
             <div class="profile-menu">
                 <button class="profile-btn">
-                    <i class="fa fa-user-circle"></i> <a href="/profile">Paromita</a>
+                    <i class="fa fa-user-circle"></i> <a href="/generaluserprofile">Paromita</a>
                 </button>
             </div>
 
