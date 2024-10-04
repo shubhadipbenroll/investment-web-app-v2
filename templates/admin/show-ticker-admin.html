@@ -1,6 +1,6 @@
-{% extends "base-admin.html" %}
+{% extends "/admin/base-admin.html" %}
 
-{% block title %}User List{% endblock %}
+{% block title %}Ticker List{% endblock %}
 
 {% block content %}
 <style>
@@ -10,6 +10,8 @@
         margin: 0;
         padding: 0;
         background-color: #f4f4f4;
+        width: 100vw;
+        height: 100vh;
     }
 
     /* Header styles */
@@ -54,13 +56,12 @@
         cursor: pointer;
     }
 
-    /* Main container */
+    /* Table styles */
     .container {
         width: 90%;
         margin: 30px auto;
     }
 
-    /* Table styles */
     table {
         width: 100%;
         border-collapse: collapse;
@@ -121,21 +122,6 @@
         background-color: #218838;
     }
 
-    /* User management button */
-    .user-manage-btn {
-        background-color: #007bff;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    .user-manage-btn:hover {
-        background-color: #0056b3;
-    }
-
     /* Responsive adjustments */
     @media (max-width: 768px) {
 
@@ -155,27 +141,33 @@
 <div class="container">
     <!-- Search bar -->
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search users...">
+        <input type="text" id="searchInput" placeholder="Search tickers...">
         <button onclick="filterTable()">Search</button>
-        
     </div>
 
     <!-- Table -->
-    <table id="userTable">
+    <table id="tickerTable">
         <thead>
             <tr>
-                <th>Id</th>
+                <th>Ticker-Id</th>
                 <th>User-Name</th>
-                <th>Email-Address</th>
-                <th>Password</th>
-                <th>Role</th>
+                <th>Ticker-Name</th>
+                <th>Entry Price</th>
+                <th>Stop %</th>
+                <th>Stop Price</th>
+                <th>Target-1</th>
+                <th>Target-2</th>
+                <th>Target-3</th>
+                <th>Target-4</th>
+                <th>Created-Date</th>
+                <th>Ticker-Status</th>
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
+            {% for t in tickers %}
             <tr>
-                {% for info in user %}
-                <td>{{ info }}</td>
+                {% for i in t %}
+                <td>{{ i }}</td>
                 {% endfor %}
             </tr>
             {% endfor %}
@@ -188,7 +180,7 @@
     function filterTable() {
         const input = document.getElementById('searchInput');
         const filter = input.value.toUpperCase();
-        const table = document.getElementById('userTable');
+        const table = document.getElementById('tickerTable');
         const tr = table.getElementsByTagName('tr');
 
         for (let i = 1; i < tr.length; i++) {

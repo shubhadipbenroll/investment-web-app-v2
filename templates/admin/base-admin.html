@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div>
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+{% endwith %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Dashboard{% endblock %}</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base-pre.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-base-admin.css') }}">
@@ -39,7 +49,7 @@
         <!-- Right Side User Profile and Logout -->
         <div class="right-menu">
             <button class="menu-btn" title="Click to view your profile">
-                <i class="fa fa-user-circle"></i> <a href="/userprofile">Admin</a>
+                <i class="fa fa-user-circle"></i> <a href="/adminprofile">Admin</a>
             </button>
             <button class="menu-btn" title="Click to logout">
                 <i class="fa fa-sign-out"></i> <a href="/logout">Logout</a>
@@ -48,11 +58,11 @@
     </div>
 
     <!-- Main Content -->
-    <div class="dashboard-container">
+    <!--<div class="dashboard-container"> -->
         {% block content %}
-        <!-- Page-specific content goes here -->
+        <!-- Page-specific content goes here --> 
         {% endblock %}
-    </div>
+    <!--</div> -->
 
     <!-- Footer -->
     <footer>

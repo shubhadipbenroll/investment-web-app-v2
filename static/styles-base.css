@@ -9,63 +9,65 @@ body {
 /* Navigation bar */
 .navbar {
     background-color: #4682B4; /* Bluish color */
-    overflow: hidden;
     display: flex;
-    justify-content: space-between; /* Maintain space between elements */
-    padding: 1px 20px; /* Reduced vertical padding for a slimmer navbar */
-    align-items: center; /* Vertically center items */
+    justify-content: space-between; /* Space between logo and menu */
+    align-items: center;
+    padding: 10px 20px; /* Padding for a more compact look */
+}
+
+/* Logo */
+.logo img {
+    height: 40px; /* Adjust logo size */
+}
+
+/* Menu items */
+.menu-items {
+    display: flex;
+    gap: 20px; /* Space between buttons */
 }
 
 /* Navigation Button */
-.dashboard-btn {
+.menu-btn {
     background-color: transparent;
     color: white;
-    font-size: 20px;
-    border: none;
-    cursor: pointer;
-}
-
-/* Right-side menu containing User Profile and Logout */
-.right-menu {
-    display: flex;
-    align-items: center; /* Vertically align items in the right menu */
-}
-
-/* Profile dropdown */
-.profile-menu {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-btn {
-    background-color: transparent;
-    color: white;
-    padding: 5px 10px; /* Reduced padding for a slimmer profile button */
     font-size: 16px;
     border: none;
     cursor: pointer;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn i {
+    margin-right: 8px;
+}
+
+.menu-btn:hover {
+    background-color: #315f85; /* Darker shade of blue on hover */
 }
 
 /* Logout button */
 .logout-btn {
-    background-color: #FF6347; /* Tomato red */
+    background-color: #f3a598; /* Tomato red */
     color: white;
-    padding: 5px 10px; /* Reduced padding for a slimmer logout button */
+    padding: 10px 20px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
-/* Left-side panel for Dashboard options */
-.side-panel {
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 200px;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+.logout-btn i {
+    margin-right: 8px;
+}
+
+.logout-btn:hover {
+    background-color: #eeb29c; /* Darker red on hover */
 }
 
 /* Dashboard container */
@@ -79,40 +81,20 @@ body {
     text-align: center;
 }
 
-/* Button styles */
-.dashboard-btn {
-    display: inline-block;
-    margin: 20px 10px;
-    padding: 15px 30px;
-    font-size: 18px;
-    color: white;
-    background-color: DodgerBlue;
-    border: none;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.dashboard-btn:hover {
-    background-color: RoyalBlue;
-}
-
-.dashboard-btn i {
-    margin-right: 10px;
-}
-
-
 /* Responsive layout */
 @media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .menu-items {
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .dashboard-container {
         margin: 20px auto;
         padding: 15px;
-    }
-
-    .dashboard-btn {
-        font-size: 16px;
-        padding: 12px 25px;
     }
 }

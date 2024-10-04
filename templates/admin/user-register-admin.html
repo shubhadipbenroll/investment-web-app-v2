@@ -1,0 +1,210 @@
+{% extends "/admin/base-admin.html" %}
+
+{% block title %}Create Admin{% endblock %}
+
+{% block content %}
+<style>
+  /* General styles */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+
+  /* Container for form */
+  .container {
+    background-color: #fff;
+    margin: 50px auto;
+    padding: 10px;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+
+  p {
+    text-align: center;
+    color: #666;
+  }
+
+  /* Input fields */
+  input[type=text],
+  input[type=password],
+  select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    font-size: 12px;
+  }
+
+  input[type=text]:focus,
+  input[type=password]:focus {
+    background-color: #e9e9e9;
+    border-color: #04AA6D;
+    outline: none;
+  }
+
+  select {
+    height: 50px;
+    background-color: #fff;
+  }
+
+  label {
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  /* Register button */
+  .registerbtn {
+    background-color: #4682B4;
+    color: white;
+    padding: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 18px;
+  }
+
+  .registerbtn:hover {
+    background-color: #4682B4;
+  }
+
+  /* Link styles */
+  a {
+    color: dodgerblue;
+  }
+
+  /* Terms and conditions */
+  hr {
+    border: 1px solid #f1f1f1;
+    margin-bottom: 25px;
+  }
+
+  /* Sign-in link */
+  .signin {
+    text-align: center;
+    background-color: #f1f1f1;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .signin p {
+    margin: 0;
+  }
+
+  /* Responsive layout */
+  @media (max-width: 600px) {
+    .container {
+      padding: 15px;
+      margin: 30px auto;
+    }
+
+    input[type=text],
+    input[type=password],
+    select {
+      font-size: 14px;
+    }
+
+    .registerbtn {
+      font-size: 16px;
+      padding: 14px;
+    }
+  }
+  .container {
+    width: 100%;
+    max-width: 400px; /* Limits form width */
+    margin: 0 auto; /* Center the form */
+  }
+
+  label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-weight: bold;
+  }
+
+  input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+  }
+
+  button.registerbtn {
+      width: 100%;
+      background-color: #007bff; /* Button background color */
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+  }
+
+  button.registerbtn:hover {
+      background-color: #0056b3; /* Darker shade on hover */
+  }
+</style>
+
+<script>
+  function validatePasswords() {
+    // Retrieve the password and repeat password input values
+    var password = document.getElementById("psw").value;
+    var repeatPassword = document.getElementById("psw-repeat").value;
+
+    // Get the error message element
+    var errorMessage = document.getElementById("error-message");
+
+    // Check if the passwords match
+    if (password !== repeatPassword) {
+      // Display error message and prevent form submission
+      errorMessage.style.display = "block";
+      errorMessage.textContent = "Passwords do not match!";
+      return false;
+    } else {
+      // Hide error message and allow form submission
+      errorMessage.style.display = "none";
+      return true;
+    }
+  }
+</script>
+
+
+<form action="/create_user" method="POST" onsubmit="return validatePasswords()" >
+  <div class="container">
+
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" id="email" required>
+
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+
+    <label for="psw-repeat"><b>Repeat Password</b></label>
+    <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
+
+    <label for="users"><b>Your Role</b></label>
+    <select id="users" name="users" required>
+      <option value="Admin" selected>Admin</option>
+    </select>
+
+    <button type="submit" class="registerbtn">Create Admin</button>
+  </div>
+
+</form>
+
+
+{% endblock %}

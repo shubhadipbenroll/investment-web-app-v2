@@ -168,9 +168,9 @@
     {% endwith %}
     <form action="/load_dashboard" method="POST"> <!-- Updated to POST method -->
       <div class="icon-input">
-        <label for="username"><b>User Name</b></label>
+        <label for="email"><b>Email Address</b></label>
         <i class="fa fa-user fa-lg"></i>
-        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        <input type="text" id="username" name="email" placeholder="Enter your username" required>
       </div>
 
       <div class="icon-input">
@@ -182,8 +182,8 @@
     </form>
 
     <div class="signin">
-      <p><a href="/resetpass">Forgot Username / Password?</a></p>
       <p>New user? <a href="/register">Register here</a>.</p>
+      <p><a href="/resetuser">Forgot Username / Password?</a></p>
     </div>
 
     <p>&copy; 2024 investinbulls.net company. All rights reserved.</p>

@@ -5,46 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}User Dashboard{% endblock %}</title>
-    
-    
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-base-admin.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles-base.css') }}">
 </head>
 
 <body>
     <!-- Navigation bar -->
     <div class="navbar">
-        <!-- Left Top Corner Dashboard Button -->
-        <div class="left-menu">
-            <!-- Dashboard Button -->
-            <button class="dashboard-btn" id="dashboard-menu">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" height="40"> <!-- Placeholder for logo -->
+        </div>
+
+        <!-- Menu items -->
+        <div class="menu-items">
+            <!-- Dashboard -->
+            <button class="menu-btn" id="dashboard-menu" title="Click to see Dashboard">
                 <i class="fa fa-dashboard"></i> <a href="/userdashboard">Dashboard</a>
+            </button>
+
+            <!-- User Panel -->
+            <button class="menu-btn" id="user-panel-menu" title="Click to see User Panel">
+                <i class="fa fa-users"></i> <a href="/userpanel">User Panel</a>
+            </button>
+
+            <!-- User Profile -->
+            <button class="menu-btn" id="user-profile-menu" title="Click to see your Profile">
+                <i class="fa fa-user-circle"></i> <a href="/userprofile">User Profile</a>
             </button>
         </div>
 
-        <!-- Right Side User Profile Menu -->
+        <!-- Logout -->
         <div class="right-menu">
-            <div class="profile-menu">
-                <button class="profile-btn">
-                    <i class="fa fa-user-circle"></i> <a href="/generaluserprofile">Paromita</a>
-                </button>
-            </div>
-
-            <!-- Logout button -->
-            <button class="logout-btn" id="logout">
+            <button class="logout-btn" id="logout" title="Click to Logout">
                 <i class="fa fa-sign-out"></i> <a href="/logout">Logout</a>
             </button>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="dashboard-container">
+    
         {% block content %}
         <!-- Page-specific content goes here -->
         {% endblock %}
-    </div>
+   
 
     <!-- Footer -->
     <footer>
@@ -52,7 +59,6 @@
             <p style="text-align: center;">&copy; 2024 investinbulls.net company. All rights reserved.</p>
         </div>
     </footer>
-
 </body>
 
 </html>

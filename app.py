@@ -4,16 +4,29 @@ from sqlalchemy import text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from functools import wraps
+from flask_login import LoginManager
+from flask_login import login_user, login_required, logout_user, current_user
 
 
 app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
 
+# Handing for login user management ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+login_manager = LoginManager()
+login_manager.login_view = 'loginpage'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(UserID):
+    print("Logged in user-id: ",UserID)
+    return User.query.get(int(UserID))
+
+
 # DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 def load_users_from_db():
   with engine.connect() as conn:
-    result = conn.execute(text("select * from Users"))
+    result = conn.execute(text("select Email, UserName, UserPassword, UserRole, user_status, creation_date, expire_date from Users"))
     #print("type(result.all())", type(result.all()))
     #print(result.all())
     user_list = []
@@ -39,17 +52,7 @@ def load_tickers_from_db():
 
 # All view and redirects link !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#Login Page modules
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:  # Check if user is logged in
-            flash('Please log in to access this page.', 'warning')
-            return redirect(url_for('login'))  # Redirect to login
-        return f(*args, **kwargs)
-    return decorated_function
-
+# COMMON PAGES
 @app.route("/")
 def home():
   return render_template('login-page.html')
@@ -66,37 +69,54 @@ def user_register():
 def reset_pass():
   return render_template('reset-pass.html')
 
+#Common
+@app.route("/resetuser")
+def resetuser():
+  return render_template('reset-userinfo.html')
+
+@app.route("/resetuserdone")
+def resetuserdone():
+  return render_template('login-page.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+  logout_user()
+  #session.clear()  # Clear all session data
+  flash('You have been logged out successfully!', 'info')
+  #return render_template('login-page.html')
+  return redirect(url_for('loginpage'))
+
 
 #Dashboard modules - Admin ||||||||||||||||||||||||||||||||||||||||||||||||||||||
 @app.route("/admindashboard")
 def dashboard_admin():
-  print(f"Username: {loggedinuser.UserName}")
-  return render_template('dashboard-admin.html')
+  return render_template('/admin/dashboard-admin.html')
 
 @app.route("/createticker")
 def create_ticker():
-  return render_template('ticker-create.html')
+  return render_template('/admin/ticker-create.html')
 
 @app.route("/showadmintickers")
 def show_tickers_admin():
   alltickers = load_tickers_from_db()
-  return render_template('show-ticker-admin.html', tickers=alltickers)
+  return render_template('/admin/show-ticker-admin.html', tickers=alltickers)
 
 @app.route("/showusers")
 def show_users():
   allusers = load_users_from_db()
-  return render_template('show-users.html', users=allusers)
+  return render_template('/admin/show-users.html', users=allusers)
 
 
 #Dashboard modules - Users |||||||||||||||||||||||||||||||||||||||||||||||||||||
 @app.route("/userdashboard")
 def dashboard_user():
-  return render_template('dashboard-user.html')
+  return render_template('/users/dashboard-user.html')
 
 @app.route("/showtickers")
 def show_tickers():
   alltickers = load_tickers_from_db()
-  return render_template('show-tickers-basic.html', tickers=alltickers)
+  return render_template('/users/show-tickers-basic.html', tickers=alltickers)
 
 
 
@@ -127,10 +147,13 @@ loggedinuser = User()
 @app.route('/create_user', methods=['POST'])
 def create_user():
   username = request.form['username']
+  if len(username) == 0:
+     username = request.form['email']
+
   email = request.form['email']
   password = request.form['psw']
-  role = request.form['users']
-
+  #role = request.form['users']
+  role = "General"
   # Create a session
   Session = sessionmaker(bind=engine)
   session = Session()
@@ -150,7 +173,8 @@ def create_user():
     flash('User registration done, please Login !', 'info')
   except Exception as e:
     session.rollback()  # Rollback in case of error
-    flash('Seems like User is already exists !', 'error')
+    print(f'An error occurred-create_user: {e}')
+    flash('Facing some issue while user registration. Try later !', 'error')
     return render_template('login-page.html')
     #return f'An error occurred: {e}'
   finally:
@@ -162,10 +186,11 @@ def create_user():
 
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
-@app.route('/load_dashboard', methods=['POST'])
+@app.route('/load_dashboard', methods=['POST', 'GET'])
 def load_dashboard():
   # Get the form data
-  username = request.form['username']
+  #username = request.form['username']
+  email = request.form['email']
   password = request.form['psw']
 
   """if username == "Admin" and password == "Admin":
@@ -180,32 +205,42 @@ def load_dashboard():
 
   try:
       # Query the user by username and password
-      user = session.query(User).filter_by(UserName=username, UserPassword=password).first()
+      user = session.query(User).filter_by(Email=email, UserPassword=password).first()
       # Add the new user to the session
-      
+      print("==>" , user.UserName)
+      print("==>" , user.UserRole)
       if user:
-          loggedinuser = user
-          session.add(loggedinuser)
+          #login_user(user, remember="True")
           # User found, return user details
           if user.UserRole == "Admin":
-            return render_template('dashboard-admin.html')
+            #return render_template('/admin/dashboard-admin.html')
+            return redirect(url_for('loadadmindashboard'))
           else:
-            return render_template('dashboard-user.html')
+            #return render_template('/users/dashboard-user.html')
+            return redirect(url_for('loaduserdashboard'))
       else:
-          flash('Wrong username or password! Try again !', 'error')
+          flash('Wrong username or password! Please Try again !', 'error')
           return render_template('login-page.html')
   except Exception as e:
-      return f'An error occurred: {e}'
+      flash('Problem occured while login! Please Try later !', 'error')
+      return redirect(url_for('loginpage'))
   finally:
       session.close()  # Close the session
 
+@app.route("/loadadmindashboard")
+def loadadmindashboard():
+  return render_template('/admin/dashboard-admin.html')
 
-@app.route('/update_user', methods=['POST'])
-def update_user():
-  username = request.form['username']
-  new_email = request.form['email']
-  new_password = request.form['psw']
-  new_role = request.form['users']
+@app.route("/loaduserdashboard")
+def loaduserdashboard():
+  return render_template('/users/dashboard-user.html')
+
+
+@app.route('/updatepass', methods=['POST'])
+def updateuser():
+  email = request.form['email']
+  old_pass = request.form['current-password']
+  new_pass = request.form['new-password']
 
   # Create a session
   Session = sessionmaker(bind=engine)
@@ -213,29 +248,33 @@ def update_user():
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(UserName=username).first()
+      user = session.query(User).filter_by(Email=email).first()
 
       if user:
           # Update the user's details
-          user.Email = new_email
-          user.UserPassword = new_password
-          user.UserRole = new_role
+          if user.UserPassword == old_pass:
+            user.UserPassword = new_pass
+            flash('Password updated successfully !', 'info')
+          else:
+             flash('User existing password is not matching. Try again !', 'error')
+          
 
           # Commit the session to save changes to the database
           session.commit()
-          return f'User {username} updated successfully'
+          #return f'User {user} updated successfully'
       else:
-          return 'User not found'
+          flash('Email address not found !', 'error')
   except Exception as e:
       session.rollback()  # Rollback in case of error
       return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
 
+  return redirect(url_for('logout'))
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
-  username = request.form['username']
+  email = request.form['user_id']
 
   # Create a session
   Session = sessionmaker(bind=engine)
@@ -243,7 +282,7 @@ def delete_user():
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(UserName=username).first()
+      user = session.query(User).filter_by(Email=email).first()
 
       if user:
           # Delete the user from the session
@@ -251,14 +290,29 @@ def delete_user():
 
           # Commit the session to remove the user from the database
           session.commit()
-          return f'User {username} deleted successfully'
+          flash('User deleted successfully !', 'info')
       else:
-          return 'User not found'
+          flash('User not found !', 'error')
   except Exception as e:
       session.rollback()  # Rollback in case of error
-      return f'An error occurred: {e}'
+      flash('Problem occured in databse while deleting !', 'error')
+      #return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
+  return redirect(url_for('manageuser'))
+
+
+@app.route('/upgrade_user', methods=['POST'])
+def upgrade_user():
+  flash('Upgrade user will be working soon !', 'info')
+  return redirect(url_for('manageuser'))
+
+
+@app.route('/disable_user', methods=['POST'])
+def disable_user():
+  flash('Disable user will be working soon !', 'info')
+  return redirect(url_for('manageuser'))
+
 
 
 
@@ -320,53 +374,51 @@ def save_ticker():
   finally:
     session.close()  # Close the session
 
-  return render_template('dashboard-admin.html')
-
-
-@app.route('/admindashboard')
-def dashboard():
-  if 'username' in session:
-    return f'Welcome, {session["username"]}! This is your dashboard.'
-  else:
-    flash('You are not logged in. Please log in first.', 'danger')
-    return redirect(url_for('home'))
-
-
-
+  return render_template('/admin/dashboard-admin.html')
 
 
 #print(__name__)
 
 # Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
+
+#Admin based
 @app.route("/adminpanel")
 def adminpanel():
-  return render_template('draft.html')
+  return render_template('/admin/draft.html')
 
 @app.route("/manageticker")
 def manageticker():
-  return render_template('draft.html')
+  return render_template('/admin/draft.html')
 
 @app.route("/manageuser")
 def manageuser():
   allusers = load_users_from_db()
-  return render_template('user-manage.html', users=allusers)
+  return render_template('/admin/user-manage.html', users=allusers)
+
+@app.route("/adminprofile")
+def adminprofile():
+  return render_template('/admin/admin-profile.html')
+
+@app.route("/adminusercreate")
+def adminusercreate():
+  return render_template('/admin/user-register-admin.html')
+
+@app.route("/resetpassword")
+def resetpassword():
+  return render_template('/admin/reset-pass.html')
+
+#User based
+@app.route("/userpanel")
+def userpanel():
+  return render_template('/users/draft.html')
 
 @app.route("/userprofile")
 def userprofile():
-  return render_template('draft.html')
+  return render_template('/users/draft.html')
 
-@app.route("/generaluserprofile")
-def generaluserprofile():
-  return render_template('draft-user.html')
 
-@app.route('/logout')
-def logout():
-  #session.clear()  # Clear all session data
-  flash('You have been logged out successfully!', 'info')
-  #return render_template('login-page.html')
-  return redirect(url_for('loginpage'))
 
-# Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
+# Menu Bar functions ENDs |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
 
 
 # Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!

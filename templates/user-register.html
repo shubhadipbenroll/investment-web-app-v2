@@ -126,64 +126,97 @@
       }
     }
   </style>
-</head>
-
-<body>
-
-  <form action="/create_user" method="POST" onsubmit="return validatePasswords()" >
-    <div class="container">
-      <h1>User Registration</h1>
-
-      <label for="username"><b>User Name</b></label>
-      <input type="text" placeholder="Enter User Name" name="username" id="username" required>
-
-      <label for="email"><b>Email</b></label>
-      <input type="text" placeholder="Enter Email" name="email" id="email" required>
-
-      <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
-
-      <label for="psw-repeat"><b>Repeat Password</b></label>
-      <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
-
-      <label for="users"><b>Choose Your Role</b></label>
-      <select id="users" name="users" required>
-        <option value="Admin" selected>Admin</option>
-        <option value="General">General</option>
-      </select>
-
-      <p>By creating an account, you agree to our <a href="#">Terms & Privacy</a>.</p>
-
-      <button type="submit" class="registerbtn">Register</button>
-    </div>
-
-    <div class="container signin">
-      <p>Already have an account? <a href="/loginpage">Sign in</a>.</p>
-    </div>
-  </form>
-
   <script>
     function validatePasswords() {
-      // Retrieve the password and repeat password input values
       var password = document.getElementById("psw").value;
       var repeatPassword = document.getElementById("psw-repeat").value;
-
-      // Get the error message element
+      var email = document.getElementById("email").value;
       var errorMessage = document.getElementById("error-message");
-
-      // Check if the passwords match
+  
+      // Email Validation: Ensure email contains '@'
+      if (!email.includes('@')) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Invalid email address! Email must contain '@'.";
+        return false;
+      }
+  
+      // Password Complexity Check: At least 8 chars, 1 uppercase, 1 number, 1 special char
+      var passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+      if (!passwordPattern.test(password)) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.";
+        return false;
+      }
+  
+      // Password Match Check
       if (password !== repeatPassword) {
-        // Display error message and prevent form submission
         errorMessage.style.display = "block";
         errorMessage.textContent = "Passwords do not match!";
         return false;
+      }
+  
+      // If all validations pass
+      errorMessage.style.display = "none";
+      return true;
+    }
+  
+    // Function to toggle the visibility of the password fields
+    function togglePasswordVisibility(id) {
+      var passwordField = document.getElementById(id);
+      var eyeIcon = document.getElementById(id + "-eye");
+  
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.classList.add("fa-eye-slash");
+        eyeIcon.classList.remove("fa-eye");
       } else {
-        // Hide error message and allow form submission
-        errorMessage.style.display = "none";
-        return true;
+        passwordField.type = "password";
+        eyeIcon.classList.add("fa-eye");
+        eyeIcon.classList.remove("fa-eye-slash");
       }
     }
   </script>
-</body>
+  
+  <!-- Including FontAwesome for eye icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <body>
+  
+    <form action="/create_user" method="POST" onsubmit="return validatePasswords();">
+      <div class="container">
+        <h1>User Registration</h1>
+  
+        <label for="email"><b>Email*</b></label>
+        <input type="text" placeholder="Enter Email" name="email" id="email" required>
+  
+        <label for="username"><b>Full Name</b></label>
+        <input type="text" placeholder="Full Name" name="username" id="username">
+  
+        <label for="psw"><b>Password*</b></label>
+        <div style="position: relative;">
+          <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+          <i class="fas fa-eye" id="psw-eye" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="togglePasswordVisibility('psw')"></i>
+        </div>
+  
+        <label for="psw-repeat"><b>Repeat Password*</b></label>
+        <div style="position: relative;">
+          <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
+          <i class="fas fa-eye" id="psw-repeat-eye" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="togglePasswordVisibility('psw-repeat')"></i>
+        </div>
+  
+        <!-- Error message area -->
+        <p id="error-message" style="color: red; display: none;"></p>
+  
+        <p>By creating an account, you agree to our <a href="#">Terms & Privacy</a>.</p>
+  
+        <button type="submit" class="registerbtn">Register</button>
+      </div>
+  
+      <div class="container signin">
+        <p>Already have an account? <a href="/loginpage">Sign in</a>.</p>
+      </div>
+    </form>
+  </body>
+  
 
 </html>
