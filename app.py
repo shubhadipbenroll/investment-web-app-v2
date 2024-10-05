@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+import flask  # Import Flask explicitly for session handling
 from database import engine
 from sqlalchemy import text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-from functools import wraps
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user, current_user
-
+from flask import make_response
 
 app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
@@ -18,9 +18,13 @@ login_manager.login_view = 'loginpage'
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(UserID):
-    print("Logged in user-id: ",UserID)
-    return User.query.get(int(UserID))
+def load_user(id):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    id = session.query(User).filter_by(UserID=id).first()
+    print("Logged in user-id: ",id)
+    session.close()
+    return id
 
 
 # DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -78,14 +82,7 @@ def resetuser():
 def resetuserdone():
   return render_template('login-page.html')
 
-@app.route('/logout')
-@login_required
-def logout():
-  logout_user()
-  #session.clear()  # Clear all session data
-  flash('You have been logged out successfully!', 'info')
-  #return render_template('login-page.html')
-  return redirect(url_for('loginpage'))
+
 
 
 #Dashboard modules - Admin ||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -120,8 +117,9 @@ def show_tickers():
 
 
 
-
+# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 Base = declarative_base()
 
 # Define the User model
@@ -134,7 +132,33 @@ class User(Base):
   Email = Column(String, nullable=False)
   UserPassword = Column(String, nullable=False)
   UserRole = Column(String, nullable=False)
+  id = UserID
+  username = UserName
+  #generated
+  # Example attributes
+  def __init__(self, id, username, active=True):
+      self.id = id
+      self.username = username
+      self.active = active
 
+  # Flask-Login requires this method
+  def is_authenticated(self):
+      return True
+
+  # Flask-Login requires this method to determine if the user is active
+  def is_active(self):
+      # You can add custom logic here if you want to deactivate users
+      return self.active
+
+  # Flask-Login requires this method
+  def is_anonymous(self):
+      return False
+
+  # Flask-Login requires this method
+  def get_id(self):
+      # Must return a string or bytes that uniquely identifies this user
+      return str(self.id)
+  
 
 # Create the users table if it doesn't exist already
 Base.metadata.create_all(engine)
@@ -142,8 +166,8 @@ Base.metadata.create_all(engine)
 # Set up the session maker
 Session = sessionmaker(bind=engine)
 session = Session()
-loggedinuser = User()
 
+# CREATE USER .............................................................
 @app.route('/create_user', methods=['POST'])
 def create_user():
   username = request.form['username']
@@ -182,95 +206,6 @@ def create_user():
 
   return render_template('login-page.html')
   #return 'User created successfully'
-
-
-
-#<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
-@app.route('/load_dashboard', methods=['POST', 'GET'])
-def load_dashboard():
-  # Get the form data
-  #username = request.form['username']
-  email = request.form['email']
-  password = request.form['psw']
-
-  """if username == "Admin" and password == "Admin":
-    return render_template('dashboard-admin.html')
-  else:
-    flash('Wrong username or password!', 'error')
-    return render_template('login-page.html')"""
-    
-  # Create a session
-  Session = sessionmaker(bind=engine)
-  session = Session()
-
-  try:
-      # Query the user by username and password
-      user = session.query(User).filter_by(Email=email, UserPassword=password).first()
-      # Add the new user to the session
-      print("==>" , user.UserName)
-      print("==>" , user.UserRole)
-      if user:
-          #login_user(user, remember="True")
-          # User found, return user details
-          if user.UserRole == "Admin":
-            #return render_template('/admin/dashboard-admin.html')
-            return redirect(url_for('loadadmindashboard'))
-          else:
-            #return render_template('/users/dashboard-user.html')
-            return redirect(url_for('loaduserdashboard'))
-      else:
-          flash('Wrong username or password! Please Try again !', 'error')
-          return render_template('login-page.html')
-  except Exception as e:
-      flash('Problem occured while login! Please Try later !', 'error')
-      return redirect(url_for('loginpage'))
-  finally:
-      session.close()  # Close the session
-
-@app.route("/loadadmindashboard")
-def loadadmindashboard():
-  return render_template('/admin/dashboard-admin.html')
-
-@app.route("/loaduserdashboard")
-def loaduserdashboard():
-  return render_template('/users/dashboard-user.html')
-
-
-@app.route('/updatepass', methods=['POST'])
-def updateuser():
-  email = request.form['email']
-  old_pass = request.form['current-password']
-  new_pass = request.form['new-password']
-
-  # Create a session
-  Session = sessionmaker(bind=engine)
-  session = Session()
-
-  try:
-      # Query the user by username
-      user = session.query(User).filter_by(Email=email).first()
-
-      if user:
-          # Update the user's details
-          if user.UserPassword == old_pass:
-            user.UserPassword = new_pass
-            flash('Password updated successfully !', 'info')
-          else:
-             flash('User existing password is not matching. Try again !', 'error')
-          
-
-          # Commit the session to save changes to the database
-          session.commit()
-          #return f'User {user} updated successfully'
-      else:
-          flash('Email address not found !', 'error')
-  except Exception as e:
-      session.rollback()  # Rollback in case of error
-      return f'An error occurred: {e}'
-  finally:
-      session.close()  # Close the session
-
-  return redirect(url_for('logout'))
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -313,9 +248,7 @@ def disable_user():
   flash('Disable user will be working soon !', 'info')
   return redirect(url_for('manageuser'))
 
-
-
-
+# CREATE TICKER .............................................................
 class Ticker(Base):
   __tablename__ = 'Tickers'  # The name of the table in the database
 
@@ -377,6 +310,102 @@ def save_ticker():
   return render_template('/admin/dashboard-admin.html')
 
 
+
+#<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
+@app.route('/load_dashboard', methods=['POST', 'GET'])
+def load_dashboard():
+  # Get the form data
+  #username = request.form['username']
+  email = request.form['email']
+  password = request.form['psw']
+    
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+      # Query the user by username and password
+      user = session.query(User).filter_by(Email=email, UserPassword=password).first()
+      # Add the new user to the session
+      #print("==>" , user.UserName)
+      #print("==>" , user.UserRole)
+      if user:
+          login_user(user,remember=True, duration=None, force=True, fresh=True) # Flask-Login will now work as expected
+          # User found, return user details
+          if user.UserRole == "Admin":
+            #return render_template('/admin/dashboard-admin.html')
+            return redirect(url_for('loadadmindashboard'))
+          else:
+            #return render_template('/users/dashboard-user.html')
+            return redirect(url_for('loaduserdashboard'))
+      else:
+          flash('Wrong username or password! Please Try again !', 'error')
+          return render_template('login-page.html')
+  except Exception as e:
+      print(f'An error occurred: {e}')
+      flash('Problem occured while login! Please Try later !', 'error')
+      return redirect(url_for('loginpage'))
+  finally:
+      session.close()  # Close the session
+
+@app.route("/loadadmindashboard")
+@login_required
+def loadadmindashboard():
+  return render_template('/admin/dashboard-admin.html')
+
+@app.route("/loaduserdashboard")
+@login_required
+def loaduserdashboard():
+  if current_user.is_authenticated:
+    return render_template('/users/dashboard-user.html')
+  else:
+     return render_template('login-page.html')
+
+@app.route("/loaduserdashboard2")
+@login_required
+def loaduserdashboard2():
+    response = make_response(render_template('/users/dashboard-user.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    return response
+
+@app.route('/updatepass', methods=['POST'])
+def updateuser():
+  email = request.form['email']
+  old_pass = request.form['current-password']
+  new_pass = request.form['new-password']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+      # Query the user by username
+      user = session.query(User).filter_by(Email=email).first()
+
+      if user:
+          # Update the user's details
+          if user.UserPassword == old_pass:
+            user.UserPassword = new_pass
+            flash('Password updated successfully !', 'info')
+          else:
+             flash('User existing password is not matching. Try again !', 'error')
+          
+
+          # Commit the session to save changes to the database
+          session.commit()
+          #return f'User {user} updated successfully'
+      else:
+          flash('Email address not found !', 'error')
+  except Exception as e:
+      session.rollback()  # Rollback in case of error
+      return f'An error occurred: {e}'
+  finally:
+      session.close()  # Close the session
+
+  return redirect(url_for('logout'))
+
 #print(__name__)
 
 # Menu Bar functions |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
@@ -414,14 +443,30 @@ def userpanel():
 
 @app.route("/userprofile")
 def userprofile():
-  return render_template('/users/draft.html')
+  return render_template('/users/user-profile.html', user=current_user)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+  print("==>", type(session))  # Debugging line to check the session type
+  logout_user()
+  flask.session.clear()  # Clear all session data
+  flash('You have been logged out successfully!', 'info')
+  #return render_template('login-page.html')
+  return redirect(url_for('loginpage'))
 
 # Menu Bar functions ENDs |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
 
-
+@app.after_request
+def add_header(response):
+    # Disable caching to prevent going back to the previous pages after logout
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 # Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if __name__ == "__main__":
+  #app.run()
   app.run(host='0.0.0.0', port='3001', debug=True)

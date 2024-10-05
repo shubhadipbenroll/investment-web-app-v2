@@ -37,6 +37,7 @@
       text-align: center;
       margin-bottom: 30px;
       color: #4682B4; /* Darker bluish color for text */
+      font-size: 24px; /* You can adjust this size as needed */
     }
 
     /* Input fields */
@@ -151,11 +152,13 @@
 </head>
 
 <body>
-
+  
   <!-- Login Form -->
   <div class="login-container">
+    <h1>Real-time Stock alert service</h1>
     <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo"> <!-- Placeholder for logo -->
     <h1>Login</h1>
+    
     <!-- Display flashed messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

@@ -1,0 +1,11 @@
+{% extends "/users/base.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <p>User is authenticated .... </p>
+{% endif %}
+
+{% endblock %}
