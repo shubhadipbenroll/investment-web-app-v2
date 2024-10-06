@@ -82,7 +82,9 @@
     }
 
     th {
-        background-color: #f2f2f2;
+        background-color: #007bff; /* Header color */
+        color: white; /* Text color for header */
+        cursor: pointer; /* Indicate sortable columns */
     }
 
     tr:nth-child(even) {
@@ -124,7 +126,6 @@
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-
         .header,
         .container {
             width: 100%;
@@ -137,6 +138,7 @@
         }
     }
 </style>
+
 <!-- Main container -->
 <div class="container">
     <!-- Search bar -->
@@ -149,18 +151,15 @@
     <table id="tickerTable">
         <thead>
             <tr>
-                <th>Ticker-Id</th>
-                <th>User-Name</th>
-                <th>Ticker-Name</th>
-                <th>Entry Price</th>
-                <th>Stop %</th>
-                <th>Stop Price</th>
-                <th>Target-1</th>
-                <th>Target-2</th>
-                <th>Target-3</th>
-                <th>Target-4</th>
-                <th>Created-Date</th>
-                <th>Ticker-Status</th>
+                <th onclick="sortTable(0)">Ticker-Name</th>
+                <th onclick="sortTable(1)">Entry Price</th>
+                <th onclick="sortTable(2)">Stop %</th>
+                <th onclick="sortTable(3)">Stop Price</th>
+                <th onclick="sortTable(4)">Target-1</th>
+                <th onclick="sortTable(5)">Target-2</th>
+                <th onclick="sortTable(6)">Target-3</th>
+                <th onclick="sortTable(7)">Target-4</th>
+                <th onclick="sortTable(8)">Ticker-Date</th>
             </tr>
         </thead>
         <tbody>
@@ -198,6 +197,27 @@
 
             tr[i].style.display = matchFound ? "" : "none";
         }
+    }
+
+    // Function to sort the table
+    function sortTable(columnIndex) {
+        const table = document.getElementById("tickerTable");
+        const tbody = table.getElementsByTagName("tbody")[0];
+        const rows = Array.from(tbody.getElementsByTagName("tr"));
+        const isAscending = tbody.getAttribute("data-order") === "asc";
+
+        // Sort rows based on the column index
+        rows.sort((a, b) => {
+            const aText = a.getElementsByTagName("td")[columnIndex].innerText;
+            const bText = b.getElementsByTagName("td")[columnIndex].innerText;
+            return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        });
+
+        // Append sorted rows to the tbody
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Toggle order attribute
+        tbody.setAttribute("data-order", isAscending ? "desc" : "asc");
     }
 </script>
 {% endblock %}

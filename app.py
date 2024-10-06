@@ -10,6 +10,13 @@ from flask import make_response
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
+from mailconfig import mail, app  # Import the mail instance and app
+from flask_mail import Mail, Message  # Import the Message class
+
+import os
+
+app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')
+app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
 
 app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
@@ -31,6 +38,7 @@ app.logger.addHandler(file_handler)
 
 with open('webapp-investinbulls.log', 'a') as log_test_file:
     log_test_file.write('Restart : webapp.invetsinbulls.net app started at : '+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+
 
 # Handing for login user management ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 login_manager = LoginManager()
@@ -77,6 +85,34 @@ def load_tickers_from_db():
   
   return ticker_list
 
+def load_tickers_for_users():
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate from Tickers where TickerStatus = 'Active'"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_for_users: {e}', exc_info=True)
+  
+  return ticker_list
+
+
+def load_tickers_for_admin():
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate,TickerStatus from Tickers"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_for_admin: {e}', exc_info=True)
+  
+  return ticker_list
 # DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
@@ -85,8 +121,6 @@ def load_tickers_from_db():
 # COMMON PAGES
 @app.route("/")
 def home():
-  var = 100
-  app.logger.info('This is an info log message for login page')
   return render_template('login-page.html')
 
 @app.route("/loginpage")
@@ -97,17 +131,30 @@ def loginpage():
 def user_register():
   return render_template('user-register.html')
 
-@app.route("/resetpass")
+#Common
+@app.route("/reset_pass")
 def reset_pass():
   return render_template('reset-pass.html')
 
-#Common
-@app.route("/resetuser")
-def resetuser():
-  return render_template('reset-userinfo.html')
+@app.route("/send_pass_email", methods=['POST'])
+def send_pass_email():
+  email = request.form['email']
 
-@app.route("/resetuserdone")
-def resetuserdone():
+  # Create the welcome message
+  subject = "Welcome to Our Service!"
+  body = "Dear User,\n\nThank you for joining us! We are excited to have you on board.\n\nBest Regards,\nYour Team"
+
+  # Send the email
+  msg = Message(subject, recipients=[email])
+  msg.body = body
+
+  try:
+      mail.send(msg)
+      flash('Welcome email sent successfully!', 'success')
+  except Exception as e:
+      flash(f'Failed to send email: {str(e)}', 'error')
+      
+  flash('Password sent to your email. Please check !', 'info')
   return render_template('login-page.html')
 
 
@@ -124,8 +171,8 @@ def create_ticker():
 
 @app.route("/showadmintickers")
 def show_tickers_admin():
-  alltickers = load_tickers_from_db()
-  return render_template('/admin/show-ticker-admin.html', tickers=alltickers)
+  admintickers = load_tickers_for_admin()
+  return render_template('/admin/show-ticker-admin.html', tickers=admintickers)
 
 @app.route("/showusers")
 def show_users():
@@ -138,10 +185,10 @@ def show_users():
 def dashboard_user():
   return render_template('/users/dashboard-user.html')
 
-@app.route("/showtickers")
-def show_tickers():
-  alltickers = load_tickers_from_db()
-  return render_template('/users/show-tickers-basic.html', tickers=alltickers)
+@app.route("/show_ticker_user")
+def show_ticker_user():
+  usertickers = load_tickers_for_users()
+  return render_template('/users/show-tickers-user.html', tickers=usertickers)
 
 
 
@@ -396,6 +443,99 @@ def save_ticker():
   return render_template('/admin/dashboard-admin.html')
 
 
+@app.route('/delete_ticker', methods=['POST'])
+def delete_ticker():
+  tickername = request.form['ticker_name']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+      # Query the user by username
+      ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+
+      if ticker:
+          # Delete the user from the session
+          session.delete(ticker)
+
+          # Commit the session to remove the user from the database
+          session.commit()
+          flash('Ticker deleted successfully !', 'info')
+      else:
+          flash('Ticker not found !', 'error')
+  except Exception as e:
+      session.rollback()  # Rollback in case of error
+      flash('Problem occured in database while deleting !', 'error')
+      app.logger.error(f'An error occurred in delete_ticker: {e}', exc_info=True)
+      #return f'An error occurred: {e}'
+  finally:
+      session.close()  # Close the session
+  return redirect(url_for('manageticker'))
+
+
+@app.route('/active_ticker', methods=['POST'])
+def active_ticker():
+    tickername = request.form['ticker_name']
+
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        # Query the user by email
+        ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+
+        if ticker:
+            # Promote the ticker to 'Active'
+            ticker.TickerStatus = 'Active'
+
+            # Commit the session to save changes to the database
+            session.commit()
+            flash('Ticker updated : Active!', 'info')
+        else:
+            flash('Ticker not found!', 'error')
+    except Exception as e:
+        session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while making Active ticker!', 'error')
+        app.logger.error(f'An error occurred in active_ticker: {e}', exc_info=True)
+    finally:
+        session.close()  # Close the session
+
+    return redirect(url_for('manageticker'))
+
+
+
+@app.route('/inactive_ticker', methods=['POST'])
+def inactive_ticker():
+    tickername = request.form['ticker_name']
+
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        # Query the user by email
+        ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+
+        if ticker:
+            # Promote the ticker to 'Incctive'
+            ticker.TickerStatus = 'Inactive'
+
+            # Commit the session to save changes to the database
+            session.commit()
+            flash('Ticker updated : Inactive!', 'info')
+        else:
+            flash('Ticker not found!', 'error')
+    except Exception as e:
+        session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while makeing Inactive ticker!', 'error')
+        app.logger.error(f'An error occurred in inactive_ticker: {e}', exc_info=True)
+    finally:
+        session.close()  # Close the session
+
+    return redirect(url_for('manageticker'))
+
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/auth_user', methods=['POST', 'GET'])
@@ -508,7 +648,8 @@ def adminpanel():
 
 @app.route("/manageticker")
 def manageticker():
-  return render_template('/admin/draft.html')
+  alltickers = load_tickers_from_db()
+  return render_template('/admin/manage-tickers.html', tickers=alltickers)
 
 @app.route("/manageuser")
 def manageuser():
@@ -523,9 +664,9 @@ def adminprofile():
 def adminusercreate():
   return render_template('/admin/user-register-admin.html')
 
-@app.route("/resetpassword")
-def resetpassword():
-  return render_template('/admin/reset-pass.html')
+@app.route("/update_admin_pass")
+def update_admin_pass():
+  return render_template('/admin/update-pass.html')
 
 #User based
 @app.route("/userpanel")

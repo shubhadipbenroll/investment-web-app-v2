@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset / Update Password</title>
+  <title>Reset Password</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <style>
     /* General styles */
@@ -126,61 +126,6 @@
     }
   </style>
 
-  <script>
-    // Toggle password visibility
-    function togglePasswordVisibility(fieldId, eyeIconId) {
-      const passwordField = document.getElementById(fieldId);
-      const eyeIcon = document.getElementById(eyeIconId);
-
-      if (passwordField.type === "password") {
-        passwordField.type = "text";
-        eyeIcon.classList.remove("fa-eye");
-        eyeIcon.classList.add("fa-eye-slash");
-      } else {
-        passwordField.type = "password";
-        eyeIcon.classList.remove("fa-eye-slash");
-        eyeIcon.classList.add("fa-eye");
-      }
-    }
-
-    // Password validation
-    function validatePasswords() {
-      var email = document.getElementById("email").value;
-      var currentPassword = document.getElementById("current-password").value;
-      var newPassword = document.getElementById("new-password").value;
-      var repeatPassword = document.getElementById("repeat-password").value;
-      var errorMessage = document.getElementById("error-message");
-
-      if (!email.includes('@')) {
-        errorMessage.textContent = "Invalid email address! It must contain '@'.";
-        errorMessage.style.display = "block";
-        return false;
-      }
-
-      var passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-      if (!passwordPattern.test(newPassword)) {
-        errorMessage.textContent = "New password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.";
-        errorMessage.style.display = "block";
-        return false;
-      }
-
-      if (newPassword === currentPassword) {
-        errorMessage.textContent = "New password must not be the same as the current password.";
-        errorMessage.style.display = "block";
-        return false;
-      }
-
-      if (newPassword !== repeatPassword) {
-        errorMessage.textContent = "New password and repeat password do not match.";
-        errorMessage.style.display = "block";
-        return false;
-      }
-
-      errorMessage.style.display = "none";
-      return true;
-    }
-  </script>
-
 </head>
 
 <body>
@@ -188,20 +133,18 @@
   <!-- Reset Password Form -->
   <div class="reset-container">
     <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo">
-    <h1>Reset User</h1>
-    <form action="/resetuserdone" method="POST" onsubmit="return validatePasswords();">
+    <h1>Reset Password</h1>
+    <form action="/send_pass_email" method="POST">
       <div class="icon-input">
         <label for="email"><b>Email Address</b></label>
         <i class="fa fa-envelope fa-lg"></i>
         <input type="text" id="email" name="email" placeholder="Enter your email" required>
       </div>
 
-      
+      <button type="submit" class="reset-btn">Send Password</button>
 
-      <!-- Error message display area -->
-      <p id="error-message" class="error-message"></p>
-
-      <button type="submit" class="reset-btn">Send User details</button>
+      </p>* If you don't receive any email </p>
+      </p>  Please connect with support team : support@investinbulls.net </p>
     </form>
   </div>
 

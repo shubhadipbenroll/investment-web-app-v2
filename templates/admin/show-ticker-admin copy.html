@@ -146,8 +146,31 @@
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search tickers...">
         <button onclick="filterTable()">Search</button>
+    </div>
+
+    <!-- Filter dropdowns -->
+    <div class="search-bar">
+        <select id="userFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select User</option>
+            <option value="Admin">Admin</option>
+            <option value="General">General</option>
+        </select>
+
         
-        <!-- Filter dropdown for Status -->
+
+        <select id="dateFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select Date</option>
+            {% set unique_dates = [] %}
+            {% for t in tickers %}
+                {% if t[10] not in unique_dates %}
+                    {% set unique_dates = unique_dates + [t[10]] %}
+                {% endif %}
+            {% endfor %}
+            {% for date in unique_dates %}
+                <option value="{{ date }}">{{ date }}</option>
+            {% endfor %}
+        </select>
+
         <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
             <option value="">Select Status</option>
             <option value="Active">Active</option>
@@ -159,22 +182,24 @@
     <table id="tickerTable">
         <thead>
             <tr>
-                <th onclick="sortTable(0)">Ticker-Name</th>
-                <th onclick="sortTable(1)">Entry Price</th>
-                <th onclick="sortTable(2)">Stop %</th>
-                <th onclick="sortTable(3)">Stop Price</th>
-                <th onclick="sortTable(4)">Target-1</th>
-                <th onclick="sortTable(5)">Target-2</th>
-                <th onclick="sortTable(6)">Target-3</th>
-                <th onclick="sortTable(7)">Target-4</th>
-                <th onclick="sortTable(8)">Created-Date</th>
-                <th onclick="sortTable(9)">Ticker-Status</th>
+                <th onclick="sortTable(0)">Ticker-Id</th>
+                <th onclick="sortTable(1)">User-Name</th>
+                <th onclick="sortTable(2)">Ticker-Name</th>
+                <th onclick="sortTable(3)">Entry Price</th>
+                <th onclick="sortTable(4)">Stop %</th>
+                <th onclick="sortTable(5)">Stop Price</th>
+                <th onclick="sortTable(6)">Target-1</th>
+                <th onclick="sortTable(7)">Target-2</th>
+                <th onclick="sortTable(8)">Target-3</th>
+                <th onclick="sortTable(9)">Target-4</th>
+                <th onclick="sortTable(10)">Created-Date</th>
+                <th onclick="sortTable(11)">Ticker-Status</th>
             </tr>
         </thead>
         <tbody>
             {% for t in tickers %}
             <tr>
-                {% for i in t %}  
+                {% for i in t %}
                 <td>{{ i }}</td>
                 {% endfor %}
             </tr>
@@ -187,7 +212,9 @@
     // Function to filter table rows based on search input and dropdown filters
     function filterTable() {
         const input = document.getElementById('searchInput');
+        const userFilter = document.getElementById('userFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
         const filter = input.value.toUpperCase();
         const table = document.getElementById('tickerTable');
         const tr = table.getElementsByTagName('tr');
@@ -206,11 +233,13 @@
                 }
             }
 
-            // Check for status filter
-            const statusMatch = statusFilter === "" || tdArray[9].innerText === statusFilter; // Adjusted index for Ticker-Status
+            // Check for user and status filters
+            const userMatch = userFilter === "" || tdArray[1].innerText === userFilter; // User-Name is the 2nd column (index 1)
+            const statusMatch = statusFilter === "" || tdArray[11].innerText === statusFilter; // Ticker-Status is the 12th column (index 11)
+            const dateMatch = dateFilter === "" || tdArray[10].innerText === dateFilter; // Created-Date is the 11th column (index 10)
 
             // Show or hide row based on all filters
-            tr[i].style.display = (matchFound && statusMatch) ? "" : "none";
+            tr[i].style.display = (matchFound && userMatch && statusMatch && dateMatch) ? "" : "none";
         }
     }
 
