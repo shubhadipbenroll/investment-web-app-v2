@@ -19,7 +19,7 @@ app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.logger.setLevel(logging.INFO)
 
 # Create rotating file handler
-file_handler = RotatingFileHandler('webapp-investinbulls.log', maxBytes=5*1024*1024, backupCount=5)
+file_handler = RotatingFileHandler('webapp-investinbulls.log', maxBytes=50*1024*1024, backupCount=5)
 file_handler.setLevel(logging.INFO)
 
 # Define log format
@@ -271,24 +271,67 @@ def delete_user():
   return redirect(url_for('manageuser'))
 
 
-@app.route('/upgrade_user', methods=['POST'])
-def upgrade_user():
-  try:
-    flash('Upgrade user will be working soon !', 'info')
-  except Exception as e:
-    app.logger.error(f'An error occurred in upgrade_user: {e}', exc_info=True)
-  
-  return redirect(url_for('manageuser'))
+@app.route('/promote_user', methods=['POST'])
+def promote_user():
+    email = request.form['user_id']  # Get the email from the form
+
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        # Query the user by email
+        user = session.query(User).filter_by(Email=email).first()
+
+        if user:
+            # Promote the user to 'Admin'
+            user.UserRole = 'Admin'
+
+            # Commit the session to save changes to the database
+            session.commit()
+            flash('User promoted to Admin successfully!', 'info')
+        else:
+            flash('User not found!', 'error')
+    except Exception as e:
+        session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while promoting user!', 'error')
+        app.logger.error(f'An error occurred in promote_user: {e}', exc_info=True)
+    finally:
+        session.close()  # Close the session
+
+    return redirect(url_for('manageuser'))
 
 
-@app.route('/disable_user', methods=['POST'])
-def disable_user():
-  try:
-    flash('Disable user will be working soon !', 'info')
-  except Exception as e:
-    app.logger.error(f'An error occurred in disable_user: {e}', exc_info=True)
-  
-  return redirect(url_for('manageuser'))
+
+@app.route('/demote_user', methods=['POST'])
+def demote_user():
+    email = request.form['user_id']  # Get the email from the form
+
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        # Query the user by email
+        user = session.query(User).filter_by(Email=email).first()
+
+        if user:
+            # Promote the user to 'Admin'
+            user.UserRole = 'General'
+
+            # Commit the session to save changes to the database
+            session.commit()
+            flash('User demoted to General successfully!', 'info')
+        else:
+            flash('User not found!', 'error')
+    except Exception as e:
+        session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while demoting user!', 'error')
+        app.logger.error(f'An error occurred in demote_user: {e}', exc_info=True)
+    finally:
+        session.close()  # Close the session
+
+    return redirect(url_for('manageuser'))
 
 # CREATE TICKER .............................................................
 class Ticker(Base):
@@ -416,8 +459,8 @@ def loaduserdashboard2():
     response.headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     return response
 
-@app.route('/updatepass', methods=['POST'])
-def updateuser():
+@app.route('/update_pass', methods=['POST', 'GET'])
+def update_pass():
   email = request.form['email']
   old_pass = request.form['current-password']
   new_pass = request.form['new-password']
@@ -446,8 +489,9 @@ def updateuser():
           flash('Email address not found !', 'error')
   except Exception as e:
       session.rollback()  # Rollback in case of error
-      app.logger.error(f'An error occurred in updateuser: {e}', exc_info=True)
-      return f'An error occurred: {e}'
+      app.logger.error(f'An error occurred in update_pass: {e}', exc_info=True)
+      flash('Sorry! Unable to update the password, contact Administrator !', 'error')
+      return redirect(url_for('update_pass'))
   finally:
       session.close()  # Close the session
 

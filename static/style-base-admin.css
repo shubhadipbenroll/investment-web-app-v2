@@ -113,6 +113,28 @@ body {
     background-color: #f2dede;
     border-color: #ebccd1;
 }
+/* Example CSS to style flash messages */
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.flashes li {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.flashes li.info {
+    background-color: #d9edf7; /* Light blue background for info */
+    color: #31708f; /* Dark blue text for info */
+}
+
+.flashes li.error {
+    background-color: #f2dede; /* Light red background for error */
+    color: #a94442; /* Dark red text for error */
+}
 
 /* Responsive layout */
 @media (max-width: 600px) {

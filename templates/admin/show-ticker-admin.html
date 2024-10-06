@@ -79,10 +79,12 @@
     td {
         padding: 12px 15px;
         text-align: left;
+        cursor: pointer; /* Add cursor pointer to indicate clickable */
     }
 
     th {
-        background-color: #f2f2f2;
+        background-color: #007bff; /* Change header background color */
+        color: #fff; /* White text for header */
     }
 
     tr:nth-child(even) {
@@ -101,12 +103,13 @@
         align-items: center;
     }
 
-    .search-bar input[type="text"] {
-        width: 200px;
+    .search-bar input[type="text"],
+    .search-bar select {
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 16px;
+        margin-right: 10px;
     }
 
     .search-bar button {
@@ -124,14 +127,14 @@
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-
         .header,
         .container {
             width: 100%;
             padding: 10px;
         }
 
-        .search-bar input[type="text"] {
+        .search-bar input[type="text"],
+        .search-bar select {
             width: 100%;
             margin-bottom: 10px;
         }
@@ -145,22 +148,52 @@
         <button onclick="filterTable()">Search</button>
     </div>
 
+    <!-- Filter dropdowns -->
+    <div class="search-bar">
+        <select id="userFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select User</option>
+            <option value="Admin">Admin</option>
+            <option value="General">General</option>
+        </select>
+
+        
+
+        <select id="dateFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select Date</option>
+            {% set unique_dates = [] %}
+            {% for t in tickers %}
+                {% if t[10] not in unique_dates %}
+                    {% set unique_dates = unique_dates + [t[10]] %}
+                {% endif %}
+            {% endfor %}
+            {% for date in unique_dates %}
+                <option value="{{ date }}">{{ date }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+    </div>
+
     <!-- Table -->
     <table id="tickerTable">
         <thead>
             <tr>
-                <th>Ticker-Id</th>
-                <th>User-Name</th>
-                <th>Ticker-Name</th>
-                <th>Entry Price</th>
-                <th>Stop %</th>
-                <th>Stop Price</th>
-                <th>Target-1</th>
-                <th>Target-2</th>
-                <th>Target-3</th>
-                <th>Target-4</th>
-                <th>Created-Date</th>
-                <th>Ticker-Status</th>
+                <th onclick="sortTable(0)">Ticker-Id</th>
+                <th onclick="sortTable(1)">User-Name</th>
+                <th onclick="sortTable(2)">Ticker-Name</th>
+                <th onclick="sortTable(3)">Entry Price</th>
+                <th onclick="sortTable(4)">Stop %</th>
+                <th onclick="sortTable(5)">Stop Price</th>
+                <th onclick="sortTable(6)">Target-1</th>
+                <th onclick="sortTable(7)">Target-2</th>
+                <th onclick="sortTable(8)">Target-3</th>
+                <th onclick="sortTable(9)">Target-4</th>
+                <th onclick="sortTable(10)">Created-Date</th>
+                <th onclick="sortTable(11)">Ticker-Status</th>
             </tr>
         </thead>
         <tbody>
@@ -176,9 +209,12 @@
 </div>
 
 <script>
-    // Function to filter table rows based on search input
+    // Function to filter table rows based on search input and dropdown filters
     function filterTable() {
         const input = document.getElementById('searchInput');
+        const userFilter = document.getElementById('userFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
         const filter = input.value.toUpperCase();
         const table = document.getElementById('tickerTable');
         const tr = table.getElementsByTagName('tr');
@@ -190,13 +226,62 @@
             for (let j = 0; j < tdArray.length; j++) {
                 let td = tdArray[j];
                 if (td) {
+                    // Check for search input match
                     if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
                         matchFound = true;
                     }
                 }
             }
 
-            tr[i].style.display = matchFound ? "" : "none";
+            // Check for user and status filters
+            const userMatch = userFilter === "" || tdArray[1].innerText === userFilter; // User-Name is the 2nd column (index 1)
+            const statusMatch = statusFilter === "" || tdArray[11].innerText === statusFilter; // Ticker-Status is the 12th column (index 11)
+            const dateMatch = dateFilter === "" || tdArray[10].innerText === dateFilter; // Created-Date is the 11th column (index 10)
+
+            // Show or hide row based on all filters
+            tr[i].style.display = (matchFound && userMatch && statusMatch && dateMatch) ? "" : "none";
+        }
+    }
+
+    // Function to sort the table
+    function sortTable(n) {
+        const table = document.getElementById("tickerTable");
+        let switching = true;
+        let dir = "asc";
+        let switchCount = 0;
+
+        while (switching) {
+            switching = false;
+            const rows = table.rows;
+
+            for (let i = 1; i < (rows.length - 1); i++) {
+                let shouldSwitch = false;
+                const x = rows[i].getElementsByTagName("TD")[n];
+                const y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                if (dir === "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir === "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchCount++;
+            } else {
+                if (switchCount === 0 && dir === "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
         }
     }
 </script>

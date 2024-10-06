@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-{% with messages = get_flashed_messages(with_categories=true) %}
+<!--{% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div>
         {% for category, message in messages %}
@@ -10,7 +10,7 @@
         {% endfor %}
       </div>
     {% endif %}
-{% endwith %}
+{% endwith %}-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,7 +56,15 @@
             </button>
         </div>
     </div>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}   
     <!-- Main Content -->
     <!--<div class="dashboard-container"> -->
         {% block content %}

@@ -81,7 +81,8 @@
     }
 
     th {
-        background-color: #f2f2f2;
+        background-color: #007bff; /* Blue background for header */
+        color: #fff; /* White text for header */
     }
 
     tr:nth-child(even) {
@@ -136,9 +137,13 @@
         background-color: #0056b3;
     }
 
+    /* Dropdown filter styles */
+    .filter-dropdown {
+        margin-right: 10px;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
-
         .header,
         .container {
             width: 100%;
@@ -151,28 +156,41 @@
         }
     }
 </style>
+
 <!-- Main container -->
 <div class="container">
     <!-- Search bar -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search users...">
         <button onclick="filterTable()">Search</button>
-        
+    </div>
+
+    <!-- Filter dropdowns -->
+    <div class="search-bar">
+        <select id="roleFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select Role</option>
+            <option value="Admin">Admin</option>
+            <option value="General">General</option>
+        </select>
+
+        <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
+            <option value="">Select Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
     </div>
 
     <!-- Table -->
     <table id="userTable">
         <thead>
             <tr>
-               
-                
-                <th>Email-Address</th>
-                <th>User Name</th>
-                <th>Password</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Creation Date</th>
-                <th>Expire Date</th>
+                <th onclick="sortTable(0)">Email-Address</th>
+                <th onclick="sortTable(1)">User Name</th>
+                <th onclick="sortTable(2)">Password</th>
+                <th onclick="sortTable(3)">Role</th>
+                <th onclick="sortTable(4)">Status</th>
+                <th onclick="sortTable(5)">Creation Date</th>
+                <th onclick="sortTable(6)">Expire Date</th>
             </tr>
         </thead>
         <tbody>
@@ -185,13 +203,15 @@
             {% endfor %}
         </tbody>
     </table>
-    <p>** The password will be hashed soon !</p>
+    <p>** The password will be hashed soon!</p>
 </div>
 
 <script>
-    // Function to filter table rows based on search input
+    // Function to filter table rows based on search input and dropdown filters
     function filterTable() {
         const input = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
         const filter = input.value.toUpperCase();
         const table = document.getElementById('userTable');
         const tr = table.getElementsByTagName('tr');
@@ -203,13 +223,61 @@
             for (let j = 0; j < tdArray.length; j++) {
                 let td = tdArray[j];
                 if (td) {
+                    // Check for search input match
                     if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
                         matchFound = true;
                     }
                 }
             }
 
-            tr[i].style.display = matchFound ? "" : "none";
+            // Check for role and status filters
+            const roleMatch = roleFilter === "" || tdArray[3].innerText === roleFilter; // Role is the 4th column (index 3)
+            const statusMatch = statusFilter === "" || tdArray[4].innerText === statusFilter; // Status is the 5th column (index 4)
+
+            // Show or hide row based on all filters
+            tr[i].style.display = (matchFound && roleMatch && statusMatch) ? "" : "none";
+        }
+    }
+
+    // Function to sort the table
+    function sortTable(n) {
+        const table = document.getElementById("userTable");
+        let switching = true;
+        let dir = "asc";
+        let switchCount = 0;
+
+        while (switching) {
+            switching = false;
+            const rows = table.rows;
+
+            for (let i = 1; i < (rows.length - 1); i++) {
+                let shouldSwitch = false;
+                const x = rows[i].getElementsByTagName("TD")[n];
+                const y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                if (dir === "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir === "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchCount++;
+            } else {
+                if (switchCount === 0 && dir === "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
         }
     }
 </script>
