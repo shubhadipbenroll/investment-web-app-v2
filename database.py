@@ -1,8 +1,21 @@
 from sqlalchemy import create_engine, text
 
+#Clever-cloud mysql DB connection setup
 engine = create_engine(
     "mysql+pymysql://ugfd2asvp5jsacvp:gdm6RrIc6CrBuFAzTGav@b4ojubqpvk22nbcgfrpe-mysql.services.clever-cloud.com/b4ojubqpvk22nbcgfrpe"
 )
+
+#Local mysql DB connection setup
+#engine = create_engine(
+#    "mysql+pymysql://ugfd2asvp5jsacvp:gdm6RrIc6CrBuFAzTGav@b4ojubqpvk22nbcgfrpe-mysql.services.clever-cloud.com/b4ojubqpvk22nbcgfrpe"
+#)
+
+#Hostgator mysql DB connection setup
+#engine = create_engine(
+#    "mysql+pymysql://omksyite_investmentdb:Em]?j,[dylx+@gator4405.hostgator.com/omksyite_investmentdb"
+#)
+
+
 
 """with engine.connect() as conn:
   result = conn.execute(text("select * from Users"))

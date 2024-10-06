@@ -7,10 +7,30 @@ from sqlalchemy.orm import declarative_base
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import make_response
+import logging
+from logging.handlers import RotatingFileHandler
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
+
+# Ensure log level is set for the logger
+app.logger.setLevel(logging.INFO)
+
+# Create rotating file handler
+file_handler = RotatingFileHandler('webapp-investinbulls.log', maxBytes=5*1024*1024, backupCount=5)
+file_handler.setLevel(logging.INFO)
+
+# Define log format
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+# Add handler to the logger
+app.logger.addHandler(file_handler)
+
+with open('webapp-investinbulls.log', 'a') as log_test_file:
+    log_test_file.write('Restart : webapp.invetsinbulls.net app started at : '+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
 
 # Handing for login user management ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 login_manager = LoginManager()
@@ -29,27 +49,33 @@ def load_user(id):
 
 # DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 def load_users_from_db():
-  with engine.connect() as conn:
-    result = conn.execute(text("select Email, UserName, UserPassword, UserRole, user_status, creation_date, expire_date from Users"))
-    #print("type(result.all())", type(result.all()))
-    #print(result.all())
-    user_list = []
-    for row in result.all():
-      user_list.append(row)
-
-    return user_list
+  user_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select Email, UserName, UserPassword, UserRole, user_status, creation_date, expire_date from Users"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        user_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_users_from_db: {e}', exc_info=True)
+  
+  return user_list
 
 
 def load_tickers_from_db():
-  with engine.connect() as conn:
-    result = conn.execute(text("select * from Tickers"))
-    #print("type(result.all())", type(result.all()))
-    #print(result.all())
-    ticker_list = []
-    for row in result.all():
-      ticker_list.append(row)
-
-    return ticker_list
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select * from Tickers"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_from_db: {e}', exc_info=True)
+  
+  return ticker_list
 
 # DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -59,6 +85,8 @@ def load_tickers_from_db():
 # COMMON PAGES
 @app.route("/")
 def home():
+  var = 100
+  app.logger.info('This is an info log message for login page')
   return render_template('login-page.html')
 
 @app.route("/loginpage")
@@ -132,14 +160,16 @@ class User(Base):
   Email = Column(String, nullable=False)
   UserPassword = Column(String, nullable=False)
   UserRole = Column(String, nullable=False)
-  id = UserID
-  username = UserName
+  
+
   #generated
   # Example attributes
-  def __init__(self, id, username, active=True):
-      self.id = id
-      self.username = username
-      self.active = active
+  # Define the __init__ method to handle the fields
+  def __init__(self, username, email, userpassword, userrole):
+      self.UserName = username
+      self.Email = email
+      self.UserPassword = userpassword
+      self.UserRole = userrole
 
   # Flask-Login requires this method
   def is_authenticated(self):
@@ -157,7 +187,7 @@ class User(Base):
   # Flask-Login requires this method
   def get_id(self):
       # Must return a string or bytes that uniquely identifies this user
-      return str(self.id)
+      return str(self.UserID)
   
 
 # Create the users table if it doesn't exist already
@@ -170,35 +200,38 @@ session = Session()
 # CREATE USER .............................................................
 @app.route('/create_user', methods=['POST'])
 def create_user():
+  email = request.form['email']
   username = request.form['username']
   if len(username) == 0:
      username = request.form['email']
 
-  email = request.form['email']
   password = request.form['psw']
   #role = request.form['users']
   role = "General"
   # Create a session
   Session = sessionmaker(bind=engine)
   session = Session()
-
+  app.logger.info('create_user: Loggin with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
+                  + " / " +str(request.form['psw'])+ " / " +str(role))
   try:
     # Create a new user instance
-    new_user = User(UserName=username,
-                    Email=email,
-                    UserPassword=password,
-                    UserRole=role)
+    new_user = User(username=username,
+                email=email,
+                userpassword=password,
+                userrole=role)
 
     # Add the new user to the session
     session.add(new_user)
 
     # Commit the session to save changes to the database
     session.commit()
+    app.logger.info('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
+                  + " / " +str(request.form['psw'])+ " / " +str(role))
     flash('User registration done, please Login !', 'info')
   except Exception as e:
     session.rollback()  # Rollback in case of error
-    print(f'An error occurred-create_user: {e}')
     flash('Facing some issue while user registration. Try later !', 'error')
+    app.logger.error(f'An error occurred in create_user: {e}', exc_info=True)
     return render_template('login-page.html')
     #return f'An error occurred: {e}'
   finally:
@@ -231,6 +264,7 @@ def delete_user():
   except Exception as e:
       session.rollback()  # Rollback in case of error
       flash('Problem occured in databse while deleting !', 'error')
+      app.logger.error(f'An error occurred in delete_user: {e}', exc_info=True)
       #return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
@@ -239,13 +273,21 @@ def delete_user():
 
 @app.route('/upgrade_user', methods=['POST'])
 def upgrade_user():
-  flash('Upgrade user will be working soon !', 'info')
+  try:
+    flash('Upgrade user will be working soon !', 'info')
+  except Exception as e:
+    app.logger.error(f'An error occurred in upgrade_user: {e}', exc_info=True)
+  
   return redirect(url_for('manageuser'))
 
 
 @app.route('/disable_user', methods=['POST'])
 def disable_user():
-  flash('Disable user will be working soon !', 'info')
+  try:
+    flash('Disable user will be working soon !', 'info')
+  except Exception as e:
+    app.logger.error(f'An error occurred in disable_user: {e}', exc_info=True)
+  
   return redirect(url_for('manageuser'))
 
 # CREATE TICKER .............................................................
@@ -303,6 +345,7 @@ def save_ticker():
     session.commit()
   except Exception as e:
     session.rollback()  # Rollback in case of error
+    app.logger.error(f'An error occurred in save_ticker: {e}', exc_info=True)
     return f'An error occurred while adding ticker in DB: {e}'
   finally:
     session.close()  # Close the session
@@ -312,8 +355,9 @@ def save_ticker():
 
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
-@app.route('/load_dashboard', methods=['POST', 'GET'])
-def load_dashboard():
+@app.route('/auth_user', methods=['POST', 'GET'])
+def auth_user():
+  app.logger.info('auth_user: Loggin with user email : '+ str(request.form['email']))
   # Get the form data
   #username = request.form['username']
   email = request.form['email']
@@ -330,6 +374,7 @@ def load_dashboard():
       #print("==>" , user.UserName)
       #print("==>" , user.UserRole)
       if user:
+          app.logger.info('auth_user: Successful Loggin with user email : '+ str(request.form['email']))
           login_user(user,remember=True, duration=None, force=True, fresh=True) # Flask-Login will now work as expected
           # User found, return user details
           if user.UserRole == "Admin":
@@ -339,10 +384,11 @@ def load_dashboard():
             #return render_template('/users/dashboard-user.html')
             return redirect(url_for('loaduserdashboard'))
       else:
+          app.logger.info('auth_user: Failed Loggin with user email : '+ str(request.form['email']))
           flash('Wrong username or password! Please Try again !', 'error')
           return render_template('login-page.html')
   except Exception as e:
-      print(f'An error occurred: {e}')
+      app.logger.error(f'An error occurred in auth_user: {e}', exc_info=True)
       flash('Problem occured while login! Please Try later !', 'error')
       return redirect(url_for('loginpage'))
   finally:
@@ -400,6 +446,7 @@ def updateuser():
           flash('Email address not found !', 'error')
   except Exception as e:
       session.rollback()  # Rollback in case of error
+      app.logger.error(f'An error occurred in updateuser: {e}', exc_info=True)
       return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
@@ -449,10 +496,14 @@ def userprofile():
 @app.route('/logout')
 @login_required
 def logout():
-  print("==>", type(session))  # Debugging line to check the session type
-  logout_user()
-  flask.session.clear()  # Clear all session data
-  flash('You have been logged out successfully!', 'info')
+  try:
+    print("==>", type(session))  # Debugging line to check the session type
+    logout_user()
+    flask.session.clear()  # Clear all session data
+    flash('You have been logged out successfully!', 'info')
+  except Exception as e:
+    app.logger.error(f'An error occurred in logout: {e}', exc_info=True)
+  
   #return render_template('login-page.html')
   return redirect(url_for('loginpage'))
 
