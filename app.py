@@ -1,3 +1,4 @@
+from collections import defaultdict
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import flask  # Import Flask explicitly for session handling
 from database import engine
@@ -75,7 +76,7 @@ def load_tickers_from_db():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select * from Tickers"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -89,7 +90,7 @@ def load_tickers_for_users():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate from Tickers where TickerStatus = 'Active'"))
+      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate from Tickers where TickerStatus = 'Active' ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -104,7 +105,7 @@ def load_tickers_for_admin():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate,TickerStatus from Tickers"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -132,6 +133,50 @@ def user_register():
   return render_template('user-register.html')
 
 #Common
+@app.route("/reset_pass_v1")
+def reset_pass_v1():
+  return render_template('reset-pass-v1.html')
+
+@app.route("/reset_pass_v1_update", methods=['POST'])
+def reset_pass_v1_update():
+  email = request.form['email']
+  new_pass = request.form['new-password']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+      # Query the user by username
+      user = session.query(User).filter_by(Email=email).first()
+
+      if user:
+          # Update the user's details
+          print("=>",user.UserPassword)
+          print("=>",new_pass)
+          if user.UserPassword == new_pass:
+            user.UserPassword = new_pass
+            flash('New password and existing password are same !', 'info')
+          else:
+            user.UserPassword = new_pass
+            flash('Password updated successfully !', 'info')
+
+          # Commit the session to save changes to the database
+          session.commit()
+          #return f'User {user} updated successfully'
+      else:
+          flash('Email address not found !', 'error')
+  except Exception as e:
+      session.rollback()  # Rollback in case of error
+      app.logger.error(f'An error occurred in update_pass: {e}', exc_info=True)
+      flash('Sorry! Unable to reset the password, contact Administrator !', 'error')
+      return redirect(url_for('loginpage'))
+  finally:
+      session.close()  # Close the session
+
+  return redirect(url_for('loginpage'))
+
+
 @app.route("/reset_pass")
 def reset_pass():
   return render_template('reset-pass.html')
@@ -172,7 +217,28 @@ def create_ticker():
 @app.route("/showadmintickers")
 def show_tickers_admin():
   admintickers = load_tickers_for_admin()
-  return render_template('/admin/show-ticker-admin.html', tickers=admintickers)
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_notes": row[9]
+      } for row in admintickers
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
 
 @app.route("/showusers")
 def show_users():
@@ -315,6 +381,7 @@ def delete_user():
       #return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
+
   return redirect(url_for('manageuser'))
 
 
@@ -471,6 +538,7 @@ def delete_ticker():
       #return f'An error occurred: {e}'
   finally:
       session.close()  # Close the session
+
   return redirect(url_for('manageticker'))
 
 
@@ -611,7 +679,7 @@ def update_pass():
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(Email=email).first()
+      user = session.query(User).filter_by(Email=email, UserPassword=old_pass).first()
 
       if user:
           # Update the user's details
@@ -619,8 +687,8 @@ def update_pass():
             user.UserPassword = new_pass
             flash('Password updated successfully !', 'info')
           else:
-             flash('User existing password is not matching. Try again !', 'error')
-          
+            flash('User existing password is not matching. Try again !', 'error')
+            return redirect(url_for('update_pass'))
 
           # Commit the session to save changes to the database
           session.commit()
@@ -649,7 +717,28 @@ def adminpanel():
 @app.route("/manageticker")
 def manageticker():
   alltickers = load_tickers_from_db()
-  return render_template('/admin/manage-tickers.html', tickers=alltickers)
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_status": row[9]
+      } for row in alltickers
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/admin/manage-tickers.html', grouped_tickers=grouped_tickers)
 
 @app.route("/manageuser")
 def manageuser():

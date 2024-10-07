@@ -3,257 +3,262 @@
 {% block title %}Ticker List{% endblock %}
 
 {% block content %}
-<style>
-    /* General body styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-        width: 100vw;
-        height: 100vh;
-    }
+<head>
+    <style>
+        /* General body styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            width: 100vw;
+            height: auto; /* Changed to auto for height adjustment */
+        }
 
-    /* Header styles */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #333;
-        padding: 15px 30px;
-        color: #fff;
-    }
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 15px 30px;
+            color: #fff;
+        }
 
-    .header h1 {
-        font-size: 24px;
-        margin: 0;
-    }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
 
-    /* User profile on the top right */
-    .user-profile {
-        display: flex;
-        align-items: center;
-    }
+        /* User profile on the top right */
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
 
-    .user-profile img {
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        margin-right: 10px;
-    }
+        .user-profile img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
 
-    .user-profile .username {
-        margin-right: 15px;
-        font-size: 16px;
-    }
+        .user-profile .username {
+            margin-right: 15px;
+            font-size: 16px;
+        }
 
-    .user-profile .logout-btn {
-        background-color: #ff4d4d;
-        color: #fff;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+        .user-profile .logout-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    /* Table styles */
-    .container {
-        width: 90%;
-        margin: 30px auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    table,
-    th,
-    td {
-        border: 1px solid #ddd;
-    }
-
-    th,
-    td {
-        padding: 12px 15px;
-        text-align: left;
-        cursor: pointer; /* Add cursor pointer to indicate clickable */
-    }
-
-    th {
-        background-color: #007bff; /* Change header background color */
-        color: #fff; /* White text for header */
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    /* Search bar styles */
-    .search-bar {
-        margin: 20px 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .search-bar input[type="text"],
-    .search-bar select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        margin-right: 10px;
-    }
-
-    .search-bar button {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .search-bar button:hover {
-        background-color: #218838;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .header,
+        /* Container and Table styles */
         .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        table {
             width: 100%;
-            padding: 10px;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff; /* Change header background color */
+            color: #fff; /* White text for header */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Search bar styles */
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .search-bar input[type="text"],
         .search-bar select {
-            width: 100%;
-            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-right: 10px;
         }
-    }
-</style>
-<!-- Main container -->
-<div class="container">
-    <!-- Search bar -->
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search tickers...">
-        <button onclick="filterTable()">Search</button>
-        
-        <!-- Filter dropdown for Status -->
-        <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
-            <option value="">Select Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-    </div>
 
-    <!-- Table -->
-    <table id="tickerTable">
-        <thead>
-            <tr>
-                <th onclick="sortTable(0)">Ticker-Name</th>
-                <th onclick="sortTable(1)">Entry Price</th>
-                <th onclick="sortTable(2)">Stop %</th>
-                <th onclick="sortTable(3)">Stop Price</th>
-                <th onclick="sortTable(4)">Target-1</th>
-                <th onclick="sortTable(5)">Target-2</th>
-                <th onclick="sortTable(6)">Target-3</th>
-                <th onclick="sortTable(7)">Target-4</th>
-                <th onclick="sortTable(8)">Created-Date</th>
-                <th onclick="sortTable(9)">Ticker-Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for t in tickers %}
-            <tr>
-                {% for i in t %}  
-                <td>{{ i }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+        .search-bar button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-<script>
-    // Function to filter table rows based on search input and dropdown filters
-    function filterTable() {
-        const input = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter').value;
-        const filter = input.value.toUpperCase();
-        const table = document.getElementById('tickerTable');
-        const tr = table.getElementsByTagName('tr');
+        .search-bar button:hover {
+            background-color: #218838;
+        }
 
-        for (let i = 1; i < tr.length; i++) {
-            let tdArray = tr[i].getElementsByTagName('td');
-            let matchFound = false;
-
-            for (let j = 0; j < tdArray.length; j++) {
-                let td = tdArray[j];
-                if (td) {
-                    // Check for search input match
-                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                        matchFound = true;
-                    }
-                }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header,
+            .container {
+                width: 100%;
+                padding: 10px;
             }
 
-            // Check for status filter
-            const statusMatch = statusFilter === "" || tdArray[9].innerText === statusFilter; // Adjusted index for Ticker-Status
-
-            // Show or hide row based on all filters
-            tr[i].style.display = (matchFound && statusMatch) ? "" : "none";
-        }
-    }
-
-    // Function to sort the table
-    function sortTable(n) {
-        const table = document.getElementById("tickerTable");
-        let switching = true;
-        let dir = "asc";
-        let switchCount = 0;
-
-        while (switching) {
-            switching = false;
-            const rows = table.rows;
-
-            for (let i = 1; i < (rows.length - 1); i++) {
-                let shouldSwitch = false;
-                const x = rows[i].getElementsByTagName("TD")[n];
-                const y = rows[i + 1].getElementsByTagName("TD")[n];
-
-                if (dir === "asc") {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                } else if (dir === "desc") {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
+            .search-bar input[type="text"],
+            .search-bar select {
+                width: 100%;
+                margin-bottom: 10px;
             }
+        }
+    </style>
 
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                switchCount++;
+    <script>
+        // Function to filter table rows based on search input and dropdown filters
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter').value;
+            const filter = input.value.toUpperCase();
+            const tables = document.querySelectorAll('.ticker-table');
+
+            tables.forEach(table => {
+                const tr = table.getElementsByTagName('tr');
+                let matchFound = false;
+
+                for (let i = 1; i < tr.length; i++) {
+                    let tdArray = tr[i].getElementsByTagName('td');
+                    let rowMatchFound = false;
+
+                    for (let j = 0; j < tdArray.length; j++) {
+                        let td = tdArray[j];
+                        if (td) {
+                            // Check for search input match
+                            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                rowMatchFound = true;
+                                matchFound = true;
+                            }
+                        }
+                    }
+
+                    // Check for status filter
+                    const statusMatch = statusFilter === "" || tdArray[9].innerText === statusFilter; // Adjusted index for Ticker-Status
+
+                    // Show or hide row based on all filters
+                    tr[i].style.display = (rowMatchFound && statusMatch) ? "" : "none";
+                }
+                // If no match found, hide the table
+                table.style.display = matchFound ? "" : "none";
+            });
+        }
+
+        // Function to toggle the visibility of the table
+        function toggleTable(tableId) {
+            const table = document.getElementById(tableId);
+            const button = document.getElementById(`toggle-${tableId}`);
+            if (table.style.display === "none" || table.style.display === "") {
+                table.style.display = "table"; // Show the table
+                button.innerHTML = "-"; // Change button text to minus
             } else {
-                if (switchCount === 0 && dir === "asc") {
-                    dir = "desc";
-                    switching = true;
-                }
+                table.style.display = "none"; // Hide the table
+                button.innerHTML = "+"; // Change button text to plus
             }
         }
-    }
-</script>
+
+        // On page load, only expand the first table by default
+        window.onload = function() {
+            const tables = document.querySelectorAll('.ticker-table');
+            tables.forEach((table, index) => {
+                if (index !== 0) {
+                    table.style.display = "none"; // Hide all tables except the first one
+                }
+            });
+        };
+    </script>
+</head>
+<body>
+    <!-- Main container -->
+    <div class="container">
+        <!-- Search bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search tickers...">
+            <button onclick="filterTable()">Search</button>
+            
+            <!-- Filter dropdown for Status -->
+            <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+
+        <!-- Display a single table for each date -->
+        {% for date, entries in grouped_tickers.items() %}
+        <h3>
+            <button id="toggle-table-{{ date }}" onclick="toggleTable('table-{{ date }}')">-</button>
+            {{ date }}
+        </h3>
+        <table id="table-{{ date }}" class="ticker-table">
+            <thead>
+                <tr>
+                    <th>Created-Date</th>
+                    <th>Ticker-Name</th>
+                    <th>Entry Price</th>
+                    <th>Stop %</th>
+                    <th>Stop Price</th>
+                    <th>Target-1</th>
+                    <th>Target-2</th>
+                    <th>Target-3</th>
+                    <th>Target-4</th>
+                    <th>Ticker-Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticker in entries %}
+                <tr>
+                    <td>{{ ticker.created_date }}</td>
+                    <td>{{ ticker.ticker_name }}</td>
+                    <td>{{ ticker.entry_price }}</td>
+                    <td>{{ ticker.stop_percent }}</td>
+                    <td>{{ ticker.stop_price }}</td>
+                    <td>{{ ticker.target_1 }}</td>
+                    <td>{{ ticker.target_2 }}</td>
+                    <td>{{ ticker.target_3 }}</td>
+                    <td>{{ ticker.target_4 }}</td>
+                    <td>{{ ticker.ticker_notes }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+</body>
+
 {% endblock %}
