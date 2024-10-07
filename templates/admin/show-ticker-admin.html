@@ -14,7 +14,6 @@
             width: 100vw;
             height: auto; /* Changed to auto for height adjustment */
         }
-
         /* Header styles */
         .header {
             display: flex;
@@ -105,14 +104,15 @@
         /* Set column width percentages */
         .col-1 { width: 15%; }
         .col-2 { width: 15%; }
-        .col-3 { width: 10%; }
-        .col-4 { width: 7%; }
-        .col-5 { width: 7%; }
-        .col-6 { width: 7%; }
-        .col-7 { width: 7%; }
-        .col-8 { width: 5%; }
-        .col-9 { width: 25%; }
-
+        .col-3 { width: 6%; }
+        .col-4 { width: 6%; }
+        .col-5 { width: 6%; }
+        .col-6 { width: 6%; }
+        .col-7 { width: 6%; }
+        .col-8 { width: 6%; }
+        .col-9 { width: 6%; }
+        .col-10 { width: 20%; }
+        .col-11 { width: 7%; }
         th {
             background-color: #007bff; /* Change header background color */
             color: #fff; /* White text for header */
@@ -126,6 +126,15 @@
             background-color: #f1f1f1;
         }
 
+        .editable {
+            background-color: #ffffe0; /* Light yellow to indicate edit mode */
+        }
+
+        /* Icons */
+        .action-icons {
+            cursor: pointer;
+            margin-right: 10px;
+        }
         /* Search bar styles */
         .search-bar {
             margin: 20px 0;
@@ -134,8 +143,7 @@
             align-items: center;
         }
 
-        .search-bar input[type="text"],
-        .search-bar select {
+        .search-bar input[type="text"], .search-bar select {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -155,7 +163,6 @@
         .search-bar button:hover {
             background-color: #218838;
         }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header,
@@ -176,41 +183,100 @@
         // Function to filter table rows based on search input and dropdown filters
         function filterTable() {
             const input = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter').value;
             const filter = input.value.toUpperCase();
             const tables = document.querySelectorAll('.ticker-table');
 
             tables.forEach(table => {
                 const tr = table.getElementsByTagName('tr');
-                let matchFound = false;
-
                 for (let i = 1; i < tr.length; i++) {
                     let tdArray = tr[i].getElementsByTagName('td');
                     let rowMatchFound = false;
 
                     for (let j = 0; j < tdArray.length; j++) {
                         let td = tdArray[j];
-                        if (td) {
-                            // Check for search input match
-                            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                                rowMatchFound = true;
-                                matchFound = true;
-                            }
+                        if (td && td.innerText.toUpperCase().indexOf(filter) > -1) {
+                            rowMatchFound = true;
                         }
                     }
-
-                    // Check for status filter
-                    const statusMatch = statusFilter === "" || tdArray[9].innerText === statusFilter; // Adjusted index for Ticker-Status
-
-                    // Show or hide row based on all filters
-                    tr[i].style.display = (rowMatchFound && statusMatch) ? "" : "none";
+                    tr[i].style.display = rowMatchFound ? "" : "none";
                 }
-                // If no match found, hide the table
-                table.style.display = matchFound ? "" : "none";
             });
         }
 
         // Function to toggle the visibility of the table
+        function toggleTable(tableId) {
+            const table = document.getElementById(tableId);
+            const button = document.getElementById(`toggle-${tableId}`);
+            if (table.style.display === "none" || table.style.display === "") {
+                table.style.display = "table"; // Show the table
+                button.innerHTML = "-"; // Change button text to minus
+            } else {
+                table.style.display = "none"; // Hide the table
+                button.innerHTML = "+"; // Change button text to plus
+            }
+        }
+        // Make the row editable
+        function editRow(rowId) {
+            let row = document.getElementById(rowId);
+            let cells = row.getElementsByTagName("td");
+
+            // Add editable attributes to each cell
+            for (let i = 1; i < cells.length - 1; i++) {
+                let cell = cells[i];
+                let content = cell.innerText;
+                cell.innerHTML = `<input type="text" value="${content}" />`;
+                cell.classList.add("editable");
+            }
+        }
+
+        // Update the row and send data to the backend
+        function updateRow(rowId) {
+            let row = document.getElementById(rowId);
+            let cells = row.getElementsByTagName("td");
+            let updatedData = {};
+
+            // Extract updated values
+            updatedData['created_date'] = cells[0].innerText;
+            updatedData['ticker_name'] = cells[1].querySelector('input').value;
+            updatedData['entry_price'] = cells[2].querySelector('input').value;
+            updatedData['stop_percent'] = cells[3].querySelector('input').value;
+            updatedData['stop_price'] = cells[4].querySelector('input').value;
+            updatedData['target_1'] = cells[5].querySelector('input').value;
+            updatedData['target_2'] = cells[6].querySelector('input').value;
+            updatedData['target_3'] = cells[7].querySelector('input').value;
+            updatedData['target_4'] = cells[8].querySelector('input').value;
+            updatedData['ticker_notes'] = cells[9].querySelector('input').value;
+
+            // Call the backend to update the data
+            fetch('/update_ticker', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Update successful");
+                    // Remove edit mode styling and replace inputs with text
+                    for (let i = 1; i < cells.length - 1; i++) {
+                        let cell = cells[i];
+                        let input = cell.querySelector('input');
+                        cell.innerText = input.value;
+                        cell.classList.remove("editable");
+                    }
+                } else {
+                    alert("Update failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating the row:", error);
+                alert("An error occurred while updating the row");
+            });
+        }
+
+        // Toggle visibility of tables by date
         function toggleTable(tableId) {
             const table = document.getElementById(tableId);
             const button = document.getElementById(`toggle-${tableId}`);
@@ -239,17 +305,9 @@
     <div class="container">
         <!-- Search bar -->
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search tickers...">
+            <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
             <button onclick="filterTable()">Search</button>
-            
-            <!-- Filter dropdown for Status -->
-            <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-            </select>
         </div>
-
         <!-- Display a single table for each date -->
         {% for date, entries in grouped_tickers.items() %}
         <h3>
@@ -267,13 +325,14 @@
                     <th class="col-6">Target-1</th>
                     <th class="col-7">Target-2</th>
                     <th class="col-8">Target-3</th>
-                    <th class="col-8">Target-4</th>
-                    <th class="col-9 ">Ticker-Notes</th>
+                    <th class="col-9">Target-4</th>
+                    <th class="col-10">Ticker-Notes</th>
+                    <th class="col-11">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ticker in entries %}
-                <tr>
+                <tr id="row-{{ ticker.id }}">
                     <td>{{ ticker.created_date }}</td>
                     <td>{{ ticker.ticker_name }}</td>
                     <td>{{ ticker.entry_price }}</td>
@@ -285,6 +344,10 @@
                     <td>{{ ticker.target_4 }}</td>
                     <td>
                         <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
+                    </td>
+                    <td>
+                        <span class="action-icons" onclick="editRow('row-{{ ticker.id }}')">✏️ </span>
+                        <span class="action-icons" onclick="updateRow('row-{{ ticker.id }}')">✅</span>
                     </td>
                 </tr>
                 {% endfor %}

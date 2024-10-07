@@ -1,5 +1,5 @@
 from collections import defaultdict
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import flask  # Import Flask explicitly for session handling
 from database import engine
 from sqlalchemy import Text, text, Column, String, Integer
@@ -514,6 +514,24 @@ def save_ticker():
 
   return render_template('/admin/dashboard-admin.html')
 
+@app.route('/update_ticker', methods=['POST'])
+def update_ticker():
+    app.logger.info('update_ticker: data : '+ str(request.json))
+    data = request.json
+    # Perform your DB update logic here using data['ticker_name'], data['entry_price'], etc.
+    
+    # Return a success or failure message
+    try:
+      # Your database update logic
+      
+
+      return jsonify(success=True)
+    except:
+        flash('Problem occured in database while deleting !', 'error')
+        app.logger.error(f'An error occurred in delete_ticker: {jsonify(success=False)}', exc_info=True)
+        #return jsonify(success=False)
+    
+    return render_template('/admin/dashboard-admin.html')
 
 @app.route('/delete_ticker', methods=['POST'])
 def delete_ticker():
