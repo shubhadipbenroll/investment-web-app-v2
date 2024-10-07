@@ -56,28 +56,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        /* Ticker-Notes cell style */
-        .ticker-notes {
-            max-height: 2.6em; /* Approximately two lines of text */
-            overflow-y: auto;  /* Enable vertical scrolling */
-            white-space: normal; /* Allow text to wrap */
-            word-wrap: break-word; /* Break long words if necessary */
-            display: block; /* Ensures the div behaves like a block element */
-        }
 
-        /* Custom scrollbar styling (optional) */
-        .ticker-notes::-webkit-scrollbar {
-            width: 5px; /* Width of the scrollbar */
-        }
-
-        .ticker-notes::-webkit-scrollbar-thumb {
-            background-color: #888; /* Color of the scrollbar */
-            border-radius: 4px;
-        }
-
-        .ticker-notes::-webkit-scrollbar-thumb:hover {
-            background-color: #555;
-        }
         /* Container and Table styles */
         .container {
             width: 90%;
@@ -102,16 +81,6 @@
             padding: 12px 15px;
             text-align: left;
         }
-        /* Set column width percentages */
-        .col-1 { width: 15%; }
-        .col-2 { width: 15%; }
-        .col-3 { width: 10%; }
-        .col-4 { width: 7%; }
-        .col-5 { width: 7%; }
-        .col-6 { width: 7%; }
-        .col-7 { width: 7%; }
-        .col-8 { width: 5%; }
-        .col-9 { width: 25%; }
 
         th {
             background-color: #007bff; /* Change header background color */
@@ -259,16 +228,16 @@
         <table id="table-{{ date }}" class="ticker-table">
             <thead>
                 <tr>
-                    <th class="col-1">Created-Date</th>
-                    <th class="col-2">Ticker-Name</th>
-                    <th class="col-3">Entry Price</th>
-                    <th class="col-4">Stop %</th>
-                    <th class="col-5">Stop Price</th>
-                    <th class="col-6">Target-1</th>
-                    <th class="col-7">Target-2</th>
-                    <th class="col-8">Target-3</th>
-                    <th class="col-8">Target-4</th>
-                    <th class="col-9 ">Ticker-Notes</th>
+                    <th>Created-Date</th>
+                    <th>Ticker-Name</th>
+                    <th>Entry Price</th>
+                    <th>Stop %</th>
+                    <th>Stop Price</th>
+                    <th>Target-1</th>
+                    <th>Target-2</th>
+                    <th>Target-3</th>
+                    <th>Target-4</th>
+                    <th>Ticker-Notes</th>
                 </tr>
             </thead>
             <tbody>
@@ -283,9 +252,7 @@
                     <td>{{ ticker.target_2 }}</td>
                     <td>{{ ticker.target_3 }}</td>
                     <td>{{ ticker.target_4 }}</td>
-                    <td>
-                        <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
-                    </td>
+                    <td>{{ ticker.ticker_notes }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

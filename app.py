@@ -2,7 +2,7 @@ from collections import defaultdict
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import flask  # Import Flask explicitly for session handling
 from database import engine
-from sqlalchemy import text, Column, String, Integer
+from sqlalchemy import Text, text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from flask_login import LoginManager
@@ -464,7 +464,8 @@ class Ticker(Base):
   Target4 = Column(Integer, nullable=False)
   #CreateDate  = Column(timestamp, nullable=False)
   TickerStatus  = Column(String, nullable=False)
-
+  TickerNotes = Column(Text, nullable=True)  # New column for storing notes
+  
 @app.route('/save_ticker', methods=['POST'])
 def save_ticker():
   username = "Admin" #session['username']
@@ -476,7 +477,8 @@ def save_ticker():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
-  tickerstatus = "Active"
+  tickerstatus = "Inactive"
+  notes = request.form['notes']
 
   # Create a session
   Session = sessionmaker(bind=engine)
@@ -493,7 +495,8 @@ def save_ticker():
                     Target2=target2,
                     Target3=target3,
                     Target4=target4,
-                    TickerStatus=tickerstatus)
+                    TickerStatus=tickerstatus,
+                    TickerNotes=notes)
 
     # Add the new user to the session
     session.add(new_ticker)
@@ -503,7 +506,9 @@ def save_ticker():
   except Exception as e:
     session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in save_ticker: {e}', exc_info=True)
-    return f'An error occurred while adding ticker in DB: {e}'
+    #return f'An error occurred while adding ticker in DB: {e}'
+    flash('An error occurred while adding ticker in DB, Please check the Ticker Name !', 'error')
+    return render_template('/admin/dashboard-admin.html')
   finally:
     session.close()  # Close the session
 
