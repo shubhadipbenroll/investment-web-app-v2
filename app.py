@@ -477,7 +477,7 @@ def save_ticker():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
-  tickerstatus = "Inactive"
+  tickerstatus = "Active"
   notes = request.form['notes']
 
   # Create a session
@@ -507,23 +507,95 @@ def save_ticker():
     session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in save_ticker: {e}', exc_info=True)
     #return f'An error occurred while adding ticker in DB: {e}'
-    flash('An error occurred while adding ticker in DB, Please check the Ticker Name !', 'error')
+    flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
     return render_template('/admin/dashboard-admin.html')
   finally:
     session.close()  # Close the session
 
   return render_template('/admin/dashboard-admin.html')
 
+@app.route('/save_ticker_new', methods=['POST'])
+def save_ticker_new():
+  username = "Admin" #session['username']
+  tickername = request.form['tickername']
+  entryprice = float(request.form['entryprice'].replace('$', '').replace(',', ''))
+  stoppercent = float(request.form['stoppercent'].replace('$', '').replace(',', ''))
+  stopprice = float(request.form['stopprice'].replace('$', '').replace(',', ''))
+  target1 = float(request.form['target1'].replace('$', '').replace(',', ''))
+  target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
+  target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
+  target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
+  tickerstatus = "Active"
+  notes = request.form['notes']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+    # Create a new user instance
+    new_ticker = Ticker(UserName=username,
+                    TickerName=tickername,
+                    EntryPrice=entryprice,
+                    StopPercent=stoppercent,
+                    StopPrice=stopprice,
+                    Target1=target1,
+                    Target2=target2,
+                    Target3=target3,
+                    Target4=target4,
+                    TickerStatus=tickerstatus,
+                    TickerNotes=notes)
+
+    # Add the new user to the session
+    session.add(new_ticker)
+
+    # Commit the session to save changes to the database
+    session.commit()
+  except Exception as e:
+    session.rollback()  # Rollback in case of error
+    app.logger.error(f'An error occurred in save_ticker_new: {e}', exc_info=True)
+    #return f'An error occurred while adding ticker in DB: {e}'
+    flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
+    #return render_template('/admin/dashboard-admin.html')
+  finally:
+    session.close()  # Close the session
+
+  #added:
+  admintickers = load_tickers_for_admin()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_notes": row[9]
+      } for row in admintickers
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
+
+
 @app.route('/update_ticker', methods=['POST'])
 def update_ticker():
     app.logger.info('update_ticker: data : '+ str(request.json))
-    data = request.json
+    data = request.jsoncontainer
     # Perform your DB update logic here using data['ticker_name'], data['entry_price'], etc.
     
     # Return a success or failure message
     try:
       # Your database update logic
-      
+
 
       return jsonify(success=True)
     except:
