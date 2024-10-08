@@ -38,8 +38,14 @@ file_handler.setFormatter(formatter)
 app.logger.addHandler(file_handler)
 
 with open('webapp-investinbulls.log', 'a') as log_test_file:
-    log_test_file.write('Restart : webapp.invetsinbulls.net app started at : '+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+    log_test_file.write('Restart : webapp.invetsinbulls.net app home page loaded at : '+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
 
+@app.route('/debug_log', methods=['POST'])
+def debug_log():
+    data = request.get_json()
+    message = data.get('message')
+    print(message)  # This will print to the terminal/console
+    return jsonify({"status": "logged"})
 
 # Handing for login user management ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 login_manager = LoginManager()
@@ -240,6 +246,7 @@ def show_tickers_admin():
 
   return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
 
+  
 @app.route("/showusers")
 def show_users():
   allusers = load_users_from_db()
@@ -588,22 +595,95 @@ def save_ticker_new():
 
 @app.route('/update_ticker', methods=['POST'])
 def update_ticker():
-    app.logger.info('update_ticker: data : '+ str(request.json))
-    data = request.jsoncontainer
-    # Perform your DB update logic here using data['ticker_name'], data['entry_price'], etc.
-    
-    # Return a success or failure message
-    try:
-      # Your database update logic
+  app.logger.info('update_ticker: data : '+ str(request.json))
 
+  username = "Admin" #session['username']
+  tickerstatus = "Active"
+  # Retrieve data from request.json
+  data = request.json
+  
+  # Extract values and store them in variables
+  created_date = data.get('created_date')
+  ticker_name = data.get('ticker_name')
+  entry_price = data.get('entry_price')
+  stop_percent = data.get('stop_percent')
+  stop_price = data.get('stop_price')
+  target_1 = data.get('target_1')
+  target_2 = data.get('target_2')
+  target_3 = data.get('target_3')
+  target_4 = data.get('target_4')
+  ticker_notes = data.get('ticker_notes')
 
-      return jsonify(success=True)
-    except:
-        flash('Problem occured in database while deleting !', 'error')
-        app.logger.error(f'An error occurred in delete_ticker: {jsonify(success=False)}', exc_info=True)
-        #return jsonify(success=False)
-    
-    return render_template('/admin/dashboard-admin.html')
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  try:
+    ticker = session.query(Ticker).filter_by(TickerName=ticker_name).first()
+
+    if ticker:
+      app.logger.info('update_ticker: updating ticker : '+ ticker_name)
+      ticker.EntryPrice=entry_price
+      ticker.StopPercent=stop_percent
+      ticker.StopPrice=stop_price
+      ticker.Target1=target_1
+      ticker.Target2=target_2
+      ticker.Target3=target_3
+      ticker.Target4=target_4
+      ticker.TickerNotes=ticker_notes
+      # Commit the session to save changes to the database
+      session.commit()
+    else:
+      app.logger.info('update_ticker: adding new ticker : '+ ticker_name)
+      # Create a new user instance
+      new_ticker = Ticker(UserName=username,
+                      TickerName=ticker_name,
+                      EntryPrice=entry_price,
+                      StopPercent=stop_percent,
+                      StopPrice=stop_price,
+                      Target1=target_1,
+                      Target2=target_2,
+                      Target3=target_3,
+                      Target4=target_4,
+                      TickerStatus=tickerstatus,
+                      TickerNotes=ticker_notes)
+
+      # Add the new user to the session
+      session.add(new_ticker)
+
+    # Commit the session to save changes to the database
+    session.commit()
+
+    return jsonify(success=True)
+  except:
+      flash('Problem occured in database while updating Ticker !', 'error')
+      app.logger.error(f'An error occurred in delete_ticker: {jsonify(success=False)}', exc_info=True)
+      #return jsonify(success=False)
+
+  #added:
+  admintickers = load_tickers_for_admin()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_notes": row[9]
+      } for row in admintickers
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
 
 @app.route('/delete_ticker', methods=['POST'])
 def delete_ticker():
