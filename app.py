@@ -11,17 +11,17 @@ from flask import make_response
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
-from mailconfig import mail, app  # Import the mail instance and app
-from flask_mail import Mail, Message  # Import the Message class
-
+from mailconfig import configure_mail, send_email  # Importing email functions
 import os
 
-app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')
-app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
+
 
 app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
+
+# Configure Flask-Mail
+mail = configure_mail(app)
 
 # Ensure log level is set for the logger
 app.logger.setLevel(logging.INFO)
@@ -187,26 +187,26 @@ def reset_pass_v1_update():
 def reset_pass():
   return render_template('reset-pass.html')
 
-@app.route("/send_pass_email", methods=['POST'])
+@app.route("/send_email")
 def send_pass_email():
-  email = request.form['email']
-
+  app.logger.info('send_email....')
+  #email = request.form['email']
+  to_email = "shubhadip2004@gmail.com"
   # Create the welcome message
-  subject = "Welcome to Our Service!"
-  body = "Dear User,\n\nThank you for joining us! We are excited to have you on board.\n\nBest Regards,\nYour Team"
-
-  # Send the email
-  msg = Message(subject, recipients=[email])
-  msg.body = body
+  subject = "Welcome to Investinbulls.net"
+  message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvetinbulls.net"
 
   try:
-      mail.send(msg)
-      flash('Welcome email sent successfully!', 'success')
+    send_status = send_email(mail, to_email, subject, message_body)
+    #return jsonify({"status": "success", "email_status": send_status})
+    return redirect(url_for('loadadmindashboard'))
   except Exception as e:
-      flash(f'Failed to send email: {str(e)}', 'error')
+    app.logger.error(f'An error occurred in send_email: {e}', exc_info=True)
+    #return jsonify({"status": "error", "error": str(e)}), 500
+    return redirect(url_for('loadadmindashboard'))
       
-  flash('Password sent to your email. Please check !', 'info')
-  return render_template('login-page.html')
+  #flash('Password sent to your email. Please check !', 'info')
+  #return render_template('login-page.html')
 
 
 
