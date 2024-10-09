@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Construction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+
+        .construction-container {
+            text-align: center;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+
+        .construction-container h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .construction-container p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #666;
+        }
+
+        .construction-container i {
+            font-size: 100px;
+            color: #4682B4;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #4682B4;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .construction-container {
+                max-width: 90%;
+                padding: 20px;
+            }
+
+            .construction-container h1 {
+                font-size: 28px;
+            }
+
+            .construction-container p {
+                font-size: 16px;
+            }
+
+            .construction-container i {
+                font-size: 80px;
+            }
+
+            .timer {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="construction-container">
+        <i class="fa fa-cog fa-spin"></i>
+        <h1>Under Construction</h1>
+        <p>We are working hard to launch soon! Stay tuned.</p>
+
+        <!-- Countdown Timer -->
+        <div class="timer" id="timer">Launching in: 00:00:00</div>
+    </div>
+
+    <footer>
+        &copy; 2024 investinbulls.net company. All rights reserved.
+    </footer>
+
+    <script>
+        // Countdown Timer (Optional, Set launch date below)
+        var launchDate = new Date("Oct 20, 2024 00:00:00").getTime();
+
+        var x = setInterval(function () {
+            var now = new Date().getTime();
+            var distance = launchDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("timer").innerHTML = "Launching in: " + days + "d " + hours + "h " +
+                minutes + "m " + seconds + "s ";
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer").innerHTML = "Launched!";
+            }
+        }, 1000);
+    </script>
+
+</body>
+
+</html>
