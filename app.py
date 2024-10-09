@@ -55,10 +55,10 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(id):
     Session = sessionmaker(bind=engine)
-    session = Session()
-    id = session.query(User).filter_by(UserID=id).first()
+    db_session = Session()
+    id = db_session.query(User).filter_by(UserID=id).first()
     print("Logged in user-id: ",id)
-    session.close()
+    db_session.close()
     return id
 
 
@@ -96,7 +96,7 @@ def load_tickers_for_users():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,CreateDate from Tickers where TickerStatus = 'Active' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -106,12 +106,25 @@ def load_tickers_for_users():
   
   return ticker_list
 
+def load_tickers_for_watchlist():
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_for_users: {e}', exc_info=True)
+  
+  return ticker_list
 
 def load_tickers_for_admin():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -134,7 +147,7 @@ def home():
 def loginpage():
   return render_template('login-page.html')
 
-@app.route("/register")
+@app.route("/register", methods=['GET'])
 def user_register():
   return render_template('user-register.html')
 
@@ -150,11 +163,11 @@ def reset_pass_v1_update():
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(Email=email).first()
+      user = db_session.query(User).filter_by(Email=email).first()
 
       if user:
           # Update the user's details
@@ -168,17 +181,17 @@ def reset_pass_v1_update():
             flash('Password updated successfully !', 'info')
 
           # Commit the session to save changes to the database
-          session.commit()
+          db_session.commit()
           #return f'User {user} updated successfully'
       else:
           flash('Email address not found !', 'error')
   except Exception as e:
-      session.rollback()  # Rollback in case of error
+      db_session.rollback()  # Rollback in case of error
       app.logger.error(f'An error occurred in update_pass: {e}', exc_info=True)
       flash('Sorry! Unable to reset the password, contact Administrator !', 'error')
       return redirect(url_for('loginpage'))
   finally:
-      session.close()  # Close the session
+      db_session.close()  # Close the session
 
   return redirect(url_for('loginpage'))
 
@@ -191,7 +204,7 @@ def reset_pass():
 def send_pass_email():
   app.logger.info('send_email....')
   #email = request.form['email']
-  to_email = "shubhadip2004@gmail.com"
+  to_email = "chatterjee.paromita9@gmail.com"
   # Create the welcome message
   subject = "Welcome to Investinbulls.net"
   message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvetinbulls.net"
@@ -213,14 +226,17 @@ def send_pass_email():
 
 #Dashboard modules - Admin ||||||||||||||||||||||||||||||||||||||||||||||||||||||
 @app.route("/admindashboard")
+@login_required
 def dashboard_admin():
-  return render_template('/admin/dashboard-admin.html')
+  return render_template('/admin/dashboard-admin.html', user=current_user)
 
 @app.route("/createticker")
+@login_required
 def create_ticker():
-  return render_template('/admin/ticker-create.html')
+  return render_template('/admin/ticker-create.html', user=current_user)
 
 @app.route("/showadmintickers")
+@login_required
 def show_tickers_admin():
   admintickers = load_tickers_for_admin()
   # Convert to dictionary
@@ -235,7 +251,8 @@ def show_tickers_admin():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_notes": row[9]
+          "ticker_status": row[9],
+          "ticker_notes": row[10]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -244,13 +261,13 @@ def show_tickers_admin():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
 
   
 @app.route("/showusers")
 def show_users():
   allusers = load_users_from_db()
-  return render_template('/admin/show-users.html', users=allusers)
+  return render_template('/admin/show-users.html', users=allusers, user=current_user)
 
 
 #Dashboard modules - Users |||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -259,11 +276,38 @@ def dashboard_user():
   return render_template('/users/dashboard-user.html')
 
 @app.route("/show_ticker_user")
+@login_required
 def show_ticker_user():
   usertickers = load_tickers_for_users()
-  return render_template('/users/show-tickers-user.html', tickers=usertickers)
+  return render_template('/users/show-tickers-user.html', tickers=usertickers, user=current_user)
 
+@app.route("/show_ticker_user_watchlist")
+@login_required
+def show_ticker_user_watchlist():
+  watchlist = load_tickers_for_watchlist()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_status": row[9],
+          "ticker_notes": row[10]
+      } for row in watchlist
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
 
+  return render_template('/users/show-ticker-user-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
 
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -315,7 +359,7 @@ Base.metadata.create_all(engine)
 
 # Set up the session maker
 Session = sessionmaker(bind=engine)
-session = Session()
+db_session = Session()
 
 # CREATE USER .............................................................
 @app.route('/create_user', methods=['POST'])
@@ -330,35 +374,60 @@ def create_user():
   role = "General"
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
   app.logger.info('create_user: Loggin with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
                   + " / " +str(request.form['psw'])+ " / " +str(role))
   try:
-    # Create a new user instance
-    new_user = User(username=username,
-                email=email,
-                userpassword=password,
-                userrole=role)
-
+    # Query the user by username and password
+    user = db_session.query(User).filter_by(Email=email, UserPassword=password).first()
     # Add the new user to the session
-    session.add(new_user)
+    #print("==>" , user.UserName)
+    #print("==>" , user.UserRole)
+    if user:
+       print('User is already registered.')
+       flash('User is already registered. Please check your email !', 'error')
+    else:
+      # Create a new user instance
+      new_user = User(username=username,
+                  email=email,
+                  userpassword=password,
+                  userrole=role)
 
-    # Commit the session to save changes to the database
-    session.commit()
-    app.logger.info('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
-                  + " / " +str(request.form['psw'])+ " / " +str(role))
-    flash('User registration done, please Login !', 'info')
+      # Add the new user to the session
+      db_session.add(new_user)
+
+      # Commit the session to save changes to the database
+      db_session.commit()
+      app.logger.info('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
+                    + " / " +str(request.form['psw'])+ " / " +str(role))
+      flash('Registration successful! please check your email for further information !', 'info')
+      #Email send...
+      app.logger.info('Sending email to new register user....')
+      #email = request.form['email']
+      to_email = email
+      # Create the welcome message
+      subject = "Welcome to Investinbulls.net"
+      message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvetinbulls.net"
+
+      try:
+        send_email(mail, to_email, subject, message_body)
+        #return jsonify({"status": "success", "email_status": send_status})
+      except Exception as e:
+        app.logger.error(f'An error occurred in send_email: {e}', exc_info=True)
+        #return jsonify({"status": "error", "error": str(e)}), 500
   except Exception as e:
-    session.rollback()  # Rollback in case of error
+    db_session.rollback()  # Rollback in case of error
     flash('Facing some issue while user registration. Try later !', 'error')
     app.logger.error(f'An error occurred in create_user: {e}', exc_info=True)
-    return render_template('login-page.html')
+    return render_template('user-register.html')
     #return f'An error occurred: {e}'
   finally:
-    session.close()  # Close the session
+    db_session.close()  # Close the session    
 
-  return render_template('login-page.html')
+  return render_template('user-register.html')
   #return 'User created successfully'
+
+
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -366,28 +435,28 @@ def delete_user():
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(Email=email).first()
+      user = db_session.query(User).filter_by(Email=email).first()
 
       if user:
           # Delete the user from the session
-          session.delete(user)
+          db_session.delete(user)
 
           # Commit the session to remove the user from the database
-          session.commit()
+          db_session.commit()
           flash('User deleted successfully !', 'info')
       else:
           flash('User not found !', 'error')
   except Exception as e:
-      session.rollback()  # Rollback in case of error
+      db_session.rollback()  # Rollback in case of error
       flash('Problem occured in databse while deleting !', 'error')
       app.logger.error(f'An error occurred in delete_user: {e}', exc_info=True)
       #return f'An error occurred: {e}'
   finally:
-      session.close()  # Close the session
+      db_session.close()  # Close the session
 
   return redirect(url_for('manageuser'))
 
@@ -398,27 +467,27 @@ def promote_user():
 
     # Create a session
     Session = sessionmaker(bind=engine)
-    session = Session()
+    db_session = Session()
 
     try:
         # Query the user by email
-        user = session.query(User).filter_by(Email=email).first()
+        user = db_session.query(User).filter_by(Email=email).first()
 
         if user:
             # Promote the user to 'Admin'
             user.UserRole = 'Admin'
 
             # Commit the session to save changes to the database
-            session.commit()
+            db_session.commit()
             flash('User promoted to Admin successfully!', 'info')
         else:
             flash('User not found!', 'error')
     except Exception as e:
-        session.rollback()  # Rollback in case of error
+        db_session.rollback()  # Rollback in case of error
         flash('Problem occurred in database while promoting user!', 'error')
         app.logger.error(f'An error occurred in promote_user: {e}', exc_info=True)
     finally:
-        session.close()  # Close the session
+        db_session.close()  # Close the session
 
     return redirect(url_for('manageuser'))
 
@@ -430,27 +499,27 @@ def demote_user():
 
     # Create a session
     Session = sessionmaker(bind=engine)
-    session = Session()
+    db_session = Session()
 
     try:
         # Query the user by email
-        user = session.query(User).filter_by(Email=email).first()
+        user = db_session.query(User).filter_by(Email=email).first()
 
         if user:
             # Promote the user to 'Admin'
             user.UserRole = 'General'
 
             # Commit the session to save changes to the database
-            session.commit()
+            db_session.commit()
             flash('User demoted to General successfully!', 'info')
         else:
             flash('User not found!', 'error')
     except Exception as e:
-        session.rollback()  # Rollback in case of error
+        db_session.rollback()  # Rollback in case of error
         flash('Problem occurred in database while demoting user!', 'error')
         app.logger.error(f'An error occurred in demote_user: {e}', exc_info=True)
     finally:
-        session.close()  # Close the session
+        db_session.close()  # Close the session
 
     return redirect(url_for('manageuser'))
 
@@ -484,12 +553,12 @@ def save_ticker():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
-  tickerstatus = "Active"
+  tickerstatus = "Inactive"
   notes = request.form['notes']
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
     # Create a new user instance
@@ -506,20 +575,20 @@ def save_ticker():
                     TickerNotes=notes)
 
     # Add the new user to the session
-    session.add(new_ticker)
+    db_session.add(new_ticker)
 
     # Commit the session to save changes to the database
-    session.commit()
+    db_session.commit()
   except Exception as e:
-    session.rollback()  # Rollback in case of error
+    db_session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in save_ticker: {e}', exc_info=True)
     #return f'An error occurred while adding ticker in DB: {e}'
     flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
-    return render_template('/admin/dashboard-admin.html')
+    return render_template('/admin/dashboard-admin.html', user=current_user)
   finally:
-    session.close()  # Close the session
+    db_session.close()  # Close the session
 
-  return render_template('/admin/dashboard-admin.html')
+  return render_template('/admin/dashboard-admin.html', user=current_user)
 
 @app.route('/save_ticker_new', methods=['POST'])
 def save_ticker_new():
@@ -532,12 +601,12 @@ def save_ticker_new():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
-  tickerstatus = "Active"
+  tickerstatus = "Inactive"
   notes = request.form['notes']
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
     # Create a new user instance
@@ -554,18 +623,18 @@ def save_ticker_new():
                     TickerNotes=notes)
 
     # Add the new user to the session
-    session.add(new_ticker)
+    db_session.add(new_ticker)
 
     # Commit the session to save changes to the database
-    session.commit()
+    db_session.commit()
   except Exception as e:
-    session.rollback()  # Rollback in case of error
+    db_session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in save_ticker_new: {e}', exc_info=True)
     #return f'An error occurred while adding ticker in DB: {e}'
     flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
     #return render_template('/admin/dashboard-admin.html')
   finally:
-    session.close()  # Close the session
+    db_session.close()  # Close the session
 
   #added:
   admintickers = load_tickers_for_admin()
@@ -581,7 +650,8 @@ def save_ticker_new():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_notes": row[9]
+          "ticker_status": row[9],
+          "ticker_notes": row[10]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -590,7 +660,7 @@ def save_ticker_new():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
 
 
 @app.route('/update_ticker', methods=['POST'])
@@ -616,10 +686,10 @@ def update_ticker():
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
-    ticker = session.query(Ticker).filter_by(TickerName=ticker_name).first()
+    ticker = db_session.query(Ticker).filter_by(TickerName=ticker_name).first()
 
     if ticker:
       app.logger.info('update_ticker: updating ticker : '+ ticker_name)
@@ -632,7 +702,7 @@ def update_ticker():
       ticker.Target4=target_4
       ticker.TickerNotes=ticker_notes
       # Commit the session to save changes to the database
-      session.commit()
+      db_session.commit()
     else:
       app.logger.info('update_ticker: adding new ticker : '+ ticker_name)
       # Create a new user instance
@@ -649,10 +719,10 @@ def update_ticker():
                       TickerNotes=ticker_notes)
 
       # Add the new user to the session
-      session.add(new_ticker)
+      db_session.add(new_ticker)
 
     # Commit the session to save changes to the database
-    session.commit()
+    db_session.commit()
 
     return jsonify(success=True)
   except:
@@ -674,7 +744,8 @@ def update_ticker():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_notes": row[9]
+          "ticker_status": row[9],
+          "ticker_notes": row[10]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -683,7 +754,7 @@ def update_ticker():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers)
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
 
 @app.route('/delete_ticker', methods=['POST'])
 def delete_ticker():
@@ -691,28 +762,28 @@ def delete_ticker():
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
       # Query the user by username
-      ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+      ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
 
       if ticker:
           # Delete the user from the session
-          session.delete(ticker)
+          db_session.delete(ticker)
 
           # Commit the session to remove the user from the database
-          session.commit()
+          db_session.commit()
           flash('Ticker deleted successfully !', 'info')
       else:
           flash('Ticker not found !', 'error')
   except Exception as e:
-      session.rollback()  # Rollback in case of error
+      db_session.rollback()  # Rollback in case of error
       flash('Problem occured in database while deleting !', 'error')
       app.logger.error(f'An error occurred in delete_ticker: {e}', exc_info=True)
       #return f'An error occurred: {e}'
   finally:
-      session.close()  # Close the session
+      db_session.close()  # Close the session
 
   return redirect(url_for('manageticker'))
 
@@ -723,27 +794,27 @@ def active_ticker():
 
     # Create a session
     Session = sessionmaker(bind=engine)
-    session = Session()
+    db_session = Session()
 
     try:
         # Query the user by email
-        ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
 
         if ticker:
             # Promote the ticker to 'Active'
             ticker.TickerStatus = 'Active'
 
             # Commit the session to save changes to the database
-            session.commit()
+            db_session.commit()
             flash('Ticker updated : Active!', 'info')
         else:
             flash('Ticker not found!', 'error')
     except Exception as e:
-        session.rollback()  # Rollback in case of error
+        db_session.rollback()  # Rollback in case of error
         flash('Problem occurred in database while making Active ticker!', 'error')
         app.logger.error(f'An error occurred in active_ticker: {e}', exc_info=True)
     finally:
-        session.close()  # Close the session
+        db_session.close()  # Close the session
 
     return redirect(url_for('manageticker'))
 
@@ -755,33 +826,34 @@ def inactive_ticker():
 
     # Create a session
     Session = sessionmaker(bind=engine)
-    session = Session()
+    db_session = Session()
 
     try:
         # Query the user by email
-        ticker = session.query(Ticker).filter_by(TickerName=tickername).first()
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
 
         if ticker:
             # Promote the ticker to 'Incctive'
             ticker.TickerStatus = 'Inactive'
 
             # Commit the session to save changes to the database
-            session.commit()
+            db_session.commit()
             flash('Ticker updated : Inactive!', 'info')
         else:
             flash('Ticker not found!', 'error')
     except Exception as e:
-        session.rollback()  # Rollback in case of error
+        db_session.rollback()  # Rollback in case of error
         flash('Problem occurred in database while makeing Inactive ticker!', 'error')
         app.logger.error(f'An error occurred in inactive_ticker: {e}', exc_info=True)
     finally:
-        session.close()  # Close the session
+        db_session.close()  # Close the session
 
     return redirect(url_for('manageticker'))
 
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/auth_user', methods=['POST', 'GET'])
+@login_required
 def auth_user():
   app.logger.info('auth_user: Loggin with user email : '+ str(request.form['email']))
   # Get the form data
@@ -791,24 +863,25 @@ def auth_user():
     
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
       # Query the user by username and password
-      user = session.query(User).filter_by(Email=email, UserPassword=password).first()
+      user = db_session.query(User).filter_by(Email=email, UserPassword=password).first()
       # Add the new user to the session
       #print("==>" , user.UserName)
       #print("==>" , user.UserRole)
       if user:
           app.logger.info('auth_user: Successful Loggin with user email : '+ str(request.form['email']))
-          login_user(user,remember=True, duration=None, force=True, fresh=True) # Flask-Login will now work as expected
+          #login_user(user,remember=True, duration=None, force=True, fresh=True) # Flask-Login will now work as expected
+          login_user(user,remember=True) # Flask-Login will now work as expected
           # User found, return user details
           if user.UserRole == "Admin":
-            #return render_template('/admin/dashboard-admin.html')
-            return redirect(url_for('loadadmindashboard'))
+            return render_template('/admin/dashboard-admin.html', user=current_user)
+            #return redirect(url_for('loadadmindashboard'))
           else:
-            #return render_template('/users/dashboard-user.html')
-            return redirect(url_for('loaduserdashboard'))
+            return render_template('/users/dashboard-user.html', user=current_user)
+            #return redirect(url_for('loaduserdashboard'))
       else:
           app.logger.info('auth_user: Failed Loggin with user email : '+ str(request.form['email']))
           flash('Wrong username or password! Please Try again !', 'error')
@@ -818,18 +891,21 @@ def auth_user():
       flash('Problem occured while login! Please Try later !', 'error')
       return redirect(url_for('loginpage'))
   finally:
-      session.close()  # Close the session
+      db_session.close()  # Close the session
 
 @app.route("/loadadmindashboard")
 @login_required
 def loadadmindashboard():
-  return render_template('/admin/dashboard-admin.html')
-
+  if current_user.is_authenticated:
+    return render_template('/admin/dashboard-admin.html', user=current_user)
+  else:
+     return render_template('login-page.html')
+  
 @app.route("/loaduserdashboard")
 @login_required
 def loaduserdashboard():
   if current_user.is_authenticated:
-    return render_template('/users/dashboard-user.html')
+    return render_template('/users/dashboard-user.html', user=current_user)
   else:
      return render_template('login-page.html')
 
@@ -850,11 +926,11 @@ def update_pass():
 
   # Create a session
   Session = sessionmaker(bind=engine)
-  session = Session()
+  db_session = Session()
 
   try:
       # Query the user by username
-      user = session.query(User).filter_by(Email=email, UserPassword=old_pass).first()
+      user = db_session.query(User).filter_by(Email=email, UserPassword=old_pass).first()
 
       if user:
           # Update the user's details
@@ -866,17 +942,17 @@ def update_pass():
             return redirect(url_for('update_pass'))
 
           # Commit the session to save changes to the database
-          session.commit()
+          db_session.commit()
           #return f'User {user} updated successfully'
       else:
           flash('Email address not found !', 'error')
   except Exception as e:
-      session.rollback()  # Rollback in case of error
+      db_session.rollback()  # Rollback in case of error
       app.logger.error(f'An error occurred in update_pass: {e}', exc_info=True)
       flash('Sorry! Unable to update the password, contact Administrator !', 'error')
       return redirect(url_for('update_pass'))
   finally:
-      session.close()  # Close the session
+      db_session.close()  # Close the session
 
   return redirect(url_for('logout'))
 
@@ -887,7 +963,7 @@ def update_pass():
 #Admin based
 @app.route("/adminpanel")
 def adminpanel():
-  return render_template('/admin/draft.html')
+  return render_template('/admin/draft.html', user=current_user)
 
 @app.route("/manageticker")
 def manageticker():
@@ -913,29 +989,29 @@ def manageticker():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/manage-tickers.html', grouped_tickers=grouped_tickers)
+  return render_template('/admin/manage-tickers.html', grouped_tickers=grouped_tickers, user=current_user)
 
 @app.route("/manageuser")
 def manageuser():
   allusers = load_users_from_db()
-  return render_template('/admin/user-manage.html', users=allusers)
+  return render_template('/admin/user-manage.html', users=allusers, user=current_user)
 
 @app.route("/adminprofile")
 def adminprofile():
-  return render_template('/admin/admin-profile.html')
+  return render_template('/admin/admin-profile.html', user=current_user)
 
 @app.route("/adminusercreate")
 def adminusercreate():
-  return render_template('/admin/user-register-admin.html')
+  return render_template('/admin/user-register-admin.html', user=current_user)
 
 @app.route("/update_admin_pass")
 def update_admin_pass():
-  return render_template('/admin/update-pass.html')
+  return render_template('/admin/update-pass.html', user=current_user)
 
 #User based
 @app.route("/userpanel")
 def userpanel():
-  return render_template('/users/draft.html')
+  return render_template('/users/draft.html', user=current_user)
 
 @app.route("/userprofile")
 def userprofile():

@@ -29,7 +29,7 @@
         <div class="logo">
             <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" style="height:40px;">
         </div>
-        
+        {% if user.is_authenticated %}
         <!-- Menu Buttons -->
         <div class="menu">
             <button class="menu-btn" title="Click to go to the Dashboard">
@@ -55,7 +55,18 @@
                 <i class="fa fa-sign-out"></i> <a href="/logout">Logout</a>
             </button>
         </div>
+        {% else %}
+        <div class="right-menu">
+            <button class="menu-btn" title="Click to view your profile">
+                <i class="fa fa-user-circle"></i> <a href="/adminprofile">Admin2</a>
+            </button>
+            <button class="menu-btn" title="Click to logout">
+                <i class="fa fa-sign-out"></i> <a href="/logout">Logout2</a>
+            </button>
+        </div>
+        {% endif %}
     </div>
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <ul class="flashes">
