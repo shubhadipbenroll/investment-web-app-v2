@@ -1,0 +1,239 @@
+{% extends "/users/base-template-user.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<head>
+    <style>
+    /* General styles */
+
+    /* Reset password container */
+    .reset-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Logo styles */
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 100px;
+      height: auto;
+    }
+
+    .reset-container h1 {
+      text-align: left;
+      margin-bottom: 30px;
+      color: #4682B4;
+    }
+
+    /* Input fields */
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 10px 12px 40px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f1f1f1;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      background-color: #e0f2f1;
+      border: 1px solid #4682B4;
+      outline: none;
+    }
+
+    /* Label styles */
+    label {
+      font-weight: bold;
+      color: #4682B4;
+    }
+
+    /* Button styles */
+    .reset-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: orange;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .reset-btn:hover {
+      background-color: #e67e22;;
+    }
+
+    /* Icon in input fields */
+    .icon-input {
+      position: relative;
+    }
+
+    .icon-input i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    .icon-input .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    /* Validation error message */
+    .error-message {
+      color: red;
+      font-size: 14px;
+      display: none;
+      margin-top: 5px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      .reset-container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .reset-btn {
+        font-size: 16px;
+        padding: 12px;
+      }
+    }
+    /* Label styles */
+    label {
+    font-weight: bold;
+    color: #4682B4; /* Darker bluish color */
+    text-align: left; /* Align text to the left */
+    display: block; /* Ensure the label occupies its own line */
+    margin-bottom: 5px; /* Add some space between label and input */
+    }
+    </style>
+
+    <script>
+    // Toggle password visibility
+    function togglePasswordVisibility(fieldId, eyeIconId) {
+      const passwordField = document.getElementById(fieldId);
+      const eyeIcon = document.getElementById(eyeIconId);
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+      } else {
+        passwordField.type = "password";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
+      }
+    }
+
+    // Password validation
+    function validatePasswords() {
+      var email = document.getElementById("email").value;
+      var currentPassword = document.getElementById("current-password").value;
+      var newPassword = document.getElementById("new-password").value;
+      var repeatPassword = document.getElementById("repeat-password").value;
+      var mobile = document.getElementById("mobile-number").value;
+      var errorMessage = document.getElementById("error-message");
+
+      // Email Validation: Ensure email contains '@'
+      if (!email.includes('@')) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Invalid email address! Email must contain '@'.";
+        return false;
+      }
+
+      // Mobile Validation: Ensure the mobile number is 10 digits long
+      var mobilePattern = /^[0-9]{10}$/;
+      if (!mobilePattern.test(mobile)) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Invalid mobile number! It must contain exactly 10 digits.";
+        return false;
+      }
+
+      if (!email.includes('@')) {
+        errorMessage.textContent = "Invalid email address! It must contain '@'.";
+        errorMessage.style.display = "block";
+        return false;
+      }
+
+      var passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+      if (!passwordPattern.test(newPassword)) {
+        errorMessage.textContent = "New password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.";
+        errorMessage.style.display = "block";
+        return false;
+      }
+
+      if (newPassword === currentPassword) {
+        errorMessage.textContent = "New password must not be the same as the current password.";
+        errorMessage.style.display = "block";
+        return false;
+      }
+
+      if (newPassword !== repeatPassword) {
+        errorMessage.textContent = "New password and repeat password do not match.";
+        errorMessage.style.display = "block";
+        return false;
+      }
+
+      errorMessage.style.display = "none";
+      return true;
+    }
+    </script>
+</head>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+      <div class="flash-messages">
+          {% for category, message in messages %}
+              <div class="flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+      </div>
+  {% endif %}
+{% endwith %}
+<body>
+    <!-- Reset Password Form -->
+    <div class="reset-container">
+    <h1>Update Mobile Number</h1>
+    <form action="/update_mobile_no_db" method="POST" onsubmit="return validatePasswords();">
+        <div class="icon-input">
+        <label for="email"><b>Email Address</b></label>
+        <i class="fa fa-envelope fa-lg"></i>
+        <input type="text" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <label for="mobile"><b>Mobile Number</b></label>
+        <div style="display: flex; gap: 5px;">
+          <select id="country-code" name="country-code" style="flex: 1;">
+            <option value="+1">+1 (USA)</option>
+            <option value="+91">+91 (India)</option>
+            <option value="+44">+44 (UK)</option>
+            <option value="+61">+61 (Australia)</option>
+            <!-- Add more country codes as needed -->
+          </select>
+          <input type="text" id="mobile-number" name="mobile-number" placeholder="Mobile Number" style="flex: 2;" required>
+        </div>
+
+        <!-- Error message display area -->
+        <p id="error-message" class="error-message"></p>
+
+        <button type="submit" class="reset-btn">Update Mobile Number</button>
+    </form>
+    </div>
+</body>
+{% endblock %}

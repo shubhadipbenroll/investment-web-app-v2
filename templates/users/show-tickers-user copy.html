@@ -1,0 +1,225 @@
+{% extends "/users/base-template-user.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<style>
+    /* General body styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    /* Header styles */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        padding: 15px 30px;
+        color: #fff;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+
+    /* User profile on the top right */
+    .user-profile {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-profile img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .user-profile .username {
+        margin-right: 15px;
+        font-size: 16px;
+    }
+
+    .user-profile .logout-btn {
+        background-color: #ff4d4d;
+        color: #fff;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* Table styles */
+    .container {
+        width: 90%;
+        margin: 30px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    th {
+        background-color: orange; /* Header color */
+        color: black; /* Text color for header */
+        cursor: pointer; /* Indicate sortable columns */
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Search bar styles */
+    .search-bar {
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-bar input[type="text"] {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .search-bar button {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .search-bar button:hover {
+        background-color: #218838;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header,
+        .container {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .search-bar input[type="text"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<!-- Main container -->
+<div class="container">
+    <!-- Search bar -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search tickers...">
+        <button onclick="filterTable()">Search</button>
+    </div>
+
+    <!-- Table -->
+    <table id="tickerTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Ticker-Date</th>
+                <th onclick="sortTable(1)">Ticker-Name</th>
+                <th onclick="sortTable(2)">Entry Price</th>
+                <th onclick="sortTable(3)">Stop %</th>
+                <th onclick="sortTable(4)">Stop Price</th>
+                <th onclick="sortTable(5)">Target-1</th>
+                <th onclick="sortTable(6)">Target-2</th>
+                <th onclick="sortTable(7)">Target-3</th>
+                <th onclick="sortTable(8)">Target-4</th>
+                <th onclick="sortTable(9)">Status</th>
+                <th onclick="sortTable(10)">Ticker-Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickers %}
+            <tr>
+                {% for i in t %}
+                <td>{{ i }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Function to filter table rows based on search input
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('tickerTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let tdArray = tr[i].getElementsByTagName('td');
+            let matchFound = false;
+
+            for (let j = 0; j < tdArray.length; j++) {
+                let td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        matchFound = true;
+                    }
+                }
+            }
+
+            tr[i].style.display = matchFound ? "" : "none";
+        }
+    }
+
+    // Function to sort the table
+    function sortTable(columnIndex) {
+        const table = document.getElementById("tickerTable");
+        const tbody = table.getElementsByTagName("tbody")[0];
+        const rows = Array.from(tbody.getElementsByTagName("tr"));
+        const isAscending = tbody.getAttribute("data-order") === "asc";
+
+        // Sort rows based on the column index
+        rows.sort((a, b) => {
+            const aText = a.getElementsByTagName("td")[columnIndex].innerText;
+            const bText = b.getElementsByTagName("td")[columnIndex].innerText;
+            return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        });
+
+        // Append sorted rows to the tbody
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Toggle order attribute
+        tbody.setAttribute("data-order", isAscending ? "desc" : "asc");
+    }
+</script>
+{% endblock %}

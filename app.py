@@ -111,9 +111,9 @@ def load_tickers_for_users():
   try:
     with engine.connect() as conn:
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      #print("type(result.all())", type(result.all()))
-      #print(result.all())
+      #Only show last date data
+      #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -125,7 +125,7 @@ def load_tickers_for_watchlist():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -187,8 +187,8 @@ def reset_pass_v1_update():
 
       if user:
           # Update the user's details
-          print("=>",user.UserPassword)
-          print("=>",new_pass)
+          #print("=>",user.UserPassword)
+          #print("=>",new_pass)
           if user.UserPassword == new_pass:
             user.UserPassword = new_pass
             flash('New password and existing password are same !', 'info')
@@ -215,29 +215,6 @@ def reset_pass_v1_update():
 @app.route("/reset_pass")
 def reset_pass():
   return render_template('reset-pass.html')
-
-@app.route("/send_email")
-def send_pass_email():
-  app.logger.info('send_email....')
-  #email = request.form['email']
-  to_email = "chatterjee.paromita9@gmail.com"
-  # Create the welcome message
-  subject = "Welcome to Investinbulls.net"
-  message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvetinbulls.net"
-
-  try:
-    send_status = send_email(mail, to_email, subject, message_body)
-    #return jsonify({"status": "success", "email_status": send_status})
-    return redirect(url_for('loadadmindashboard'))
-  except Exception as e:
-    app.logger.error(f'An error occurred in send_email: {e}', exc_info=True)
-    #return jsonify({"status": "error", "error": str(e)}), 500
-    return redirect(url_for('loadadmindashboard'))
-      
-  #flash('Password sent to your email. Please check !', 'info')
-  #return render_template('login-page.html')
-
-
 
 
 #Dashboard modules - Admin ||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -294,8 +271,30 @@ def dashboard_user():
 @app.route("/show_ticker_user")
 @login_required
 def show_ticker_user():
-  usertickers = load_tickers_for_users()
-  return render_template('/users/show-tickers-user.html', tickers=usertickers, user=current_user)
+  ticklist = load_tickers_for_users()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_percent": row[3],
+          "stop_price": row[4],
+          "target_1": row[5],
+          "target_2": row[6],
+          "target_3": row[7],
+          "target_4": row[8],
+          "ticker_status": row[9],
+          "ticker_notes": row[10]
+      } for row in ticklist
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/users/show-tickers-user.html', grouped_tickers=grouped_tickers, user=current_user)
 
 @app.route("/show_ticker_user_watchlist")
 @login_required
@@ -432,7 +431,7 @@ def create_user():
       to_email = email
       # Create the welcome message
       subject = "Welcome to Investinbulls.net"
-      message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvetinbulls.net"
+      message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
 
       try:
         send_email(mail, to_email, subject, message_body)
@@ -1033,14 +1032,98 @@ def update_admin_pass():
   return render_template('/admin/update-pass.html', user=current_user)
 
 #User based
-@app.route("/userpanel")
-def userpanel():
+@app.route("/user_notificatuons")
+def user_notificatuons():
   return render_template('/users/draft.html', user=current_user)
 
 @app.route("/userprofile")
 def userprofile():
   return render_template('/users/user-profile.html', user=current_user)
 
+@app.route("/update_user_pass")
+def update_user_pass():
+  return render_template('/users/update-pass.html', user=current_user)
+
+@app.route("/update_mobile_no")
+def update_mobile_no():
+  return render_template('/users/update-mobileno.html', user=current_user)
+
+
+@app.route('/update_user_pass_db', methods=['POST', 'GET'])
+def update_user_pass_db():
+  email = request.form['email']
+  old_pass = request.form['current-password']
+  new_pass = request.form['new-password']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+  try:
+      # Query the user by username
+      user = db_session.query(User).filter_by(Email=email, UserPassword=old_pass).first()
+
+      if user:
+          # Update the user's details
+          if user.UserPassword == old_pass:
+            user.UserPassword = new_pass
+            # Commit the session to save changes to the database
+            db_session.commit()
+            flash('Password updated successfully !', 'info')
+          else:
+            flash('User existing password is not matching. Try again !', 'error')
+            return redirect(url_for('update_user_pass'))
+          
+          #return f'User {user} updated successfully'
+      else:
+          flash('Email address not found !', 'error')
+  except Exception as e:
+      db_session.rollback()  # Rollback in case of error
+      app.logger.error(f'An error occurred in update_user_pass_db: {e}', exc_info=True)
+      flash('Sorry! Unable to update the password, contact Administrator !', 'error')
+      return redirect(url_for('update_user_pass'))
+  finally:
+      db_session.close()  # Close the session
+
+  return redirect(url_for('update_user_pass'))
+
+@app.route('/update_mobile_no_db', methods=['POST', 'GET'])
+def update_mobile_no_db():
+  email = request.form['email']
+  concode = request.form['country-code']
+  mobnumber = request.form['mobile-number']
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+  try:
+      # Query the user by username
+      user = db_session.query(User).filter_by(Email=email).first()
+
+      if user:
+          # Update the user's details
+          user.country_code == concode
+          user.mobile_number = mobnumber
+        
+          # Commit the session to save changes to the database
+          db_session.commit()
+          #return f'User {user} updated successfully'
+          flash('Mobile number updated successfully !', 'info')
+
+      else:
+          flash('Email address not found, Try again !', 'error')
+          return redirect(url_for('update_mobile_no'))
+      
+  except Exception as e:
+      db_session.rollback()  # Rollback in case of error
+      app.logger.error(f'An error occurred in update_user_pass_db: {e}', exc_info=True)
+      flash('Sorry! Unable to update the mobile number, contact Administrator !', 'error')
+      return redirect(url_for('update_mobile_no'))
+  finally:
+      db_session.close()  # Close the session
+
+  return redirect(url_for('update_mobile_no'))
 
 @app.route('/logout')
 @login_required

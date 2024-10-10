@@ -8,7 +8,7 @@ body {
 
 /* Navigation bar */
 .navbar {
-    background-color: #4682B4; /* Bluish color */
+    background-color: orange; /* Bluish color */
     display: flex;
     justify-content: space-between; /* Space between logo and menu */
     align-items: center;

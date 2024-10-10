@@ -1,18 +1,52 @@
 {% extends "/users/base-template-user.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
 
+<style>
+  /* Ensure container handles button layout */
+  .dashboard-container {
+    display: flex;
+    gap: 20px; /* Add spacing between buttons */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+  }
+
+  /* General button styles */
+  .dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: orange;
+    color: black;
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    width: 150px; /* Set equal width */
+    height: 20px; /* Set equal height */
+    text-align: center;
+  }
+
+  /* Button hover effect */
+  .dashboard-btn:hover {
+    background-color: #e67e22;
+  }
+
+  /* Align icon and text inside button */
+  .dashboard-btn i {
+    margin-right: 8px; /* Spacing between icon and text */
+  }
+</style>
 <!-- Dashboard content -->
-<div class="dashboard-container">
-  <!-- Middle of the Page Buttons -->
-  
+<div class="dashboard-container">  
   <a href="/show_ticker_user" class="dashboard-btn">
-    <i class="fa fa-list-alt"></i> Recommendation
+    <i class="fa fa-newspaper-o"></i> Recommendation
   </a>
   <a href="/show_ticker_user_watchlist" class="dashboard-btn">
-    <i class="fa fa-list-alt"></i> Watchlist
+    <i class="fa fa-line-chart"></i> Watchlist
   </a>
 </div>
 

@@ -8,7 +8,7 @@ body {
   
   /* Navigation bar */
   .navbar {
-    background-color: #4682B4; /* Bluish color */
+    background-color: orange; /* Bluish color */
     overflow: hidden;
     display: flex;
     justify-content: space-between;
@@ -69,20 +69,6 @@ body {
     display: block;
   }
   
-  /* Logout button */
-  .logout-btn {
-    background-color: #FF6347; /* Tomato red */
-    color: white;
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .logout-btn i {
-    margin-right: 15px;
-  }
   
   /* Left-side panel for Dashboard options */
   .side-panel {
@@ -104,7 +90,7 @@ body {
   }
   
   .side-panel a:hover {
-    background-color: #4682B4; ;
+    background-color: orange; ;
   }
   
   /* Dashboard container */
@@ -129,7 +115,7 @@ body {
     padding: 15px 30px;
     font-size: 18px;
     color: white;
-    background-color: DodgerBlue;
+    background-color: orange;
     border: none;
     border-radius: 8px;
     text-align: center;
@@ -139,7 +125,7 @@ body {
   }
   
   .dashboard-btn:hover {
-    background-color: RoyalBlue;
+    background-color: #e67e22;;
   }
   
   .dashboard-btn i {

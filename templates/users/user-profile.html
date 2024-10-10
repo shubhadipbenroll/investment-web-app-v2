@@ -1,11 +1,40 @@
-{% extends "/users/base.html" %}
+{% extends "/users/base-template-user.html" %}
 
-{% block title %}User Profile{% endblock %}
+{% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
 
 {% if user.is_authenticated %}
-    <p>User is authenticated .... </p>
+    <style>
+        /* General button styles */
+        .dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: orange;
+            color: black;
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 200px; /* Set equal width */
+            height: 20px; /* Set equal height */
+            text-align: center;
+        }
+    </style>
+    <!-- Dashboard content -->
+    <div class="dashboard-container">
+      
+  
+        <!-- Middle of the Page Buttons -->
+        <a href="/update_user_pass" class="dashboard-btn">
+          <i class="fa fa-key"></i> Change Password
+        </a>
+        <a href="/update_mobile_no" class="dashboard-btn">
+          <i class="fa fa-mobile"></i> Update Mobile Number
+        </a>
+      </div>
 {% endif %}
 
 {% endblock %}

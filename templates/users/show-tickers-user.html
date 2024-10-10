@@ -1,225 +1,601 @@
-{% extends "/users/base.html" %}
+{% extends "/users/base-template-user.html" %}
 
-{% block title %}Ticker List{% endblock %}
+{% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
-<style>
-    /* General body styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-        width: 100vw;
-        height: 100vh;
-    }
+<head>
+    <style>
+        /* General body styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            width: 100vw;
+            height: auto; /* Changed to auto for height adjustment */
+        }
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 15px 30px;
+            color: #fff;
+        }
 
-    /* Header styles */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #333;
-        padding: 15px 30px;
-        color: #fff;
-    }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
 
-    .header h1 {
-        font-size: 24px;
-        margin: 0;
-    }
+        /* User profile on the top right */
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
 
-    /* User profile on the top right */
-    .user-profile {
-        display: flex;
-        align-items: center;
-    }
+        .user-profile img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
 
-    .user-profile img {
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        margin-right: 10px;
-    }
+        .user-profile .username {
+            margin-right: 15px;
+            font-size: 16px;
+        }
 
-    .user-profile .username {
-        margin-right: 15px;
-        font-size: 16px;
-    }
+        .user-profile .logout-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* Ticker-Notes cell style */
+        .ticker-notes {
+            max-height: 2.6em; /* Approximately two lines of text */
+            overflow-y: auto;  /* Enable vertical scrolling */
+            white-space: normal; /* Allow text to wrap */
+            word-wrap: break-word; /* Break long words if necessary */
+            display: block; /* Ensures the div behaves like a block element */
+        }
 
-    .user-profile .logout-btn {
-        background-color: #ff4d4d;
-        color: #fff;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+        /* Custom scrollbar styling (optional) */
+        .ticker-notes::-webkit-scrollbar {
+            width: 5px; /* Width of the scrollbar */
+        }
 
-    /* Table styles */
-    .container {
-        width: 90%;
-        margin: 30px auto;
-    }
+        .ticker-notes::-webkit-scrollbar-thumb {
+            background-color: #888; /* Color of the scrollbar */
+            border-radius: 4px;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    table,
-    th,
-    td {
-        border: 1px solid #ddd;
-    }
-
-    th,
-    td {
-        padding: 12px 15px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #007bff; /* Header color */
-        color: white; /* Text color for header */
-        cursor: pointer; /* Indicate sortable columns */
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    /* Search bar styles */
-    .search-bar {
-        margin: 20px 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .search-bar input[type="text"] {
-        width: 200px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-    }
-
-    .search-bar button {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .search-bar button:hover {
-        background-color: #218838;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .header,
+        .ticker-notes::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+        /* Container and Table styles */
         .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        /* Set column width percentages */
+        .col-1 { width: 14%; }
+        .col-2 { width: 14%; }
+        .col-3 { width: 6%; }
+        .col-4 { width: 6%; }
+        .col-5 { width: 6%; }
+        .col-6 { width: 6%; }
+        .col-7 { width: 6%; }
+        .col-8 { width: 6%; }
+        .col-9 { width: 6%; }
+        .col-10 { width: 6%; }
+        .col-11 { width: 20%; }
+        th {
+            background-color: orange; /* Change header background color */
+            color: black; /* White text for header */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .editable {
+            background-color: #ffffe0; /* Light yellow to indicate edit mode */
+        }
+
+        /* Icons */
+        .action-icons {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        /* Search bar styles */
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar input[type="text"], .search-bar select {
             padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-right: 10px;
         }
 
-        .search-bar input[type="text"] {
+        .search-bar button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #218838;
+        }
+        .center-btn {
+            display: flex;
+            justify-content: center; /* Centers the button horizontally */
+        }
+
+        .center-btn input[type="submit"] {
+            width: 50%; /* Optional: Adjust the width of the button */
+            max-width: 200px; /* Optional: Limit the maximum width of the button */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .form-title {
+            text-align: left;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px; /* Reduced gap for compactness */
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group textarea {
+            resize: none; /* Prevents resizing of the textarea */
+        }
+
+        .form-group input[type="submit"] {
+            grid-column: span 2;
+            background-color: #4682B4;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        /* Button style to open the form */
+        .open-popup-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
+        }
+
+        /* The overlay for the pop-up (full-screen) */
+        .popup-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            margin-bottom: 10px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
         }
-    }
-</style>
 
-<!-- Main container -->
-<div class="container">
+        /* The form container as a pop-up */
+        .form-container {
+            background-color: #fff;
+            width: 25%; /* 1/4 of the screen */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Title styles */
+        .form-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        /* General form styling */
+        .form-grid {
+            display: grid;
+            grid-gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        /* Submit button styling */
+        .center-btn {
+            text-align: center;
+        }
+
+        .btn {
+            background-color: orange;
+            color: black;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Close button style */
+        .close-btn {
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #4169E1;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header,
+            .container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .search-bar input[type="text"],
+            .search-bar select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+
+    <script>
+        // Function to calculate 90% of the input value
+        function calculatePercentage() {
+            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
+            let discountPercentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
+
+            if (!isNaN(amount) && !isNaN(discountPercentage)) {
+            let discountValue = (amount * discountPercentage) / 100;
+            let finalAmount = amount - discountValue;
+            document.getElementById("result").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 1 (6%)
+        function calculatePercentageTarget1() {
+            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
+            let target1Percentage = 6;
+
+            if (!isNaN(amount)) {
+            let target1Value = (amount * target1Percentage) / 100;
+            let finalAmount = amount + target1Value;
+            document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 2 (12%)
+        function calculatePercentageTarget2() {
+            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
+            let target2Percentage = 12;
+
+            if (!isNaN(amount)) {
+            let target2Value = (amount * target2Percentage) / 100;
+            let finalAmount = amount + target2Value;
+            document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+        // Function to filter table rows based on search input and dropdown filters
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const tables = document.querySelectorAll('.ticker-table');
+
+            tables.forEach(table => {
+                const tr = table.getElementsByTagName('tr');
+                for (let i = 1; i < tr.length; i++) {
+                    let tdArray = tr[i].getElementsByTagName('td');
+                    let rowMatchFound = false;
+
+                    for (let j = 0; j < tdArray.length; j++) {
+                        let td = tdArray[j];
+                        if (td && td.innerText.toUpperCase().indexOf(filter) > -1) {
+                            rowMatchFound = true;
+                        }
+                    }
+                    tr[i].style.display = rowMatchFound ? "" : "none";
+                }
+            });
+        }
+
+        // Function to toggle the visibility of the table
+        function toggleTable(tableId) {
+            const table = document.getElementById(tableId);
+            const button = document.getElementById(`toggle-${tableId}`);
+            if (table.style.display === "none" || table.style.display === "") {
+                table.style.display = "table"; // Show the table
+                button.innerHTML = "-"; // Change button text to minus
+            } else {
+                table.style.display = "none"; // Hide the table
+                button.innerHTML = "+"; // Change button text to plus
+            }
+        }
+        
+        // Make the row editable and send selected row info to the backend
+        function editRow(rowId) {
+            let row = document.getElementById(rowId); // Select the row by its unique ID
+            if (!row) {
+                console.error("Row not found:", rowId);
+                return;
+            }
+
+            // Send rowId to the backend to print it in the terminal
+            fetch('/debug_log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: `Editing row: ${rowId}` })
+            });
+
+            let cells = row.getElementsByTagName("td");
+
+            // Add editable attributes to each cell except the action cell
+            for (let i = 1; i < cells.length - 1; i++) {
+                let cell = cells[i];
+                let content = cell.innerText;
+                cell.innerHTML = `<input type="text" value="${content}" />`;
+                cell.classList.add("editable");
+            }
+        }
+
+        // Update the row and send updated row info to the backend
+        function updateRow(rowId) {
+            let row = document.getElementById(rowId); // Select the row by its unique ID
+            if (!row) {
+                console.error("Row not found:", rowId);
+                return;
+            }
+
+            // Send rowId to the backend to print it in the terminal
+            fetch('/debug_log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: `Updating row: ${rowId}` })
+            });
+
+            let cells = row.getElementsByTagName("td");
+            let updatedData = {};
+
+            // Extract updated values from input fields
+            updatedData['created_date'] = cells[0].innerText;
+            updatedData['ticker_name'] = cells[1].querySelector('input').value;
+            updatedData['entry_price'] = cells[2].querySelector('input').value;
+            updatedData['stop_percent'] = cells[3].querySelector('input').value;
+            updatedData['stop_price'] = cells[4].querySelector('input').value;
+            updatedData['target_1'] = cells[5].querySelector('input').value;
+            updatedData['target_2'] = cells[6].querySelector('input').value;
+            updatedData['target_3'] = cells[7].querySelector('input').value;
+            updatedData['target_4'] = cells[8].querySelector('input').value;
+            updatedData['ticker_status'] = cells[9].querySelector('input').value;
+            updatedData['ticker_notes'] = cells[10].querySelector('input').value;
+
+            // Call the backend to update the data
+            fetch('/update_ticker', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Update successful");
+                    // Replace the input fields with updated text and remove editable class
+                    for (let i = 1; i < cells.length - 1; i++) {
+                        let cell = cells[i];
+                        let input = cell.querySelector('input');
+                        cell.innerText = input.value;
+                        cell.classList.remove("editable");
+                    }
+                } else {
+                    alert("Update failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating the row:", error);
+                alert("An error occurred while updating the row");
+            });
+        }
+
+
+
+        // Toggle visibility of tables by date
+        function toggleTable(tableId) {
+            const table = document.getElementById(tableId);
+            const button = document.getElementById(`toggle-${tableId}`);
+            if (table.style.display === "none" || table.style.display === "") {
+                table.style.display = "table"; // Show the table
+                button.innerHTML = "-"; // Change button text to minus
+            } else {
+                table.style.display = "none"; // Hide the table
+                button.innerHTML = "+"; // Change button text to plus
+            }
+        }
+
+        // On page load, only expand the first table by default
+        window.onload = function() {
+            const tables = document.querySelectorAll('.ticker-table');
+            tables.forEach((table, index) => {
+                if (index !== 0) {
+                    table.style.display = "none"; // Hide all tables except the first one
+                }
+            });
+        };
+        // Function to open the pop-up
+        function openPopup() {
+            document.getElementById("popup").style.display = "flex";
+        }
+
+        // Function to close the pop-up
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
+</head>
+<body>
+
     <!-- Search bar -->
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search tickers...">
+        <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
         <button onclick="filterTable()">Search</button>
     </div>
-
-    <!-- Table -->
-    <table id="tickerTable">
+    <!-- Display a single table for each date -->
+    {% for date, entries in grouped_tickers.items() %}
+    <h3>
+        <button id="toggle-table-{{ date }}" onclick="toggleTable('table-{{ date }}')">-</button>
+        {{ date }}
+    </h3>
+    <table id="table-{{ date }}" class="ticker-table">
         <thead>
             <tr>
-                <th onclick="sortTable(0)">Ticker-Date</th>
-                <th onclick="sortTable(1)">Ticker-Name</th>
-                <th onclick="sortTable(2)">Entry Price</th>
-                <th onclick="sortTable(3)">Stop %</th>
-                <th onclick="sortTable(4)">Stop Price</th>
-                <th onclick="sortTable(5)">Target-1</th>
-                <th onclick="sortTable(6)">Target-2</th>
-                <th onclick="sortTable(7)">Target-3</th>
-                <th onclick="sortTable(8)">Target-4</th>
-                <th onclick="sortTable(9)">Status</th>
-                <th onclick="sortTable(10)">Ticker-Notes</th>
+                <th class="col-1">Created-Date</th>
+                <th class="col-2">Ticker-Name</th>
+                <th class="col-3">Entry Price</th>
+                <th class="col-4">Stop %</th>
+                <th class="col-5">Stop Price</th>
+                <th class="col-6">Target-1</th>
+                <th class="col-7">Target-2</th>
+                <th class="col-8">Target-3</th>
+                <th class="col-9">Target-4</th>
+                <th class="col-10">Status</th>
+                <th class="col-11">Ticker-Notes</th>
             </tr>
         </thead>
         <tbody>
-            {% for t in tickers %}
-            <tr>
-                {% for i in t %}
-                <td>{{ i }}</td>
-                {% endfor %}
+            {% for ticker in entries %}
+            <tr id="row-{{ loop.index }}">
+                <td>{{ ticker.created_date }}</td>
+                <td>{{ ticker.ticker_name }}</td>
+                <td>{{ ticker.entry_price }}</td>
+                <td>{{ ticker.stop_percent }}</td>
+                <td>{{ ticker.stop_price }}</td>
+                <td>{{ ticker.target_1 }}</td>
+                <td>{{ ticker.target_2 }}</td>
+                <td>{{ ticker.target_3 }}</td>
+                <td>{{ ticker.target_4 }}</td>
+                <td>{{ ticker.ticker_status}}</td>
+                <td>
+                    <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
+                </td>
+                
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>
+    {% endfor %}
+</body>
 
-<script>
-    // Function to filter table rows based on search input
-    function filterTable() {
-        const input = document.getElementById('searchInput');
-        const filter = input.value.toUpperCase();
-        const table = document.getElementById('tickerTable');
-        const tr = table.getElementsByTagName('tr');
-
-        for (let i = 1; i < tr.length; i++) {
-            let tdArray = tr[i].getElementsByTagName('td');
-            let matchFound = false;
-
-            for (let j = 0; j < tdArray.length; j++) {
-                let td = tdArray[j];
-                if (td) {
-                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                        matchFound = true;
-                    }
-                }
-            }
-
-            tr[i].style.display = matchFound ? "" : "none";
-        }
-    }
-
-    // Function to sort the table
-    function sortTable(columnIndex) {
-        const table = document.getElementById("tickerTable");
-        const tbody = table.getElementsByTagName("tbody")[0];
-        const rows = Array.from(tbody.getElementsByTagName("tr"));
-        const isAscending = tbody.getAttribute("data-order") === "asc";
-
-        // Sort rows based on the column index
-        rows.sort((a, b) => {
-            const aText = a.getElementsByTagName("td")[columnIndex].innerText;
-            const bText = b.getElementsByTagName("td")[columnIndex].innerText;
-            return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
-        });
-
-        // Append sorted rows to the tbody
-        rows.forEach(row => tbody.appendChild(row));
-
-        // Toggle order attribute
-        tbody.setAttribute("data-order", isAscending ? "desc" : "asc");
-    }
-</script>
 {% endblock %}
