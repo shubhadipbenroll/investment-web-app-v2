@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}User Registration{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    /* General styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    /* Banner */
+    .banner {
+      width: 100%;
+      background-color: black;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .banner img {
+      height: 80px;
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .banner p {
+      margin: 0;
+      font-size: 16px;
+      color: orange;
+    }
+    /* General styles */
+    .banner {
+        width: 100%;
+        background-color: black;
+        color: white;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Left-side content */
+    .left-side {
+        display: flex;
+        align-items: center;
+        gap: 20px; /* Adds spacing between logo and text */
+    }
+
+    .left-side img {
+        height: 80px;
+    }
+
+    .left-side h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .left-side p {
+        margin: 0;
+        font-size: 16px;
+        color: orange;
+    }
+
+    /* Adjusted Buttons */
+    .nav-buttons {
+        display: flex;
+        gap: 8px;
+        padding-right: 10px;
+    }
+
+    .nav-buttons a {
+        background-color: orange;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-buttons a:hover {
+        background-color: #e67e22;
+    }
+    
+    /* Adjusted Buttons */
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+      padding-right: 10px;
+    }
+
+    .nav-buttons a {
+      background-color: orange;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    .nav-buttons a:hover {
+      background-color: #e67e22;
+    }
+  </style>
+  {% block styles %}{% endblock %}
+</head>
+
+<body>
+  <!-- Banner and Navigation -->
+  <header class="banner">
+    <div class="left-side">
+      <div>
+        <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Investinbulls Logo">
+      </div>
+      <div>
+        <h1>Investinbulls</h1>
+        <p>Let's make money together</p>
+      </div>
+      <!-- <div class="nav-buttons"><a href="wip.html">Login</a></div>-->
+    </div>
+    <div class="nav-buttons">
+      <a href="wip.html">Login</a>
+      <a href="wip.html">Recommendations</a>
+      <a href="wip.html">Training</a>
+      <a href="wip.html">Journal</a>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  {% block content %}{% endblock %}
+
+  <!-- Footer (optional, can add more styles) -->
+  <footer>
+    <p style="text-align: center; padding: 10px;">&copy; 2024 Investinbulls. All rights reserved.</p>
+  </footer>
+
+</body>
+
+</html>

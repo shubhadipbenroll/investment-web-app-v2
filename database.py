@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 
-DB_ENV = 'NP' #'PROD'
+DB_ENV = 'PROD' #'PROD'
 
 if DB_ENV == 'NP':
   #Clever-cloud mysql DB connection setup

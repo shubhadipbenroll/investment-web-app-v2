@@ -878,7 +878,6 @@ def inactive_ticker():
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/auth_user', methods=['POST', 'GET'])
-@login_required
 def auth_user():
   app.logger.info('auth_user: Loggin with user email : '+ str(request.form['email']))
   # Get the form data
