@@ -399,8 +399,8 @@
         // For Edit |||||||||||||||||||||||
         // Function to calculate 90% of the input value
         function calculatePercentageEdit() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let discountPercentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            let discountPercentage = parseFloat(document.getElementById("edit-stop-percent").value.replace('%', ''));
 
             if (!isNaN(amount) && !isNaN(discountPercentage)) {
             let discountValue = (amount * discountPercentage) / 100;
@@ -411,7 +411,7 @@
 
         // Calculate Target 1 (6%)
         function calculatePercentageTarget1Edit() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
             let target1Percentage = 6;
 
             if (!isNaN(amount)) {
@@ -423,7 +423,7 @@
 
         // Calculate Target 2 (12%)
         function calculatePercentageTarget2Edit() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
             let target2Percentage = 12;
 
             if (!isNaN(amount)) {
@@ -598,7 +598,7 @@
 
             // Fill in the popup fields with data
             document.getElementById("edit-created-date").innerText = data.created_date;
-            document.getElementById("edit-ticker-name").innerText = data.ticker_name;
+            document.getElementById("edit-ticker-name").value = data.ticker_name;
             document.getElementById("edit-entry-price").value = data.entry_price;
             document.getElementById("edit-stop-percent").value = data.stop_percent;
             document.getElementById("edit-stop-price").value = data.stop_price;
@@ -627,7 +627,7 @@
         function updateTicker() {
             const updatedData = {
                 row_id: document.getElementById("update-row-id").value,
-                ticker_name: document.getElementById("edit-ticker-name").innerText,
+                ticker_name: document.getElementById("edit-ticker-name").value,
                 entry_price: document.getElementById("edit-entry-price").value,
                 stop_percent: document.getElementById("edit-stop-percent").value,
                 stop_price: document.getElementById("edit-stop-price").value,
@@ -750,7 +750,8 @@
                
                 <div class="form-group">
                     <label>Ticker Name</label>
-                    <div id="edit-ticker-name" readonly></div>
+                    
+                    <input type="text" id="edit-ticker-name" readonly>
                 </div>
                 <div class="form-group">
                     <label>Entry Price ($)</label>

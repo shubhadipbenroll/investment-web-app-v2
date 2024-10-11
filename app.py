@@ -708,16 +708,19 @@ def update_ticker():
   
   # Extract values and store them in variables
   ticker_name = data.get('ticker_name')
-  entry_price = data.get('entry_price')
-  stop_percent = data.get('stop_percent')
-  stop_price = data.get('stop_price')
-  target_1 = data.get('target_1')
-  target_2 = data.get('target_2')
-  target_3 = data.get('target_3')
-  target_4 = data.get('target_4')
-  trail_stop = data.get('trail_stop')
+  entry_price = float(data.get('entry_price').replace('$', '').replace(',', ''))
+  stop_percent = float(data.get('stop_percent').replace('$', '').replace(',', ''))
+  stop_price = float(data.get('stop_price').replace('$', '').replace(',', ''))
+  target_1 = float(data.get('target_1').replace('$', '').replace(',', ''))
+  target_2 = float(data.get('target_2').replace('$', '').replace(',', ''))
+  target_3 = float(data.get('target_3').replace('$', '').replace(',', ''))
+  target_4 = float(data.get('target_4').replace('$', '').replace(',', ''))
+  trail_stop = float(data.get('trail_stop').replace('$', '').replace(',', ''))
   status = data.get('ticker_status')
   ticker_notes = data.get('ticker_notes')
+
+  ##
+
 
   # Create a session
   Session = sessionmaker(bind=engine)
