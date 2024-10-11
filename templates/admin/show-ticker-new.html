@@ -1,0 +1,734 @@
+{% extends "/admin/base-template-admin.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<style>
+    /* General body styles */
+    body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            width: 100vw;
+            height: auto; /* Changed to auto for height adjustment */
+    }
+    /* Header styles */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        padding: 15px 30px;
+        color: #fff;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+
+    /* User profile on the top right */
+    .user-profile {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-profile img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .user-profile .username {
+        margin-right: 15px;
+        font-size: 16px;
+    }
+
+    .user-profile .logout-btn {
+        background-color: #ff4d4d;
+        color: #fff;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    /* Ticker-Notes cell style */
+    .ticker-notes {
+        max-height: 2.6em; /* Approximately two lines of text */
+        overflow-y: auto;  /* Enable vertical scrolling */
+        white-space: normal; /* Allow text to wrap */
+        word-wrap: break-word; /* Break long words if necessary */
+        display: block; /* Ensures the div behaves like a block element */
+    }
+
+    /* Custom scrollbar styling (optional) */
+    .ticker-notes::-webkit-scrollbar {
+        width: 5px; /* Width of the scrollbar */
+    }
+
+    .ticker-notes::-webkit-scrollbar-thumb {
+        background-color: #888; /* Color of the scrollbar */
+        border-radius: 4px;
+    }
+
+    .ticker-notes::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }
+    /* Container and Table styles */
+    .container {
+        width: 90%;
+        margin: 30px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+    /* Set column width percentages */
+    .col-1 { width: 13%; }
+    .col-2 { width: 12%; }
+    .col-3 { width: 6%; }
+    .col-4 { width: 6%; }
+    .col-5 { width: 6%; }
+    .col-6 { width: 6%; }
+    .col-7 { width: 6%; }
+    .col-8 { width: 6%; }
+    .col-9 { width: 6%; }
+    .col-10 { width: 6%; }
+    .col-11 { width: 5%; }
+    .col-12 { width: 16%; }
+    .col-13 { width: 6%; }
+    th {
+        background-color: orange; /* Change header background color */
+        color: black; /* White text for header */
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .editable {
+        background-color: #ffffe0; /* Light yellow to indicate edit mode */
+    }
+
+    /* Icons */
+    .action-icons {
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    /* Search bar styles */
+    .search-bar {
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-bar input[type="text"], .search-bar select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .search-bar button {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .search-bar button:hover {
+        background-color: #218838;
+    }
+    .center-btn {
+        display: flex;
+        justify-content: center; /* Centers the button horizontally */
+    }
+
+    .center-btn input[type="submit"] {
+        width: 50%; /* Optional: Adjust the width of the button */
+        max-width: 200px; /* Optional: Limit the maximum width of the button */
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .form-title {
+        text-align: left;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px; /* Reduced gap for compactness */
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .form-group textarea {
+        resize: none; /* Prevents resizing of the textarea */
+    }
+
+    .form-group input[type="submit"] {
+        grid-column: span 2;
+        background-color: orange;
+        color: black;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+    }
+    /* Button style to open the form */
+    .open-popup-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: orange;
+        color: black;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 20px;
+    }
+
+    /* The overlay for the pop-up (full-screen) */
+    .popup-overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* The form container as a pop-up */
+    .form-container {
+        background-color: #fff;
+        width: 25%; /* 1/4 of the screen */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Title styles */
+    .form-title {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+
+    /* General form styling */
+    .form-grid {
+        display: grid;
+        grid-gap: 10px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    /* Submit button styling */
+    .center-btn {
+        text-align: center;
+    }
+
+    .btn {
+        background-color: orange;
+        color: black;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Close button style */
+    .close-btn {
+        float: right;
+        font-size: 20px;
+        cursor: pointer;
+        color: #aaa;
+    }
+
+    .close-btn:hover {
+        color: #000;
+    }
+    .form-group input[type="submit"]:hover {
+        background-color: #4169E1;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header,
+        .container {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .search-bar input[type="text"],
+        .search-bar select {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+    /* Basic styles for the popup */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .form-container {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        width: 600px; /* Adjusted width for a more compact look */
+        max-width: 90%; /* Responsive width */
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between; /* Aligns the columns */
+    }
+
+    .form-group label {
+        width: 48%; /* Each label takes up half the row */
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 48%; /* Each input takes up half the row */
+    }
+
+    .close-btn {
+        cursor: pointer;
+        font-size: 20px;
+        float: right;
+    }
+
+    .center-btn {
+        display: flex;
+        justify-content: center;
+    }
+
+    .action-icons {
+        cursor: pointer;
+    }
+
+    .non-editable {
+        background: #f9f9f9;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    /* Basic styles for the popup */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .form-container {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        width: 600px; /* Adjusted width for a more compact look */
+        max-width: 90%; /* Responsive width */
+    }
+
+    .form-row {
+        display: flex;
+        justify-content: space-between; /* Aligns the columns */
+        margin-bottom: 5px; /* Space between rows */
+    }
+
+    .form-group {
+        flex: 1; /* Makes each form-group take up equal space */
+        margin-right: 10px; /* Space between groups */
+    }
+
+    .form-group:last-child {
+        margin-right: 0; /* Removes margin for the last item in the row */
+    }
+
+    .close-btn {
+        cursor: pointer;
+        font-size: 20px;
+        float: right;
+    }
+
+    .non-editable {
+        background: #f9f9f9;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .center-btn {
+        display: flex;
+        justify-content: center;
+    }
+</style>
+<script>
+    // Function to open the pop-up
+    function openPopup(data) {
+        const popup = document.getElementById("popup");
+        popup.style.display = "flex";
+
+        // Fill in the popup fields with data
+        document.getElementById("edit-created-date").innerText = data.created_date;
+        document.getElementById("edit-ticker-name").innerText = data.ticker_name;
+        document.getElementById("edit-entry-price").value = data.entry_price;
+        document.getElementById("edit-stop-percent").value = data.stop_percent;
+        document.getElementById("edit-stop-price").value = data.stop_price;
+        document.getElementById("edit-target-1").value = data.target_1;
+        document.getElementById("edit-target-2").value = data.target_2;
+        document.getElementById("edit-target-3").value = data.target_3;
+        document.getElementById("edit-target-4").value = data.target_4;
+        document.getElementById("edit-trail-stop").value = data.trail_stop;
+        document.getElementById("edit-status").value = data.ticker_status;
+        document.getElementById("edit-notes").value = data.ticker_notes;
+
+        // Store the rowId for updating
+        document.getElementById("update-row-id").value = data.row_id;
+    }
+
+    // Function to close the pop-up
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    // Function to update the row
+    function updateTicker() {
+        const updatedData = {
+            row_id: document.getElementById("update-row-id").value,
+            entry_price: document.getElementById("edit-entry-price").value,
+            stop_percent: document.getElementById("edit-stop-percent").value,
+            stop_price: document.getElementById("edit-stop-price").value,
+            target_1: document.getElementById("edit-target-1").value,
+            target_2: document.getElementById("edit-target-2").value,
+            target_3: document.getElementById("edit-target-3").value,
+            target_4: document.getElementById("edit-target-4").value,
+            trail_stop: document.getElementById("edit-trail-stop").value,
+            ticker_status: document.getElementById("edit-status").value,
+            ticker_notes: document.getElementById("edit-notes").value,
+        };
+
+        // Call the backend to update the data
+        fetch('/update_ticker', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Update successful");
+                closePopup(); // Close popup on successful update
+                location.reload(); // Reload page to show updated data
+            } else {
+                alert("Update failed");
+            }
+        })
+        .catch(error => {
+            console.error("Error updating the row:", error);
+            alert("An error occurred while updating the row");
+        });
+    }
+</script>
+</head>
+<body>
+
+    <!-- Button to open the pop-up -->
+    <button class="open-popup-btn" onclick="openPopup()">Create Ticker</button>
+    <a href="/showadmintickers"><button class="open-popup-btn">Refresh</button></a>
+    
+    <!-- Pop-up container -->
+    <!-- Pop-up container -->
+    <div class="popup-overlay" id="popup">
+        <div class="form-container">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h3 class="form-title">Edit Ticker Entry</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Created-Date</label>
+                    <div id="edit-created-date" class="non-editable"></div>
+                </div>
+                <div class="form-group">
+                    <label>Ticker Name</label>
+                    <div id="edit-ticker-name" class="non-editable"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Entry Price ($)</label>
+                    <input type="text" id="edit-entry-price" placeholder="$USD" required>
+                </div>
+                <div class="form-group">
+                    <label>Stop %</label>
+                    <input type="text" id="edit-stop-percent" placeholder="%" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Stop Price ($)</label>
+                    <input type="text" id="edit-stop-price" required>
+                </div>
+                <div class="form-group">
+                    <label>Target-1 ($)</label>
+                    <input type="text" id="edit-target-1" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Target-2 ($)</label>
+                    <input type="text" id="edit-target-2" required>
+                </div>
+                <div class="form-group">
+                    <label>Target-3 ($)</label>
+                    <input type="text" id="edit-target-3" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Target-4 ($)</label>
+                    <input type="text" id="edit-target-4" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Trail Stop</label>
+                    <input type="text" id="edit-trail-stop" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="edit-status">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="edit-notes" rows="3" placeholder="Enter notes for the ticker"></textarea>
+                </div>
+            </div>
+            
+            <input type="hidden" id="update-row-id">
+            <div class="form-group center-btn">
+                <button type="button" onclick="updateTicker()" class="btn">Update Ticker</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Search bar -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
+        <button onclick="filterTable()">Search</button>
+    </div>
+    
+    <!-- Display a single table for each date -->
+    {% for date, entries in grouped_tickers.items() %}
+    <h3>
+        <button id="toggle-table-{{ date }}" onclick="toggleTable('table-{{ date }}')">-</button>
+        {{ date }}
+    </h3>
+    <table id="table-{{ date }}" class="ticker-table">
+        <thead>
+            <tr>
+                <th class="col-1">Created-Date</th>
+                <th class="col-2">Ticker-Name</th>
+                <th class="col-3">Entry Price</th>
+                <th class="col-4">Stop %</th>
+                <th class="col-5">Stop Price</th>
+                <th class="col-6">Target-1</th>
+                <th class="col-7">Target-2</th>
+                <th class="col-8">Target-3</th>
+                <th class="col-9">Target-4</th>
+                <th class="col-10">Trail Stop</th>
+                <th class="col-11">Status</th>
+                <th class="col-12">Notes</th>
+                <th class="action">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticker in entries %}
+            <tr>
+                <td>{{ ticker.created_date }}</td>
+                <td>{{ ticker.ticker_name }}</td>
+                <td>{{ ticker.entry_price }}</td>
+                <td>{{ ticker.stop_percent }}</td>
+                <td>{{ ticker.stop_price }}</td>
+                <td>{{ ticker.target_1 }}</td>
+                <td>{{ ticker.target_2 }}</td>
+                <td>{{ ticker.target_3 }}</td>
+                <td>{{ ticker.target_4 }}</td>
+                <td>{{ ticker.trail_stop }}</td>
+                <td>{{ ticker.ticker_status }}</td>
+                <td>{{ ticker.ticker_notes }}</td>
+                <td class="action-icons">
+                    <span onclick='openPopup({ "row_id": "{{ loop.index }}", "created_date": "{{ ticker.created_date }}", "ticker_name": "{{ ticker.ticker_name }}", "entry_price": "{{ ticker.entry_price }}", "stop_percent": "{{ ticker.stop_percent }}", "stop_price": "{{ ticker.stop_price }}", "target_1": "{{ ticker.target_1 }}", "target_2": "{{ ticker.target_2 }}", "target_3": "{{ ticker.target_3 }}", "target_4": "{{ ticker.target_4 }}", "trail_stop": "{{ ticker.trail_stop }}", "ticker_status": "{{ ticker.ticker_status }}", "ticker_notes": "{{ ticker.ticker_notes }}" });' class="edit-icon">Edit</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+    
+    <script>
+        // Function to toggle the display of ticker tables
+        function toggleTable(tableId) {
+            const table = document.getElementById(tableId);
+            if (table.style.display === "none") {
+                table.style.display = "block";
+            } else {
+                table.style.display = "none";
+            }
+        }
+
+        // Function to filter the ticker table based on the search input
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const tables = document.querySelectorAll(".ticker-table");
+
+            tables.forEach(table => {
+                const rows = table.getElementsByTagName("tr");
+                for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header
+                    const cells = rows[i].getElementsByTagName("td");
+                    let found = false;
+                    for (let j = 1; j < cells.length - 1; j++) { // Exclude the last action column
+                        if (cells[j].innerText.toLowerCase().includes(filter)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    rows[i].style.display = found ? "" : "none";
+                }
+            });
+        }
+
+        // Function to delete a ticker
+        function deleteTicker(tickerId) {
+            if (confirm("Are you sure you want to delete this ticker?")) {
+                fetch(`/delete_ticker/${tickerId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Ticker deleted successfully");
+                        location.reload(); // Reload the page to update the list
+                    } else {
+                        alert("Failed to delete ticker");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting ticker:", error);
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+{% endblock %}

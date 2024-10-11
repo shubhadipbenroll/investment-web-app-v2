@@ -568,7 +568,7 @@ class Ticker(Base):
   Target2 = Column(Integer, nullable=False)
   Target3 = Column(Integer, nullable=False)
   Target4 = Column(Integer, nullable=False)
-  #CreateDate  = Column(timestamp, nullable=False)
+  TrailStop  = Column(Integer, nullable=False)
   TickerStatus  = Column(String, nullable=False)
   TickerNotes = Column(Text, nullable=True)  # New column for storing notes
   
@@ -583,6 +583,7 @@ def save_ticker():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
+  trailStop = 0
   tickerstatus = "Inactive"
   notes = request.form['notes']
 
@@ -601,6 +602,7 @@ def save_ticker():
                     Target2=target2,
                     Target3=target3,
                     Target4=target4,
+                    TrailStop=trailStop,
                     TickerStatus=tickerstatus,
                     TickerNotes=notes)
 
@@ -633,7 +635,7 @@ def save_ticker_new():
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
   tickerstatus = "Inactive"
   notes = request.form['notes']
-
+  trailStop = 0
   # Create a session
   Session = sessionmaker(bind=engine)
   db_session = Session()
@@ -649,6 +651,7 @@ def save_ticker_new():
                     Target2=target2,
                     Target3=target3,
                     Target4=target4,
+                    TrailStop=trailStop,
                     TickerStatus=tickerstatus,
                     TickerNotes=notes)
 
@@ -704,7 +707,6 @@ def update_ticker():
   data = request.json
   
   # Extract values and store them in variables
-  created_date = data.get('created_date')
   ticker_name = data.get('ticker_name')
   entry_price = data.get('entry_price')
   stop_percent = data.get('stop_percent')
@@ -713,6 +715,8 @@ def update_ticker():
   target_2 = data.get('target_2')
   target_3 = data.get('target_3')
   target_4 = data.get('target_4')
+  trail_stop = data.get('trail_stop')
+  status = data.get('ticker_status')
   ticker_notes = data.get('ticker_notes')
 
   # Create a session
@@ -723,7 +727,7 @@ def update_ticker():
     ticker = db_session.query(Ticker).filter_by(TickerName=ticker_name).first()
 
     if ticker:
-      app.logger.info('update_ticker: updating ticker : '+ ticker_name)
+      app.logger.info('update_ticker: updating ticker : '+ str(ticker_name))
       ticker.EntryPrice=entry_price
       ticker.StopPercent=stop_percent
       ticker.StopPrice=stop_price
@@ -731,6 +735,8 @@ def update_ticker():
       ticker.Target2=target_2
       ticker.Target3=target_3
       ticker.Target4=target_4
+      ticker.TrailStop=trail_stop
+      ticker.TickerStatus=status
       ticker.TickerNotes=ticker_notes
       # Commit the session to save changes to the database
       db_session.commit()
@@ -758,7 +764,7 @@ def update_ticker():
     return jsonify(success=True)
   except:
       flash('Problem occured in database while updating Ticker !', 'error')
-      app.logger.error(f'An error occurred in delete_ticker: {jsonify(success=False)}', exc_info=True)
+      app.logger.error(f'An error occurred in update_ticker: {jsonify(success=False)}', exc_info=True)
       #return jsonify(success=False)
 
   #added:
@@ -787,6 +793,8 @@ def update_ticker():
     grouped_tickers[date_only].append(ticker)
 
   return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
+
+
 
 @app.route('/delete_ticker', methods=['POST'])
 def delete_ticker():
