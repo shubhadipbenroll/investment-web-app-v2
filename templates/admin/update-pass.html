@@ -1,4 +1,4 @@
-{% extends "/admin/base-admin.html" %}
+{% extends "/admin/base-template-admin.html" %}
 
 {% block title %}Change Password{% endblock %}
 
@@ -28,7 +28,7 @@
     .reset-container h1 {
       text-align: left;
       margin-bottom: 30px;
-      color: #4682B4;
+      color: black;
     }
 
     /* Input fields */
@@ -54,15 +54,15 @@
     /* Label styles */
     label {
       font-weight: bold;
-      color: #4682B4;
+      color: black;
     }
 
     /* Button styles */
     .reset-btn {
       width: 100%;
       padding: 15px;
-      background-color: #4682B4;
-      color: white;
+      background-color: orange;
+      color: black;
       border: none;
       border-radius: 5px;
       font-size: 18px;
@@ -119,7 +119,7 @@
     /* Label styles */
     label {
     font-weight: bold;
-    color: #4682B4; /* Darker bluish color */
+    color: black; /* Darker bluish color */
     text-align: left; /* Align text to the left */
     display: block; /* Ensure the label occupies its own line */
     margin-bottom: 5px; /* Add some space between label and input */
@@ -217,7 +217,7 @@
         <!-- Error message display area -->
         <p id="error-message" class="error-message"></p>
 
-        <button type="submit" class="reset-btn">Reset Password</button>
+        <button type="submit" class="reset-btn">Update Password</button>
     </form>
     </div>
 </body>

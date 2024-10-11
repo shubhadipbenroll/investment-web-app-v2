@@ -1,8 +1,26 @@
-{% extends "/admin/base-admin.html" %}
+{% extends "/admin/base-template-admin.html" %}
 
 {% block title %}Change Password{% endblock %}
 
 {% block content %}
+<style>
+  /* General button styles */
+  .dashboard-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: orange;
+      color: black;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      width: 200px; /* Set equal width */
+      height: 20px; /* Set equal height */
+      text-align: center;
+  }
+</style>
 <body>
 
     <!-- Dashboard content -->
@@ -11,7 +29,7 @@
   
       <!-- Middle of the Page Buttons -->
       <a href="/update_admin_pass" class="dashboard-btn">
-        <i class="fa fa-pass"></i> Change Password
+        <i class="fa fa-key"></i> Change Password
       </a>
       <!--<a href="/send_email" class="dashboard-btn">
         <i class="fa fa-email"></i> Test Email

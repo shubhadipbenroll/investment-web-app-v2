@@ -1,4 +1,4 @@
-{% extends "/admin/base-admin.html" %}
+{% extends "/admin/base-template-admin.html" %}
 
 {% block title %}User List{% endblock %}
 
@@ -81,8 +81,8 @@
     }
 
     th {
-        background-color: #007bff; /* Blue background for header */
-        color: #fff; /* White text for header */
+        background-color: orange; /* Blue background for header */
+        color: black; /* White text for header */
     }
 
     tr:nth-child(even) {
@@ -231,8 +231,8 @@
             }
 
             // Check for role and status filters
-            const roleMatch = roleFilter === "" || tdArray[3].innerText === roleFilter; // Role is the 4th column (index 3)
-            const statusMatch = statusFilter === "" || tdArray[4].innerText === statusFilter; // Status is the 5th column (index 4)
+            const roleMatch = roleFilter === "" || tdArray[2].innerText === roleFilter; // Role is the 4th column (index 3)
+            const statusMatch = statusFilter === "" || tdArray[3].innerText === statusFilter; // Status is the 5th column (index 4)
 
             // Show or hide row based on all filters
             tr[i].style.display = (matchFound && roleMatch && statusMatch) ? "" : "none";

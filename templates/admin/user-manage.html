@@ -1,4 +1,4 @@
-{% extends "/admin/base-admin.html" %}
+{% extends "/admin/base-template-admin.html" %}
 
 {% block title %}User List{% endblock %}
 
@@ -85,8 +85,8 @@
     }
 
     th {
-        background-color: #007bff; /* Changed header background color */
-        color: #fff; /* Header text color */
+        background-color: orange; /* Changed header background color */
+        color: black; /* Header text color */
         cursor: pointer; /* Pointer cursor on hover */
     }
 
@@ -223,8 +223,8 @@
         for (let i = 1; i < tr.length; i++) {
             let showRow = true;
 
-            const roleCell = tr[i].getElementsByTagName('td')[3]; // Role column
-            const statusCell = tr[i].getElementsByTagName('td')[4]; // Status column
+            const roleCell = tr[i].getElementsByTagName('td')[2]; // Role column
+            const statusCell = tr[i].getElementsByTagName('td')[3]; // Status column
 
             // Check Role Filter
             if (roleFilter && roleCell) {
