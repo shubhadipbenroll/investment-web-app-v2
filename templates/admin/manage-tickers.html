@@ -218,7 +218,7 @@
                     }
 
                     // Check for status filter
-                    const statusMatch = statusFilter === "" || tdArray[9].innerText === statusFilter; // Adjusted index for Ticker-Status
+                    const statusMatch = statusFilter === "" || tdArray[10].innerText === statusFilter; // Adjusted index for Ticker-Status
 
                     // Show or hide row based on all filters
                     tr[i].style.display = (rowMatchFound && statusMatch) ? "" : "none";
@@ -286,6 +286,7 @@
                     <th>Target-2</th>
                     <th>Target-3</th>
                     <th>Target-4</th>
+                    <th>Trail Stop</th>
                     <th>Ticker-Status</th>
                     <th>Active</th> <!-- Added actions column header -->
                     <th>Inactive</th> <!-- Added actions column header -->
@@ -304,6 +305,7 @@
                     <td>{{ ticker.target_2 }}</td>
                     <td>{{ ticker.target_3 }}</td>
                     <td>{{ ticker.target_4 }}</td>
+                    <td>{{ ticker.trail_stop }}</td>
                     <td>{{ ticker.ticker_status }}</td>
                     <td>
                         <form action="{{ url_for('active_ticker') }}" method="POST">

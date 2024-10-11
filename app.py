@@ -98,7 +98,7 @@ def load_tickers_from_db():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -115,7 +115,7 @@ def load_tickers_for_users():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TrailStop, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -127,7 +127,7 @@ def load_tickers_for_watchlist():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -141,7 +141,7 @@ def load_tickers_for_admin():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -246,8 +246,9 @@ def show_tickers_admin():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9],
-          "ticker_notes": row[10]
+          "trail_stop": row[9],
+          "ticker_status": row[10],
+          "ticker_notes": row[11]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -286,8 +287,9 @@ def show_ticker_user():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9],
-          "ticker_notes": row[10]
+          "trail_stop": row[9],
+          "ticker_status": row[10],
+          "ticker_notes": row[11]
       } for row in ticklist
   ]
   # Group tickers by created date
@@ -314,8 +316,9 @@ def show_ticker_user_watchlist():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9],
-          "ticker_notes": row[10]
+          "trail_stop": row[9],
+          "ticker_status": row[10],
+          "ticker_notes": row[11]
       } for row in watchlist
   ]
   # Group tickers by created date
@@ -677,8 +680,9 @@ def save_ticker_new():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9],
-          "ticker_notes": row[10]
+          "trail_stop": row[9],
+          "ticker_status": row[10],
+          "ticker_notes": row[11]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -771,8 +775,9 @@ def update_ticker():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9],
-          "ticker_notes": row[10]
+          "trail_stop": row[9],
+          "ticker_status": row[10],
+          "ticker_notes": row[11]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -1035,7 +1040,8 @@ def manageticker():
           "target_2": row[6],
           "target_3": row[7],
           "target_4": row[8],
-          "ticker_status": row[9]
+          "trail_stop": row[9],
+          "ticker_status": row[10]
       } for row in alltickers
   ]
   # Group tickers by created date
