@@ -615,7 +615,7 @@ def save_ticker():
     db_session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in save_ticker: {e}', exc_info=True)
     #return f'An error occurred while adding ticker in DB: {e}'
-    flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
+    #flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
     return render_template('/admin/dashboard-admin.html', user=current_user)
   finally:
     db_session.close()  # Close the session
@@ -719,8 +719,6 @@ def update_ticker():
   status = data.get('ticker_status')
   ticker_notes = data.get('ticker_notes')
 
-  ##
-
 
   # Create a session
   Session = sessionmaker(bind=engine)
@@ -743,8 +741,14 @@ def update_ticker():
       ticker.TickerNotes=ticker_notes
       # Commit the session to save changes to the database
       db_session.commit()
+
+      if status == "Active":
+         send_active_broadcast_email(ticker)
+      else:
+         app.logger.info('update_ticker: no broadcast email as Ticker Status : '+ str(status))
+
     else:
-      app.logger.info('update_ticker: adding new ticker : '+ ticker_name)
+      app.logger.info('update_ticker: adding new ticker : '+ str(ticker_name))
       # Create a new user instance
       new_ticker = Ticker(UserName=username,
                       TickerName=ticker_name,
@@ -769,6 +773,8 @@ def update_ticker():
       flash('Problem occured in database while updating Ticker !', 'error')
       app.logger.error(f'An error occurred in update_ticker: {jsonify(success=False)}', exc_info=True)
       #return jsonify(success=False)
+  finally:
+    db_session.close()  # Close the session
 
   #added:
   admintickers = load_tickers_for_admin()
@@ -817,7 +823,7 @@ def delete_ticker():
 
           # Commit the session to remove the user from the database
           db_session.commit()
-          flash('Ticker deleted successfully !', 'info')
+          #flash('Ticker deleted successfully !', 'info')
       else:
           flash('Ticker not found !', 'error')
   except Exception as e:
@@ -868,23 +874,40 @@ def active_ticker():
 #Broadcast email on active ticker
 def send_active_broadcast_email(ticker):
   app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerName))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.EntryPrice))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.StopPercent))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.StopPrice))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target1))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target2))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target3))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target4))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TrailStop))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerStatus))
+  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerNotes))
+  
   try:
     #get all email address 
     allusers = load_users_details_from_db()
 
     for user in allusers:
       #Email send...
-      app.logger.info('Sending email to register email : '+ str(user.Email))
+      app.logger.info('Preparing email to register email : '+ str(user.Email))
       #email = request.form['email']
       to_email = user.Email
       # Create the welcome message
       subject = f"Updates on Ticker: {ticker.TickerName} - Team Investinbulls!"
       #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
-      message_body = f"Dear {user.UserName},\n\nTicker {ticker.TickerName} is live now.\nPlease login to explore more details.\n\nIf you have any questions, feel free to reach out.\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      message_body = f"Dear {user.UserName},\n\nTicker {ticker.TickerName} is live now.\nEntry Price : {ticker.EntryPrice}\nStop % : {ticker.StopPercent}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTrail Stop : {ticker.TrailStop}\nTicker Status : {ticker.TickerStatus}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to explore more details.\n\nIf you have any questions, feel free to reach out.\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       try:
         app.logger.info('Subject: '+ str(subject))
         app.logger.info('Email-Body: '+ str(message_body))
-        send_email(mail, to_email, subject, message_body)
+        #thread = threading.Thread(target=send_email, args=(mail, to_email, subject, message_body))
+        #thread.start()  # Start the thread
+        # paromita2k4@gmail.com / chatterjee.paromita9@gmail.com / vikram@investinbulls.net
+        if to_email == "paromita2k4@gmail.com":
+          app.logger.info('Sending email to register email : '+ str(to_email))
+          send_email(mail, to_email, subject, message_body)
+
         #return jsonify({"status": "success", "email_status": send_status})
         time.sleep(1)
       except Exception as e:
@@ -910,7 +933,7 @@ def inactive_ticker():
 
             # Commit the session to save changes to the database
             db_session.commit()
-            flash('Ticker updated : Inactive!', 'info')
+            #flash('Ticker updated : Inactive!', 'info')
         else:
             flash('Ticker not found!', 'error')
     except Exception as e:
@@ -1200,5 +1223,5 @@ def add_header(response):
 # Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if __name__ == "__main__":
-  #app.run()
-  app.run(host='0.0.0.0', port='3001', debug=True)
+  app.run()
+  #app.run(host='0.0.0.0', port='3001', debug=True)

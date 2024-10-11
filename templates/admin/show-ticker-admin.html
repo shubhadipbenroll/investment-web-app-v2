@@ -154,8 +154,8 @@
         }
 
         .search-bar button {
-            background-color: #28a745;
-            color: white;
+            background-color: orange;
+            color: black;
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
@@ -163,7 +163,7 @@
         }
 
         .search-bar button:hover {
-            background-color: #218838;
+            background-color: #e67e22;
         }
         .center-btn {
             display: flex;
@@ -623,6 +623,23 @@
             document.getElementById("popupedit").style.display = "none";
         }
 
+        function handleUpdateTicker() {
+            const updateBtn = document.getElementById('update-ticker-btn');
+            
+            // Disable the button after it's clicked
+            updateBtn.disabled = true;
+
+            // Call the actual function to update the ticker
+            updateTicker();
+
+            // Close the popup after update
+            closeEditPopup();
+        }
+
+        function closeEditPopup() {
+            document.getElementById("popupedit").style.display = "none";
+        }
+
         // Function to update the row
         function updateTicker() {
             const updatedData = {
@@ -660,7 +677,7 @@
             })
             .catch(error => {
                 console.error("Error updating the row:", error);
-                alert("An error occurred while updating the row");
+                //alert("An error occurred while updating the row");
             });
         }
     </script>
@@ -744,28 +761,25 @@
                     <label>Created-Date</label>
                     <div id="edit-created-date" readonly></div>
                 </div>
-                
             </div>
+
             <div class="form-row">
-               
                 <div class="form-group">
                     <label>Ticker Name</label>
-                    
                     <input type="text" id="edit-ticker-name" readonly>
                 </div>
                 <div class="form-group">
                     <label>Entry Price ($)</label>
                     <input type="text" id="edit-entry-price" placeholder="$USD" 
-                            oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
+                        oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
                 </div>
             </div>
 
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Stop %</label>
                     <input type="text" id="edit-stop-percent" placeholder="%" 
-                            oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
+                        oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
                 </div>
                 <div class="form-group">
                     <label>Stop Price ($)</label>
@@ -774,7 +788,6 @@
             </div>
 
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Target-1 ($)</label>
                     <input type="text" id="edit-target-1" readonly>
@@ -786,7 +799,6 @@
             </div>
 
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Target-3 ($)</label>
                     <input type="text" id="edit-target-3" value="0" required>
@@ -798,7 +810,6 @@
             </div>
 
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Trail Stop</label>
                     <input type="text" id="edit-trail-stop" required>
@@ -813,16 +824,15 @@
             </div>
 
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Notes</label>
                     <textarea id="edit-notes" rows="3" placeholder="Enter notes for the ticker"></textarea>
                 </div>
             </div>
-            
+
             <input type="hidden" id="update-row-id">
             <div class="form-group center-btn">
-                <button type="button" onclick="updateTicker()" class="btn">Update Ticker</button>
+                <button type="button" onclick="handleUpdateTicker()" id="update-ticker-btn" class="btn">Update Ticker</button>
             </div>
         </div>
     </div>

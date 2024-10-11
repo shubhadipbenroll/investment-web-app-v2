@@ -114,7 +114,7 @@
         .col-10 { width: 6%; }
         .col-11 { width: 5%; }
         .col-12 { width: 16%; }
-        .col-13 { width: 6%; }
+        .col-13 { width: 4%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -301,8 +301,8 @@
         }
 
         .btn {
-            background-color: #007bff;
-            color: white;
+            background-color: orange;
+            color: black;
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
@@ -311,9 +311,18 @@
         }
 
         .btn:hover {
-            background-color: #0056b3;
+            background-color: #e67e22;
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between; /* Aligns the columns */
+            margin-bottom: 5px; /* Space between rows */
         }
 
+        .form-group {
+            flex: 1; /* Makes each form-group take up equal space */
+            margin-right: 10px; /* Space between groups */
+        }
         /* Close button style */
         .close-btn {
             float: right;
@@ -326,7 +335,7 @@
             color: #000;
         }
         .form-group input[type="submit"]:hover {
-            background-color: #4169E1;
+            background-color: orange;
         }
 
         @media (max-width: 768px) {
@@ -386,6 +395,44 @@
             document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
             }
         }
+
+        // For Edit |||||||||||||||||||||||
+        // Function to calculate 90% of the input value
+        function calculatePercentageEdit() {
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            let discountPercentage = parseFloat(document.getElementById("edit-stop-percent").value.replace('%', ''));
+
+            if (!isNaN(amount) && !isNaN(discountPercentage)) {
+            let discountValue = (amount * discountPercentage) / 100;
+            let finalAmount = amount - discountValue;
+            document.getElementById("edit-stop-price").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 1 (6%)
+        function calculatePercentageTarget1Edit() {
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            let target1Percentage = 6;
+
+            if (!isNaN(amount)) {
+            let target1Value = (amount * target1Percentage) / 100;
+            let finalAmount = amount + target1Value;
+            document.getElementById("edit-target-1").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 2 (12%)
+        function calculatePercentageTarget2Edit() {
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            let target2Percentage = 12;
+
+            if (!isNaN(amount)) {
+            let target2Value = (amount * target2Percentage) / 100;
+            let finalAmount = amount + target2Value;
+            document.getElementById("edit-target-2").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
         // Function to filter table rows based on search input and dropdown filters
         function filterTable() {
             const input = document.getElementById('searchInput');
@@ -542,9 +589,79 @@
             document.getElementById("popup").style.display = "flex";
         }
 
+        // Function to open the pop-up
+        function openEditPopup(data) {
+            //document.getElementById("popupedit").style.display = "flex";
+
+            const popupedit = document.getElementById("popupedit");
+            popupedit.style.display = "flex";
+
+            // Fill in the popup fields with data
+            document.getElementById("edit-created-date").innerText = data.created_date;
+            document.getElementById("edit-ticker-name").value = data.ticker_name;
+            document.getElementById("edit-entry-price").value = data.entry_price;
+            document.getElementById("edit-stop-percent").value = data.stop_percent;
+            document.getElementById("edit-stop-price").value = data.stop_price;
+            document.getElementById("edit-target-1").value = data.target_1;
+            document.getElementById("edit-target-2").value = data.target_2;
+            document.getElementById("edit-target-3").value = data.target_3;
+            document.getElementById("edit-target-4").value = data.target_4;
+            document.getElementById("edit-trail-stop").value = data.trail_stop;
+            document.getElementById("edit-status").value = data.ticker_status;
+            document.getElementById("edit-notes").value = data.ticker_notes;
+
+            // Store the rowId for updating
+            document.getElementById("update-row-id").value = data.row_id;
+        }
+
         // Function to close the pop-up
         function closePopup() {
             document.getElementById("popup").style.display = "none";
+        }
+        // Function to close the pop-up
+        function closeEditPopup() {
+            document.getElementById("popupedit").style.display = "none";
+        }
+
+        // Function to update the row
+        function updateTicker() {
+            const updatedData = {
+                row_id: document.getElementById("update-row-id").value,
+                ticker_name: document.getElementById("edit-ticker-name").value,
+                entry_price: document.getElementById("edit-entry-price").value,
+                stop_percent: document.getElementById("edit-stop-percent").value,
+                stop_price: document.getElementById("edit-stop-price").value,
+                target_1: document.getElementById("edit-target-1").value,
+                target_2: document.getElementById("edit-target-2").value,
+                target_3: document.getElementById("edit-target-3").value,
+                target_4: document.getElementById("edit-target-4").value,
+                trail_stop: document.getElementById("edit-trail-stop").value,
+                ticker_status: document.getElementById("edit-status").value,
+                ticker_notes: document.getElementById("edit-notes").value,
+            };
+
+            // Call the backend to update the data
+            fetch('/update_ticker', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Update successful");
+                    closePopup(); // Close popup on successful update
+                    location.reload(); // Reload page to show updated data
+                } else {
+                    alert("Update failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating the row:", error);
+                alert("An error occurred while updating the row");
+            });
         }
     </script>
 </head>
@@ -616,6 +733,100 @@
         </div>
     </div>
 
+    <!-- Pop-up Edit container -->
+    <div class="popup-overlay" id="popupedit">
+        <div class="form-container">
+            <span class="close-btn" onclick="closeEditPopup()">&times;</span>
+            <h3 class="form-title">Edit Ticker Entry</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Created-Date</label>
+                    <div id="edit-created-date" readonly></div>
+                </div>
+                
+            </div>
+            <div class="form-row">
+               
+                <div class="form-group">
+                    <label>Ticker Name</label>
+                    
+                    <input type="text" id="edit-ticker-name" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Entry Price ($)</label>
+                    <input type="text" id="edit-entry-price" placeholder="$USD" 
+                            oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Stop %</label>
+                    <input type="text" id="edit-stop-percent" placeholder="%" 
+                            oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit()" required>
+                </div>
+                <div class="form-group">
+                    <label>Stop Price ($)</label>
+                    <input type="text" id="edit-stop-price" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Target-1 ($)</label>
+                    <input type="text" id="edit-target-1" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Target-2 ($)</label>
+                    <input type="text" id="edit-target-2" readonly>
+                </div>
+            </div>
+
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Target-3 ($)</label>
+                    <input type="text" id="edit-target-3" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Target-4 ($)</label>
+                    <input type="text" id="edit-target-4" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Trail Stop</label>
+                    <input type="text" id="edit-trail-stop" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="edit-status">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="edit-notes" rows="3" placeholder="Enter notes for the ticker"></textarea>
+                </div>
+            </div>
+            
+            <input type="hidden" id="update-row-id">
+            <div class="form-group center-btn">
+                <button type="button" onclick="updateTicker()" class="btn">Update Ticker</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Search bar -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
@@ -642,7 +853,7 @@
                 <th class="col-10">Trail Stop</th>
                 <th class="col-11">Status</th>
                 <th class="col-12">Ticker-Notes</th>
-                <th class="col-13">Actions</th>
+                <th class="col-13">Edit</th>
             </tr>
         </thead>
         <tbody>
@@ -662,9 +873,13 @@
                 <td>
                     <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
                 </td>
-                <td>
-                    <span class="action-icons" onclick="editRow('row-{{ loop.index }}')">✏️ </span>
-                    <span class="action-icons" onclick="updateRow('row-{{ loop.index }}')">✅</span>
+                <!-- <td> -->
+                    <!--<span class="action-icons" onclick="editRow('row-{{ loop.index }}')">✏️ </span> -->
+                    <!--<span class="action-icons" onclick="updateRow('row-{{ loop.index }}')">✅</span> -->
+                    <!--<span class="action-icons" onclick='openEditPopup({ "row_id": "{{ loop.index }}", "created_date": "{{ ticker.created_date }}", "ticker_name": "{{ ticker.ticker_name }}", "entry_price": "{{ ticker.entry_price }}", "stop_percent": "{{ ticker.stop_percent }}", "stop_price": "{{ ticker.stop_price }}", "target_1": "{{ ticker.target_1 }}", "target_2": "{{ ticker.target_2 }}", "target_3": "{{ ticker.target_3 }}", "target_4": "{{ ticker.target_4 }}", "trail_stop": "{{ ticker.trail_stop }}", "ticker_status": "{{ ticker.ticker_status }}", "ticker_notes": "{{ ticker.ticker_notes }}" });'>✏️ </span> -->
+                <!--</td> -->
+                <td class="action-icons">
+                    <span onclick='openEditPopup({ "row_id": "{{ loop.index }}", "created_date": "{{ ticker.created_date }}", "ticker_name": "{{ ticker.ticker_name }}", "entry_price": "{{ ticker.entry_price }}", "stop_percent": "{{ ticker.stop_percent }}", "stop_price": "{{ ticker.stop_price }}", "target_1": "{{ ticker.target_1 }}", "target_2": "{{ ticker.target_2 }}", "target_3": "{{ ticker.target_3 }}", "target_4": "{{ ticker.target_4 }}", "trail_stop": "{{ ticker.trail_stop }}", "ticker_status": "{{ ticker.ticker_status }}", "ticker_notes": "{{ ticker.ticker_notes }}" });'>✏️ </span>
                 </td>
             </tr>
             {% endfor %}
