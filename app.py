@@ -1,4 +1,6 @@
 from collections import defaultdict
+import threading
+import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import flask  # Import Flask explicitly for session handling
 from database import engine
@@ -438,7 +440,7 @@ def create_user():
         send_email(mail, to_email, subject, message_body)
         #return jsonify({"status": "success", "email_status": send_status})
       except Exception as e:
-        app.logger.error(f'An error occurred in send_email: {e}', exc_info=True)
+        app.logger.error(f'An error occurred in create_user send_email: {e}', exc_info=True)
         #return jsonify({"status": "error", "error": str(e)}), 500
   except Exception as e:
     db_session.rollback()  # Rollback in case of error
@@ -831,7 +833,11 @@ def active_ticker():
 
             # Commit the session to save changes to the database
             db_session.commit()
-            flash('Ticker updated : Active!', 'info')
+            #flash('Ticker updated : Active!', 'info')
+            # Create a separate thread to run the send_msg method with an argument
+            #thread = threading.Thread(target=send_active_broadcast_email, args=(ticker,))
+            #thread.start()  # Start the thread
+            send_active_broadcast_email(ticker)
         else:
             flash('Ticker not found!', 'error')
     except Exception as e:
@@ -843,7 +849,32 @@ def active_ticker():
 
     return redirect(url_for('manageticker'))
 
+#Broadcast email on active ticker
+def send_active_broadcast_email(ticker):
+  app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerName))
+  try:
+    #get all email address 
+    allusers = load_users_details_from_db()
 
+    for user in allusers:
+      #Email send...
+      app.logger.info('Sending email to register email : '+ str(user.Email))
+      #email = request.form['email']
+      to_email = user.Email
+      # Create the welcome message
+      subject = f"Updates on Ticker: {ticker.TickerName} - Team Investinbulls!"
+      #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
+      message_body = f"Dear {user.UserName},\n\nTicker {ticker.TickerName} is live now.\nPlease login to explore more details.\n\nIf you have any questions, feel free to reach out.\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      try:
+        app.logger.info('Subject: '+ str(subject))
+        app.logger.info('Email-Body: '+ str(message_body))
+        send_email(mail, to_email, subject, message_body)
+        #return jsonify({"status": "success", "email_status": send_status})
+        time.sleep(1)
+      except Exception as e:
+        app.logger.error(f'An error occurred in send_active_broadcast_email send_email: {e}', exc_info=True)
+  except Exception as e:
+    app.logger.error(f'An error occurred in send_active_broadcast_email: {e}', exc_info=True)
 
 @app.route('/inactive_ticker', methods=['POST'])
 def inactive_ticker():
@@ -1130,7 +1161,7 @@ def update_mobile_no_db():
 @login_required
 def logout():
   try:
-    print("==>", type(session))  # Debugging line to check the session type
+    #print("==>", type(session))  # Debugging line to check the session type
     logout_user()
     flask.session.clear()  # Clear all session data
     flash('You have been logged out successfully!', 'info')
