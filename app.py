@@ -425,14 +425,15 @@ def create_user():
       app.logger.info('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
                     + " / " +str(request.form['psw'])+ " / " +str(role))
       flash('Registration successful! please check your email for further information !', 'info')
+      
       #Email send...
       app.logger.info('Sending email to new register user....')
       #email = request.form['email']
       to_email = email
       # Create the welcome message
-      subject = "Welcome to Investinbulls.net"
-      message_body = "Dear User,\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
-
+      subject = "Welcome to Team Investinbulls!"
+      #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
+      message_body = f"Dear {username},\n\nThank you for joining Team Investinbulls! We’re excited to have you on board. \n\nYou have successfully registered with the following credentials:\n\nLogin: {email}\n\nPassword: {password}\n\nEach morning, you’ll receive a Watchlist of stocks with potential breakout opportunities. Once a breakout occurs, we will send you an alert directly to your email. This alert will include key details such as:\n\nBreakout Price\nEntry Price\nTarget Levels\nPredefined Stop Loss\nThese insights are designed to help you manage your risk effectively.\n\nIf you have any questions, feel free to reach out.\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       try:
         send_email(mail, to_email, subject, message_body)
         #return jsonify({"status": "success", "email_status": send_status})

@@ -1,6 +1,6 @@
 {% extends "/admin/base-template-admin.html" %}
 
-{% block title %}Change Password{% endblock %}
+{% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
 <style>
@@ -20,13 +20,55 @@
       height: 20px; /* Set equal height */
       text-align: center;
   }
+  /* Table styling */
+  .user-info-table {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto; /* Center the table horizontally */
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden; /* For rounded corners */
+  }
+
+  .user-info-table th, .user-info-table td {
+    padding: 12px 20px;
+    text-align: left;
+  }
+
+  .user-info-table th {
+    background-color: orange;
+    color: black;
+    font-weight: bold;
+  }
+
+  .user-info-table td {
+    background-color: #fff;
+    color: #333;
+  }
+
+  /* Optional: Adding borders to rows */
+  .user-info-table tr:nth-child(even) td {
+    background-color: #f4f4f4;
+  }
 </style>
 <body>
 
     <!-- Dashboard content -->
     <div class="dashboard-container">
       
-  
+      <table class="user-info-table">
+        <tr>
+          <th>Logged-in as:</th>
+          <td>{{ current_user.Email }}</td>
+        </tr>
+        <tr>
+          <th>User Name:</th>
+          <td>{{ current_user.UserName }}</td>
+        </tr>
+        
+      </table>
       <!-- Middle of the Page Buttons -->
       <a href="/update_admin_pass" class="dashboard-btn">
         <i class="fa fa-key"></i> Change Password
