@@ -20,8 +20,6 @@ if DB_ENV == 'PROD':
       "mysql+pymysql://omksyite_investmentdb:Em]?j,[dylx+@gator4405.hostgator.com/omksyite_investmentdb"
   )
 
-
-
 """with engine.connect() as conn:
   result = conn.execute(text("select * from Users"))
 
