@@ -3,15 +3,38 @@
 {% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
+<style>
+/* General button styles */
+  .dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: orange;
+    color: black;
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    width: 150px; /* Set equal width */
+    height: 20px; /* Set equal height */
+    text-align: center;
+  }
+
+  /* Button hover effect */
+  .dashboard-btn:hover {
+    background-color: #e67e22;
+  }
+</style>
 <body>
   
   <!-- Dashboard content -->
   <div class="dashboard-container">
 
     <!-- Middle of the Page Buttons -->
-    <a href="/createticker" class="dashboard-btn">
+    <!-- <a href="/createticker" class="dashboard-btn">
       <i class="fa fa-plus-circle"></i> Create Watchlist
-    </a>
+    </a> -->
     <a href="/showadmintickers" class="dashboard-btn">
       <i class="fa fa-list-alt"></i> Stock Alerts
     </a>

@@ -153,8 +153,8 @@
         }
 
         .search-bar button {
-            background-color: #28a745;
-            color: white;
+            background-color: orange;
+            color: black;
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
@@ -162,7 +162,7 @@
         }
 
         .search-bar button:hover {
-            background-color: #218838;
+            background-color: #e67e22;
         }
         .center-btn {
             display: flex;
@@ -547,13 +547,15 @@
         }
     </script>
 </head>
-<body>
 
+
+<body>
     <!-- Search bar -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
         <button onclick="filterTable()">Search</button>
     </div>
+    <div>
     <!-- Display a single table for each date -->
     {% for date, entries in grouped_tickers.items() %}
     <h3>
@@ -566,7 +568,7 @@
                 <th class="col-1">Created-Date</th>
                 <th class="col-2">Ticker-Name</th>
                 <th class="col-3">Entry Price</th>
-                <th class="col-4">Stop %</th>
+                 <!-- <th class="col-4">Stop %</th>
                 <th class="col-5">Stop Price</th>
                 <th class="col-6">Target-1</th>
                 <th class="col-7">Target-2</th>
@@ -574,7 +576,7 @@
                 <th class="col-9">Target-4</th>
                 <th class="col-10">Trail Stop</th>
                 <th class="col-11">Status</th>
-                <th class="col-12">Ticker-Notes</th>
+                <th class="col-12">Ticker-Notes</th> -->
             </tr>
         </thead>
         <tbody>
@@ -583,7 +585,7 @@
                 <td>{{ ticker.created_date }}</td>
                 <td>{{ ticker.ticker_name }}</td>
                 <td>{{ ticker.entry_price }}</td>
-                <td>{{ ticker.stop_percent }}</td>
+                 <!-- <td>{{ ticker.stop_percent }}</td>
                 <td>{{ ticker.stop_price }}</td>
                 <td>{{ ticker.target_1 }}</td>
                 <td>{{ ticker.target_2 }}</td>
@@ -593,13 +595,14 @@
                 <td>{{ ticker.ticker_status}}</td>
                 <td>
                     <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
-                </td>
+                </td> -->
                 
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% endfor %}
+    </div>
 </body>
 
 {% endblock %}

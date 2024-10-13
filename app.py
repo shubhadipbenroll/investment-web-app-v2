@@ -12,7 +12,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from flask import make_response
 import logging
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
+from datetime import date, datetime
 from mailconfig import configure_mail, send_email  # Importing email functions
 import os
 
@@ -115,7 +115,7 @@ def load_tickers_for_users():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TrailStop, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -271,9 +271,9 @@ def show_users():
 def dashboard_user():
   return render_template('/users/dashboard-user.html')
 
-@app.route("/show_ticker_user")
+@app.route("/show_ticker_user_recom")
 @login_required
-def show_ticker_user():
+def show_ticker_user_recom():
   ticklist = load_tickers_for_users()
   # Convert to dictionary
   tickers = [
@@ -281,15 +281,13 @@ def show_ticker_user():
           "created_date": row[0],
           "ticker_name": row[1],
           "entry_price": row[2],
-          "stop_percent": row[3],
-          "stop_price": row[4],
-          "target_1": row[5],
-          "target_2": row[6],
-          "target_3": row[7],
-          "target_4": row[8],
-          "trail_stop": row[9],
-          "ticker_status": row[10],
-          "ticker_notes": row[11]
+          "stop_price": row[3],
+          "target_1": row[4],
+          "target_2": row[5],
+          "target_3": row[6],
+          "target_4": row[7],
+          "trail_stop": row[8],
+          "ticker_notes": row[9]
       } for row in ticklist
   ]
   # Group tickers by created date
@@ -310,15 +308,13 @@ def show_ticker_user_watchlist():
           "created_date": row[0],
           "ticker_name": row[1],
           "entry_price": row[2],
-          "stop_percent": row[3],
-          "stop_price": row[4],
-          "target_1": row[5],
-          "target_2": row[6],
-          "target_3": row[7],
-          "target_4": row[8],
-          "trail_stop": row[9],
-          "ticker_status": row[10],
-          "ticker_notes": row[11]
+          #"stop_price": row[3],
+          #"target_1": row[4],
+          #"target_2": row[5],
+          #"target_3": row[6],
+          #"target_4": row[7],
+          #"trail_stop": row[8],
+          #"ticker_notes": row[9]
       } for row in watchlist
   ]
   # Group tickers by created date
@@ -745,7 +741,7 @@ def update_ticker():
       if status == "Active":
          send_active_broadcast_email(ticker)
       else:
-         app.logger.info('update_ticker: no broadcast email as Ticker Status : '+ str(status))
+         app.logger.info('update_ticker: not sending broadcast email as Ticker Status : '+ str(status))
 
     else:
       app.logger.info('update_ticker: adding new ticker : '+ str(ticker_name))
@@ -891,21 +887,34 @@ def send_active_broadcast_email(ticker):
 
     for user in allusers:
       #Email send...
-      app.logger.info('Preparing email to register email : '+ str(user.Email))
+      app.logger.info('Preparing email for all registered email : '+ str(user.Email))
       #email = request.form['email']
       to_email = user.Email
+
+      today = date.today()
       # Create the welcome message
-      subject = f"Updates on Ticker: {ticker.TickerName} - Team Investinbulls!"
+      subject = f"Team Investinbulls Stock update {ticker.TickerName} - {today}"
+
+      message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+   
       #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
-      message_body = f"Dear {user.UserName},\n\nTicker {ticker.TickerName} is live now.\nEntry Price : {ticker.EntryPrice}\nStop % : {ticker.StopPercent}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTrail Stop : {ticker.TrailStop}\nTicker Status : {ticker.TickerStatus}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to explore more details.\n\nIf you have any questions, feel free to reach out.\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      """if ticker.Target3 == 0.00 or ticker.Target4 == 0.00:
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      elif ticker.Target3 != 0.00 or ticker.Target4 == 0.00:
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      elif ticker.Target3 == 0.00 or ticker.Target4 != 0.00:
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      else:
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      """
       try:
         app.logger.info('Subject: '+ str(subject))
         app.logger.info('Email-Body: '+ str(message_body))
         #thread = threading.Thread(target=send_email, args=(mail, to_email, subject, message_body))
         #thread.start()  # Start the thread
         # paromita2k4@gmail.com / chatterjee.paromita9@gmail.com / vikram@investinbulls.net
-        if to_email == "paromita2k4@gmail.com":
-          app.logger.info('Sending email to register email : '+ str(to_email))
+        if to_email == "vikram@investinbulls.net":
+          app.logger.info('Sending email to registered email : '+ str(to_email))
           send_email(mail, to_email, subject, message_body)
 
         #return jsonify({"status": "success", "email_status": send_status})
