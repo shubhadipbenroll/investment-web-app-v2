@@ -715,6 +715,11 @@ def update_ticker():
   status = data.get('ticker_status')
   ticker_notes = data.get('ticker_notes')
 
+  if target_3 is None: 
+     target_3 = 0
+  if target_4 is None: 
+     target_4 = 0
+     
 
   # Create a session
   Session = sessionmaker(bind=engine)
@@ -896,24 +901,24 @@ def send_active_broadcast_email(ticker):
       subject = f"Team Investinbulls Stock update {ticker.TickerName} - {today}"
 
       message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
-   
+      
       #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
-      """if ticker.Target3 == 0.00 or ticker.Target4 == 0.00:
+      if ticker.Target3 == 0.00 and ticker.Target4 == 0.00:
         message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
-      elif ticker.Target3 != 0.00 or ticker.Target4 == 0.00:
+      elif ticker.Target3 != 0.00 and ticker.Target4 == 0.00:
         message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
-      elif ticker.Target3 == 0.00 or ticker.Target4 != 0.00:
+      elif ticker.Target3 == 0.00 and ticker.Target4 != 0.00:
         message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       else:
         message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
-      """
+      
       try:
         app.logger.info('Subject: '+ str(subject))
         app.logger.info('Email-Body: '+ str(message_body))
         #thread = threading.Thread(target=send_email, args=(mail, to_email, subject, message_body))
         #thread.start()  # Start the thread
         # paromita2k4@gmail.com / chatterjee.paromita9@gmail.com / vikram@investinbulls.net
-        if to_email == "vikram@investinbulls.net":
+        if to_email == "chatterjee.paromita9@gmail.com":
           app.logger.info('Sending email to registered email : '+ str(to_email))
           send_email(mail, to_email, subject, message_body)
 
@@ -1232,5 +1237,5 @@ def add_header(response):
 # Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if __name__ == "__main__":
-  app.run()
-  #app.run(host='0.0.0.0', port='3001', debug=True)
+  #app.run()
+  app.run(host='0.0.0.0', port='3001', debug=True)

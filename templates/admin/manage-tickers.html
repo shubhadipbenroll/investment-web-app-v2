@@ -81,7 +81,21 @@
             padding: 12px 15px;
             text-align: left;
         }
-
+        /* Set column width percentages */
+        .col-1 { width: 13%; }
+        .col-2 { width: 10%; }
+        .col-3 { width: 6%; }
+        .col-4 { width: 6%; }
+        .col-5 { width: 6%; }
+        .col-6 { width: 7%; }
+        .col-7 { width: 7%; }
+        .col-8 { width: 7%; }
+        .col-9 { width: 7%; }
+        .col-10 { width: 6%; }
+        .col-11 { width: 5%; }
+        .col-12 { width: 6%; }
+        .col-13 { width: 6%; }
+        .col-14 { width: 6%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -93,6 +107,10 @@
 
         tr:hover {
             background-color: #f1f1f1;
+        }
+
+        .editable {
+            background-color: #ffffe0; /* Light yellow to indicate edit mode */
         }
 
         /* Search bar styles */
@@ -152,6 +170,19 @@
 
         .search-bar button:hover {
             background-color: #e67e22;
+        }
+
+        /* Button style to open the form */
+        .open-popup-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: orange;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
         }
 
         /* Action buttons (Disable, Delete) */
@@ -255,12 +286,14 @@
 
 <body>
     <!-- Main container -->
-    <div class="container">
+    <!-- <div class="container"> -->
         <!-- Search bar -->
-        <div class="search-bar">
+        <div class="open-popup-btn">
             <input type="text" id="searchInput" placeholder="Search tickers...">
             <button onclick="filterTable()">Search</button>
             
+            <a href="/manageticker" ><button>Refresh</button></a>
+        
             <!-- Filter dropdown for Status -->
             <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
                 <option value="">Select Status</option>
@@ -278,21 +311,22 @@
         <table id="table-{{ date }}" class="ticker-table">
             <thead>
                 <tr>
-                    <th>Created-Date</th>
-                    <th>Ticker-Name</th>
-                    <th>Entry Price</th>
-                    <th>Stop %</th>
-                    <th>Stop Price</th>
-                    <th>Target-1</th>
-                    <th>Target-2</th>
-                    <th>Target-3</th>
-                    <th>Target-4</th>
-                    <th>Trail Stop</th>
-                    <th>Ticker-Status</th>
-                    <th>Active</th> <!-- Added actions column header -->
-                    <th>Inactive</th> <!-- Added actions column header -->
-                    <th>Delete</th> <!-- Added actions column header -->
+                    <th class="col-1">Date/Time</th>
+                    <th class="col-2">Stock Ticker</th>
+                    <th class="col-3">Entry Price</th>
+                    <th class="col-4">Stop %</th>
+                    <th class="col-5">Stop Price</th>
+                    <th class="col-6">Target 1</th>
+                    <th class="col-7">Target 2</th>
+                    <th class="col-8">Target 3</th>
+                    <th class="col-9">Target 4</th>
+                    <th class="col-10">Trailstop</th>
+                    <th class="col-11">Stock Status</th>
+                    <th class="col-12">Active</th>
+                    <th class="col-13">Inactive</th>
+                    <th class="col-14">Delete</th>
                 </tr>
+                
             </thead>
             <tbody>
                 {% for ticker in entries %}
@@ -331,7 +365,7 @@
             </tbody>
         </table>
         {% endfor %}
-    </div>
+    <!-- </div> -->
 </body>
 
 {% endblock %}

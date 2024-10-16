@@ -103,14 +103,14 @@
         }
         /* Set column width percentages */
         .col-1 { width: 13%; }
-        .col-2 { width: 12%; }
+        .col-2 { width: 10%; }
         .col-3 { width: 6%; }
         .col-4 { width: 6%; }
         .col-5 { width: 6%; }
-        .col-6 { width: 6%; }
-        .col-7 { width: 6%; }
-        .col-8 { width: 6%; }
-        .col-9 { width: 6%; }
+        .col-6 { width: 7%; }
+        .col-7 { width: 7%; }
+        .col-8 { width: 7%; }
+        .col-9 { width: 7%; }
         .col-10 { width: 6%; }
         .col-11 { width: 5%; }
         .col-12 { width: 16%; }
@@ -366,33 +366,36 @@
             let discountPercentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
 
             if (!isNaN(amount) && !isNaN(discountPercentage)) {
-            let discountValue = (amount * discountPercentage) / 100;
-            let finalAmount = amount - discountValue;
-            document.getElementById("result").value = '$' + finalAmount.toFixed(2);
+                let discountValue = (amount * discountPercentage) / 100;
+                let finalAmount = amount - discountValue;
+                document.getElementById("result").value = '$' + finalAmount.toFixed(2);
             }
         }
 
         // Calculate Target 1 (6%)
         function calculatePercentageTarget1() {
             let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let target1Percentage = 6;
+            //let target1Percentage = 6;
+            let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
 
-            if (!isNaN(amount)) {
-            let target1Value = (amount * target1Percentage) / 100;
-            let finalAmount = amount + target1Value;
-            document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
+            if (!isNaN(amount) && !isNaN(target1Percentage)) {
+                let target1Value = (amount * target1Percentage) / 100;
+                //let finalAmount = amount + target1Value;
+                let finalAmount = amount + (target1Value * 2);
+                document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
             }
         }
 
         // Calculate Target 2 (12%)
         function calculatePercentageTarget2() {
             let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let target2Percentage = 12;
-
-            if (!isNaN(amount)) {
-            let target2Value = (amount * target2Percentage) / 100;
-            let finalAmount = amount + target2Value;
-            document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
+            // let target2Percentage = 12;
+            let target2Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
+            if (!isNaN(amount) && !isNaN(target2Percentage)) {
+                let target2Value = (amount * target2Percentage) / 100;
+                //let finalAmount = amount + target2Value;
+                let finalAmount = amount + (target2Value * 4);
+                document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
             }
         }
 
@@ -403,26 +406,53 @@
             let discountPercentage = parseFloat(document.getElementById("edit-stop-percent").value.replace('%', ''));
 
             if (!isNaN(amount) && !isNaN(discountPercentage)) {
-            let discountValue = (amount * discountPercentage) / 100;
-            let finalAmount = amount - discountValue;
-            document.getElementById("edit-stop-price").value = '$' + finalAmount.toFixed(2);
+                let discountValue = (amount * discountPercentage) / 100;
+                let finalAmount = amount - discountValue;
+                document.getElementById("edit-stop-price").value = '$' + finalAmount.toFixed(2);
             }
         }
 
         // Calculate Target 1 (6%)
         function calculatePercentageTarget1Edit() {
             let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
-            let target1Percentage = 6;
+            //let target1Percentage = 6;
+            let target1Percentage = parseFloat(document.getElementById("edit-stop-percent").value.replace('%', ''));
 
-            if (!isNaN(amount)) {
-            let target1Value = (amount * target1Percentage) / 100;
-            let finalAmount = amount + target1Value;
-            document.getElementById("edit-target-1").value = '$' + finalAmount.toFixed(2);
+            if (!isNaN(amount) && !isNaN(target1Percentage)) {
+                let target1Value = (amount * target1Percentage) / 100;
+                //let finalAmount = amount + target1Value;
+                let finalAmount = amount + (target1Value * 2);
+                document.getElementById("edit-target-1").value = '$' + finalAmount.toFixed(2);
             }
         }
 
         // Calculate Target 2 (12%)
         function calculatePercentageTarget2Edit() {
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            // let target2Percentage = 12;
+            let target2Percentage = parseFloat(document.getElementById("edit-stop-percent").value.replace('%', ''));
+            if (!isNaN(amount) && !isNaN(target2Percentage)) {
+                let target2Value = (amount * target2Percentage) / 100;
+                //let finalAmount = amount + target2Value;
+                let finalAmount = amount + (target2Value * 4);
+                document.getElementById("edit-target-2").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 1 (6%)  /////////////////////////// OLD //////////////////
+        function calculatePercentageTarget1EditOld() {
+            let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
+            let target1Percentage = 6;
+
+            if (!isNaN(amount)) {
+                let target1Value = (amount * target1Percentage) / 100;
+                let finalAmount = amount + target1Value;
+                document.getElementById("edit-target-1").value = '$' + finalAmount.toFixed(2);
+            }
+        }
+
+        // Calculate Target 2 (12%)  /////////////////////////// OLD //////////////////
+        function calculatePercentageTarget2EditOld() {
             let amount = parseFloat(document.getElementById("edit-entry-price").value.replace('$', ''));
             let target2Percentage = 12;
 
@@ -441,18 +471,25 @@
 
             tables.forEach(table => {
                 const tr = table.getElementsByTagName('tr');
+                let matchFound = false;
+
                 for (let i = 1; i < tr.length; i++) {
                     let tdArray = tr[i].getElementsByTagName('td');
                     let rowMatchFound = false;
 
                     for (let j = 0; j < tdArray.length; j++) {
                         let td = tdArray[j];
-                        if (td && td.innerText.toUpperCase().indexOf(filter) > -1) {
-                            rowMatchFound = true;
+                        if (td) {
+                            // Check for search input match
+                            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                rowMatchFound = true;
+                                matchFound = true;
+                            }
                         }
                     }
-                    tr[i].style.display = rowMatchFound ? "" : "none";
                 }
+                // If no match found, hide the table
+                table.style.display = matchFound ? "" : "none";
             });
         }
 
@@ -683,10 +720,6 @@
     </script>
 </head>
 <body>
-
-    <!-- Button to open the pop-up -->
-    <button class="open-popup-btn" onclick="openPopup()">Create Ticker</button>
-    <a href="/showadmintickers" ><button class="open-popup-btn">Refresh</button></a>
     <!-- Pop-up container -->
     <div class="popup-overlay" id="popup">
         <div class="form-container">
@@ -703,7 +736,7 @@
                 <div class="form-group">
                     <label for="amount">Entry Price ($)</label>
                     <input type="text" id="amount" name="entryprice" placeholder="$USD" 
-                            oninput="calculatePercentage(); calculatePercentageTarget1(); calculatePercentageTarget2()" required>
+                            required>
                 </div>
 
                 <div class="form-group">
@@ -837,9 +870,13 @@
         </div>
     </div>
 
-    <!-- Search bar -->
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
+    <div class="open-popup-btn">
+        <!-- Button to open the pop-up -->
+        <button onclick="openPopup()">Create Ticker</button>
+        <a href="/showadmintickers" ><button>Refresh</button></a>
+
+        <!-- Search bar -->
+        <input type="text" id="searchInput" placeholder="Search tickers...">
         <button onclick="filterTable()">Search</button>
     </div>
     <!-- Display a single table for each date -->
@@ -851,17 +888,17 @@
     <table id="table-{{ date }}" class="ticker-table">
         <thead>
             <tr>
-                <th class="col-1">Created-Date</th>
-                <th class="col-2">Ticker-Name</th>
+                <th class="col-1">Date/Time</th>
+                <th class="col-2">Stock Ticker</th>
                 <th class="col-3">Entry Price</th>
                 <th class="col-4">Stop %</th>
                 <th class="col-5">Stop Price</th>
-                <th class="col-6">Target-1</th>
-                <th class="col-7">Target-2</th>
-                <th class="col-8">Target-3</th>
-                <th class="col-9">Target-4</th>
-                <th class="col-10">Trail Stop</th>
-                <th class="col-11">Status</th>
+                <th class="col-6">Target 1</th>
+                <th class="col-7">Target 2</th>
+                <th class="col-8">Target 3</th>
+                <th class="col-9">Target 4</th>
+                <th class="col-10">Trailstop</th>
+                <th class="col-11">Stock Status</th>
                 <th class="col-12">Ticker-Notes</th>
                 <th class="col-13">Edit</th>
             </tr>

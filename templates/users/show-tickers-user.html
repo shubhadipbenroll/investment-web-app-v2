@@ -311,6 +311,17 @@
             background-color: #0056b3;
         }
 
+        .open-popup-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: orange;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
+        }
         /* Close button style */
         .close-btn {
             float: right;
@@ -357,18 +368,25 @@
 
             tables.forEach(table => {
                 const tr = table.getElementsByTagName('tr');
+                let matchFound = false;
+
                 for (let i = 1; i < tr.length; i++) {
                     let tdArray = tr[i].getElementsByTagName('td');
                     let rowMatchFound = false;
 
                     for (let j = 0; j < tdArray.length; j++) {
                         let td = tdArray[j];
-                        if (td && td.innerText.toUpperCase().indexOf(filter) > -1) {
-                            rowMatchFound = true;
+                        if (td) {
+                            // Check for search input match
+                            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                rowMatchFound = true;
+                                matchFound = true;
+                            }
                         }
                     }
-                    tr[i].style.display = rowMatchFound ? "" : "none";
                 }
+                // If no match found, hide the table
+                table.style.display = matchFound ? "" : "none";
             });
         }
 
@@ -421,9 +439,11 @@
 <body>
 
     <!-- Search bar -->
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search tickers..." onkeyup="filterTable()">
+    <div class="open-popup-btn">
+        <input type="text" id="searchInput" placeholder="Search tickers...">
         <button onclick="filterTable()">Search</button>
+
+        <a href="/show_ticker_user_recom" ><button>Refresh</button></a>
     </div>
     <!-- Display a single table for each date -->
     {% for date, entries in grouped_tickers.items() %}
@@ -434,15 +454,15 @@
     <table id="table-{{ date }}" class="ticker-table">
         <thead>
             <tr>
-                <th class="col-1">Created-Date</th>
-                <th class="col-2">Ticker-Name</th>
+                <th class="col-1">Date/Time</th>
+                <th class="col-2">Stock Ticker</th>
                 <th class="col-3">Entry Price</th>
                 <th class="col-4">Stop Price</th>
-                <th class="col-5">Target-1</th>
-                <th class="col-6">Target-2</th>
-                <th class="col-7">Target-3</th>
-                <th class="col-8">Target-4</th>
-                <th class="col-9">Trail Stop</th>
+                <th class="col-5">Target 1</th>
+                <th class="col-6">Target 2</th>
+                <th class="col-7">Target 3</th>
+                <th class="col-8">Target 4</th>
+                <th class="col-9">Trailstop</th>
                 <th class="col-10">Ticker-Notes</th>
             </tr>
         </thead>
