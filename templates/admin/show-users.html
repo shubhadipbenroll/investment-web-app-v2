@@ -132,7 +132,18 @@
         cursor: pointer;
         font-size: 16px;
     }
-
+    /* Button style to open the form */
+    .open-popup-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: orange;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
+    }
     .user-manage-btn:hover {
         background-color: #0056b3;
     }
@@ -160,13 +171,10 @@
 <!-- Main container -->
 <div class="container">
     <!-- Search bar -->
-    <div class="search-bar">
+    <div class="open-popup-btn">
         <input type="text" id="searchInput" placeholder="Search users...">
         <button onclick="filterTable()">Search</button>
-    </div>
-
-    <!-- Filter dropdowns -->
-    <div class="search-bar">
+    
         <select id="roleFilter" class="filter-dropdown" onchange="filterTable()">
             <option value="">Select Role</option>
             <option value="Admin">Admin</option>
@@ -178,6 +186,8 @@
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
         </select>
+
+        <a href="/showusers" ><button>Refresh</button></a>
     </div>
 
     <!-- Table -->

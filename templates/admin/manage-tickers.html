@@ -292,14 +292,14 @@
             <input type="text" id="searchInput" placeholder="Search tickers...">
             <button onclick="filterTable()">Search</button>
             
-            <a href="/manageticker" ><button>Refresh</button></a>
-        
             <!-- Filter dropdown for Status -->
             <select id="statusFilter" class="filter-dropdown" onchange="filterTable()">
                 <option value="">Select Status</option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
             </select>
+
+            <a href="/manageticker" ><button>Refresh</button></a>
         </div>
 
         <!-- Display a single table for each date -->

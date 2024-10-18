@@ -873,11 +873,12 @@
     <div class="open-popup-btn">
         <!-- Button to open the pop-up -->
         <button onclick="openPopup()">Create Ticker</button>
-        <a href="/showadmintickers" ><button>Refresh</button></a>
-
+        
         <!-- Search bar -->
         <input type="text" id="searchInput" placeholder="Search tickers...">
         <button onclick="filterTable()">Search</button>
+
+        <a href="/showadmintickers" ><button>Refresh</button></a>
     </div>
     <!-- Display a single table for each date -->
     {% for date, entries in grouped_tickers.items() %}

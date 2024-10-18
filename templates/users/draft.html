@@ -3,8 +3,13 @@
 {% block title %}Investinbulls.net{% endblock %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
+    <div>
+        <p>Currently, no data available.</p>
+    </div>
+{% else %}
 <div>
-    <p>Currently, no data available.</p>
+    <p>Currently, no data available. II</p>
 </div>
-
+{% endif %}
 {% endblock %}

@@ -12,7 +12,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from flask import make_response
 import logging
 from logging.handlers import RotatingFileHandler
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from mailconfig import configure_mail, send_email  # Importing email functions
 import os
 
@@ -22,6 +22,11 @@ app = Flask(__name__)
 app.secret_key = 'kshda^&93euyhdqwiuhdIHUWQY'
 app.config['SECRET_KEY'] = 'kshda^&93euyhdqwiuhdIHUWQY'
 
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_TYPE'] = 'filesystem'  # Or any other preferred type
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(seconds=600)  # Adjust the duration as needed
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to cookies
 # Configure Flask-Mail
 mail = configure_mail(app)
 
@@ -51,8 +56,12 @@ def debug_log():
 
 # Handing for login user management ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 login_manager = LoginManager()
-login_manager.login_view = 'loginpage'
 login_manager.init_app(app)
+
+login_manager.login_view = 'loginpage'
+login_manager.login_message = "Please log in to access the page."
+login_manager.login_message_category = "info"
+login_manager.session_protection = "strong"
 
 @login_manager.user_loader
 def load_user(id):
@@ -69,7 +78,7 @@ def load_users_details_from_db():
   user_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select Email, UserName, UserRole, user_status, creation_date, expire_date, country_code, mobile_number from Users order by UserName"))
+      result = conn.execute(text("select Email, UserName, UserPassword, UserRole, user_status, creation_date, expire_date, mobile_number from Users order by UserName"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -892,7 +901,7 @@ def send_active_broadcast_email(ticker):
 
     for user in allusers:
       #Email send...
-      app.logger.info('Preparing email for all registered email : '+ str(user.Email))
+      app.logger.info('Preparing email for registered email : '+ str(user.Email))
       #email = request.form['email']
       to_email = user.Email
 
@@ -913,14 +922,14 @@ def send_active_broadcast_email(ticker):
         message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       
       try:
-        app.logger.info('Subject: '+ str(subject))
-        app.logger.info('Email-Body: '+ str(message_body))
+        #app.logger.info('Subject: '+ str(subject))
+        #app.logger.info('Email-Body: '+ str(message_body))
         #thread = threading.Thread(target=send_email, args=(mail, to_email, subject, message_body))
         #thread.start()  # Start the thread
         # paromita2k4@gmail.com / chatterjee.paromita9@gmail.com / vikram@investinbulls.net
-        if to_email == "chatterjee.paromita9@gmail.com":
-          app.logger.info('Sending email to registered email : '+ str(to_email))
-          send_email(mail, to_email, subject, message_body)
+        #if to_email == "chatterjee.paromita9@gmail.com":
+        app.logger.info('Sending email to registered email : '+ str(to_email))
+        send_email(mail, to_email, subject, message_body)
 
         #return jsonify({"status": "success", "email_status": send_status})
         time.sleep(1)
@@ -1222,6 +1231,7 @@ def logout():
   except Exception as e:
     app.logger.error(f'An error occurred in logout: {e}', exc_info=True)
   
+  print("current_user.is_authenticated : ",current_user.is_authenticated)
   #return render_template('login-page.html')
   return redirect(url_for('loginpage'))
 
