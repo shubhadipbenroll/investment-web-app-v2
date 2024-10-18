@@ -1,0 +1,5 @@
+python3 -m pip install flask
+python3 -m pip install flask_login
+python3 -m pip install Flask-Mail
+python3 -m pip install sqlalchemy
+python3 -m pip install sqlalchemy.orm
