@@ -4,7 +4,7 @@ import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import flask  # Import Flask explicitly for session handling
 from database import engine
-from sqlalchemy import Text, text, Column, String, Integer
+from sqlalchemy import DateTime, Text, func, text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from flask_login import LoginManager
@@ -576,6 +576,12 @@ class Ticker(Base):
   TrailStop  = Column(Integer, nullable=False)
   TickerStatus  = Column(String, nullable=False)
   TickerNotes = Column(Text, nullable=True)  # New column for storing notes
+  # Timestamps
+  #CreateDate = Column(DateTime)  # On insert
+  #UpdateDate = Column(DateTime)  # On insert and update
+  # Timestamps
+  CreateDate = Column(DateTime, default=func.now())  # On insert
+  UpdateDate = Column(DateTime, default=func.now(), onupdate=func.now())  # On insert and update
   
 @app.route('/save_ticker', methods=['POST'])
 def save_ticker():
@@ -712,6 +718,7 @@ def update_ticker():
   data = request.json
   
   # Extract values and store them in variables
+  created_date = data.get('created_date')
   ticker_name = data.get('ticker_name')
   entry_price = float(data.get('entry_price').replace('$', '').replace(',', ''))
   stop_percent = float(data.get('stop_percent').replace('$', '').replace(',', ''))
@@ -733,10 +740,11 @@ def update_ticker():
   # Create a session
   Session = sessionmaker(bind=engine)
   db_session = Session()
-
+  #print("==>",ticker_name)
+  #print("==>",created_date)
   try:
-    ticker = db_session.query(Ticker).filter_by(TickerName=ticker_name).first()
-
+    ticker = db_session.query(Ticker).filter_by(TickerName=ticker_name, CreateDate=created_date).first()
+    
     if ticker:
       app.logger.info('update_ticker: updating ticker : '+ str(ticker_name))
       ticker.EntryPrice=entry_price

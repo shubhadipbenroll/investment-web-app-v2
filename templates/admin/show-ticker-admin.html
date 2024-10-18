@@ -555,7 +555,7 @@
             let updatedData = {};
 
             // Extract updated values from input fields
-            updatedData['created_date'] = cells[0].innerText;
+            updatedData['created_date'] = cells[0].querySelector('input').value;
             updatedData['ticker_name'] = cells[1].querySelector('input').value;
             updatedData['entry_price'] = cells[2].querySelector('input').value;
             updatedData['stop_percent'] = cells[3].querySelector('input').value;
@@ -634,7 +634,7 @@
             popupedit.style.display = "flex";
 
             // Fill in the popup fields with data
-            document.getElementById("edit-created-date").innerText = data.created_date;
+            document.getElementById("edit-created-date").value = data.created_date;
             document.getElementById("edit-ticker-name").value = data.ticker_name;
             document.getElementById("edit-entry-price").value = data.entry_price;
             document.getElementById("edit-stop-percent").value = data.stop_percent;
@@ -681,6 +681,7 @@
         function updateTicker() {
             const updatedData = {
                 row_id: document.getElementById("update-row-id").value,
+                created_date: document.getElementById("edit-created-date").value,
                 ticker_name: document.getElementById("edit-ticker-name").value,
                 entry_price: document.getElementById("edit-entry-price").value,
                 stop_percent: document.getElementById("edit-stop-percent").value,
