@@ -1,14 +1,14 @@
 from sqlalchemy import create_engine, text
 
-DB_ENV = 'UAT' #'PROD'
+DB_ENV = 'NP' #'LOCAL' , 'NP' , 'PROD' , 'UAT'
 
-if DB_ENV == 'NP':
+if DB_ENV == 'LOCAL':
   #Clever-cloud mysql DB connection setup
   engine = create_engine(
       "mysql+pymysql://ugfd2asvp5jsacvp:gdm6RrIc6CrBuFAzTGav@b4ojubqpvk22nbcgfrpe-mysql.services.clever-cloud.com/b4ojubqpvk22nbcgfrpe"
   )
 
-if DB_ENV == 'LOCAL':
+if DB_ENV == 'NP':
   #Local mysql DB connection setup
   engine = create_engine(
       "mysql+pymysql://ugfd2asvp5jsacvp:gdm6RrIc6CrBuFAzTGav@b4ojubqpvk22nbcgfrpe-mysql.services.clever-cloud.com/b4ojubqpvk22nbcgfrpe"
@@ -26,16 +26,4 @@ if DB_ENV == 'PROD':
       "mysql+pymysql://omksyite_investmentdb:Em]?j,[dylx+@gator4405.hostgator.com/omksyite_investmentdb"
   )
 
-"""with engine.connect() as conn:
-  result = conn.execute(text("select * from Users"))
 
-  #print("type(result.all())", type(result.all()))
-  print(result.all())
-
-  result_dicts = []
-
-  for row in result.all():
-    result_dicts.append(row)
-
-  print("result_dicts", result_dicts)
-"""

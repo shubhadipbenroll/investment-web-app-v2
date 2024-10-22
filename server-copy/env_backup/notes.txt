@@ -1,0 +1,5 @@
+.htaccess must be 644 
+main.cgi must be 755
+
+-rwxr-xr-x  1 omksyite omksyite   104 Oct 18 17:54 main.cgi*
+-rw-r--r--  1 omksyite omksyite   200 Oct 18 19:19 .htaccess

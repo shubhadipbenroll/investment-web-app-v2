@@ -15,6 +15,7 @@ from logging.handlers import RotatingFileHandler
 from datetime import date, datetime, timedelta
 from mailconfig import configure_mail, send_email  # Importing email functions
 import os
+from database import DB_ENV
 
 
 
@@ -1254,6 +1255,42 @@ def add_header(response):
     return response
 # Calling main application !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+# A flag to ensure server info is printed only once
+server_info_logged = False
+
+@app.before_request
+def log_server_info():
+    global server_info_logged
+    if not server_info_logged:
+        # Get server name and port from the incoming request
+        server_name = request.host.split(':')[0]  # The server name
+        server_port = request.host.split(':')[1] if ':' in request.host else '80'  # The port
+        
+        # Log the server and port information
+        if DB_ENV == 'NP':
+          app.logger.info(f"Non-Production Server is running on: {server_name}:{server_port}")
+        if DB_ENV == 'PROD':
+          app.logger.info(f"Production Server is running on: {server_name}:{server_port}")
+        if DB_ENV == 'UAT':
+          app.logger.info(f"UAT Server is running on: {server_name}:{server_port}")
+          
+        #print(f"Server is running on: {server_name}:{server_port}")
+        server_info_logged = True  # Ensure this runs only once
+
+
 if __name__ == "__main__":
-  app.run()
-  app.run(host='0.0.0.0', port='3001', debug=True)
+  # Use the DB_ENV variable in logic
+  if DB_ENV == 'NP':
+      app.logger.info('Running in Non-Production environment')
+      app.run(host='0.0.0.0', port='3001', debug=True)
+  elif DB_ENV == 'PROD':
+      app.logger.info('Running in Production environment')
+      app.run()
+  elif DB_ENV == 'UAT':
+      app.logger.info('Running in UAT environment')
+      app.run()
+  else:
+      app.logger.info('Running in UNDEFINED environment')
+      #app.run()
+  #app.run()
+  #app.run(host='0.0.0.0', port='3001', debug=True)
