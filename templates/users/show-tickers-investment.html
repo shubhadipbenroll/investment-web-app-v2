@@ -437,14 +437,19 @@
     </script>
 </head>
 <body>
+    <div style="display: flex; align-items: center;">
+        <div>
+            <h3>Welcome to Investment</h3>
+        </div>
+    
+        <!-- Search bar -->
+        <div class="open-popup-btn" style="margin-left: 20px;">
+            <input type="text" id="searchInput" placeholder="Search tickers...">
+            <button onclick="filterTable()">Search</button>
 
-    <!-- Search bar -->
-    <div class="open-popup-btn">
-        <input type="text" id="searchInput" placeholder="Search tickers...">
-        <button onclick="filterTable()">Search</button>
-
-        <a href="/show_ticker_user_recom" ><button>Refresh</button></a>
-    </div>
+            <a href="/show_ticker_user_investment" ><button>Refresh</button></a>
+        </div>
+    </div   >
     <!-- Display a single table for each date -->
     {% for date, entries in grouped_tickers.items() %}
     <h3>

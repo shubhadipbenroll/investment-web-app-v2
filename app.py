@@ -75,6 +75,22 @@ def load_user(id):
 
 
 # DB related functions STARTS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+## ADMIN TABLE FUNCTIONS
+def load_tickers_for_admin():
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,ticker_type,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_for_admin: {e}', exc_info=True)
+  
+  return ticker_list
+
 def load_users_details_from_db():
   user_list = []
   try:
@@ -108,7 +124,7 @@ def load_tickers_from_db():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,ticker_type,TickerStatus from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -118,48 +134,52 @@ def load_tickers_from_db():
   
   return ticker_list
 
-def load_tickers_for_users():
+## USER TABLE FUNCTIONS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+def load_tickers_for_watchlist():
+  ticker_list = []
+  try:
+    with engine.connect() as conn:
+      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers WHERE ticker_type='Swing' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        ticker_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_tickers_for_watchlist: {e}', exc_info=True)
+  
+  return ticker_list
+
+def load_tickers_for_trading():
   ticker_list = []
   try:
     with engine.connect() as conn:
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Swing' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
-    app.logger.error(f'An error occurred in load_tickers_for_users: {e}', exc_info=True)
+    app.logger.error(f'An error occurred in load_tickers_for_trading: {e}', exc_info=True)
   
   return ticker_list
 
-def load_tickers_for_watchlist():
+def load_tickers_for_investment():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
-      #print("type(result.all())", type(result.all()))
-      #print(result.all())
+      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
+      #Only show last date data
+      #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Investment' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
-    app.logger.error(f'An error occurred in load_tickers_for_users: {e}', exc_info=True)
+    app.logger.error(f'An error occurred in load_tickers_for_investment: {e}', exc_info=True)
   
   return ticker_list
 
-def load_tickers_for_admin():
-  ticker_list = []
-  try:
-    with engine.connect() as conn:
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
-      #print("type(result.all())", type(result.all()))
-      #print(result.all())
-      for row in result.all():
-        ticker_list.append(row)
-  except Exception as e:
-    app.logger.error(f'An error occurred in load_tickers_for_admin: {e}', exc_info=True)
-  
-  return ticker_list
 # DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
@@ -257,8 +277,9 @@ def show_tickers_admin():
           "target_3": row[7],
           "target_4": row[8],
           "trail_stop": row[9],
-          "ticker_status": row[10],
-          "ticker_notes": row[11]
+          "ticker_type": row[10],
+          "ticker_status": row[11],
+          "ticker_notes": row[12]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -280,33 +301,6 @@ def show_users():
 @app.route("/userdashboard")
 def dashboard_user():
   return render_template('/users/dashboard-user.html')
-
-@app.route("/show_ticker_user_recom")
-@login_required
-def show_ticker_user_recom():
-  ticklist = load_tickers_for_users()
-  # Convert to dictionary
-  tickers = [
-      {
-          "created_date": row[0],
-          "ticker_name": row[1],
-          "entry_price": row[2],
-          "stop_price": row[3],
-          "target_1": row[4],
-          "target_2": row[5],
-          "target_3": row[6],
-          "target_4": row[7],
-          "trail_stop": row[8],
-          "ticker_notes": row[9]
-      } for row in ticklist
-  ]
-  # Group tickers by created date
-  grouped_tickers = defaultdict(list)
-  for ticker in tickers:
-    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
-    grouped_tickers[date_only].append(ticker)
-
-  return render_template('/users/show-tickers-user.html', grouped_tickers=grouped_tickers, user=current_user)
 
 @app.route("/show_ticker_user_watchlist")
 @login_required
@@ -333,7 +327,61 @@ def show_ticker_user_watchlist():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/users/show-ticker-user-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
+  return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
+
+@app.route("/show_ticker_user_trading")
+@login_required
+def show_ticker_user_trading():
+  ticklist = load_tickers_for_trading()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_price": row[3],
+          "target_1": row[4],
+          "target_2": row[5],
+          "target_3": row[6],
+          "target_4": row[7],
+          "trail_stop": row[8],
+          "ticker_notes": row[9]
+      } for row in ticklist
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+
+@app.route("/show_ticker_user_investment")
+@login_required
+def show_ticker_user_investment():
+  ticklist = load_tickers_for_investment()
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_price": row[3],
+          "target_1": row[4],
+          "target_2": row[5],
+          "target_3": row[6],
+          "target_4": row[7],
+          "trail_stop": row[8],
+          "ticker_notes": row[9]
+      } for row in ticklist
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/users/show-tickers-investment.html', grouped_tickers=grouped_tickers, user=current_user)
 
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -577,6 +625,7 @@ class Ticker(Base):
   TrailStop  = Column(Integer, nullable=False)
   TickerStatus  = Column(String, nullable=False)
   TickerNotes = Column(Text, nullable=True)  # New column for storing notes
+  ticker_type  = Column(String, nullable=False)
   # Timestamps
   #CreateDate = Column(DateTime)  # On insert
   #UpdateDate = Column(DateTime)  # On insert and update
@@ -595,6 +644,7 @@ def save_ticker():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
+  tickertype = request.form['type']
   trailStop = 0
   tickerstatus = "Inactive"
   notes = request.form['notes']
@@ -616,7 +666,8 @@ def save_ticker():
                     Target4=target4,
                     TrailStop=trailStop,
                     TickerStatus=tickerstatus,
-                    TickerNotes=notes)
+                    TickerNotes=notes,
+                    ticker_type=tickertype)
 
     # Add the new user to the session
     db_session.add(new_ticker)
@@ -645,6 +696,7 @@ def save_ticker_new():
   target2 = float(request.form['target2'].replace('$', '').replace(',', ''))
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
+  tickertype = request.form['tickertype']
   tickerstatus = "Inactive"
   notes = request.form['notes']
   trailStop = 0
@@ -664,8 +716,10 @@ def save_ticker_new():
                     Target3=target3,
                     Target4=target4,
                     TrailStop=trailStop,
+                    ticker_type=tickertype,
                     TickerStatus=tickerstatus,
-                    TickerNotes=notes)
+                    TickerNotes=notes
+                    )
 
     # Add the new user to the session
     db_session.add(new_ticker)
@@ -696,8 +750,9 @@ def save_ticker_new():
           "target_3": row[7],
           "target_4": row[8],
           "trail_stop": row[9],
-          "ticker_status": row[10],
-          "ticker_notes": row[11]
+          "ticker_type": row[10],
+          "ticker_status": row[11],
+          "ticker_notes": row[12]
       } for row in admintickers
   ]
   # Group tickers by created date
@@ -729,6 +784,7 @@ def update_ticker():
   target_3 = float(data.get('target_3').replace('$', '').replace(',', ''))
   target_4 = float(data.get('target_4').replace('$', '').replace(',', ''))
   trail_stop = float(data.get('trail_stop').replace('$', '').replace(',', ''))
+  ticker_type = data.get('ticker_type')
   status = data.get('ticker_status')
   ticker_notes = data.get('ticker_notes')
 
@@ -756,6 +812,7 @@ def update_ticker():
       ticker.Target3=target_3
       ticker.Target4=target_4
       ticker.TrailStop=trail_stop
+      ticker.ticker_type=ticker_type
       ticker.TickerStatus=status
       ticker.TickerNotes=ticker_notes
       # Commit the session to save changes to the database
@@ -767,7 +824,7 @@ def update_ticker():
          app.logger.info('update_ticker: not sending broadcast email as Ticker Status : '+ str(status))
 
     else:
-      app.logger.info('update_ticker: adding new ticker : '+ str(ticker_name))
+      app.logger.info('update_ticker: adding a new ticker : '+ str(ticker_name))
       # Create a new user instance
       new_ticker = Ticker(UserName=username,
                       TickerName=ticker_name,
@@ -778,6 +835,7 @@ def update_ticker():
                       Target2=target_2,
                       Target3=target_3,
                       Target4=target_4,
+                      ticker_type=ticker_type,
                       TickerStatus=tickerstatus,
                       TickerNotes=ticker_notes)
 
@@ -1107,7 +1165,8 @@ def manageticker():
           "target_3": row[7],
           "target_4": row[8],
           "trail_stop": row[9],
-          "ticker_status": row[10]
+          "ticker_type": row[10],
+          "ticker_status": row[11]
       } for row in alltickers
   ]
   # Group tickers by created date

@@ -102,8 +102,8 @@
             text-align: left;
         }
         /* Set column width percentages */
-        .col-1 { width: 12%; }
-        .col-2 { width: 12%; }
+        .col-1 { width: 14%; }
+        .col-2 { width: 14%; }
         .col-3 { width: 6%; }
         .col-4 { width: 6%; }
         .col-5 { width: 6%; }
@@ -111,9 +111,7 @@
         .col-7 { width: 6%; }
         .col-8 { width: 6%; }
         .col-9 { width: 6%; }
-        .col-10 { width: 6%; }
-        .col-11 { width: 6%; }
-        .col-12 { width: 18%; }
+        .col-10 { width: 20%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -312,7 +310,7 @@
         .btn:hover {
             background-color: #0056b3;
         }
-        /* Button style to open the form */
+
         .open-popup-btn {
             display: inline-block;
             padding: 10px 20px;
@@ -361,41 +359,7 @@
     </style>
 
     <script>
-        // Function to calculate 90% of the input value
-        function calculatePercentage() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let discountPercentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
-
-            if (!isNaN(amount) && !isNaN(discountPercentage)) {
-            let discountValue = (amount * discountPercentage) / 100;
-            let finalAmount = amount - discountValue;
-            document.getElementById("result").value = '$' + finalAmount.toFixed(2);
-            }
-        }
-
-        // Calculate Target 1 (6%)
-        function calculatePercentageTarget1() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let target1Percentage = 6;
-
-            if (!isNaN(amount)) {
-            let target1Value = (amount * target1Percentage) / 100;
-            let finalAmount = amount + target1Value;
-            document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
-            }
-        }
-
-        // Calculate Target 2 (12%)
-        function calculatePercentageTarget2() {
-            let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
-            let target2Percentage = 12;
-
-            if (!isNaN(amount)) {
-            let target2Value = (amount * target2Percentage) / 100;
-            let finalAmount = amount + target2Value;
-            document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
-            }
-        }
+        
         // Function to filter table rows based on search input and dropdown filters
         function filterTable() {
             const input = document.getElementById('searchInput');
@@ -439,99 +403,6 @@
             }
         }
         
-        // Make the row editable and send selected row info to the backend
-        function editRow(rowId) {
-            let row = document.getElementById(rowId); // Select the row by its unique ID
-            if (!row) {
-                console.error("Row not found:", rowId);
-                return;
-            }
-
-            // Send rowId to the backend to print it in the terminal
-            fetch('/debug_log', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: `Editing row: ${rowId}` })
-            });
-
-            let cells = row.getElementsByTagName("td");
-
-            // Add editable attributes to each cell except the action cell
-            for (let i = 1; i < cells.length - 1; i++) {
-                let cell = cells[i];
-                let content = cell.innerText;
-                cell.innerHTML = `<input type="text" value="${content}" />`;
-                cell.classList.add("editable");
-            }
-        }
-
-        // Update the row and send updated row info to the backend
-        function updateRow(rowId) {
-            let row = document.getElementById(rowId); // Select the row by its unique ID
-            if (!row) {
-                console.error("Row not found:", rowId);
-                return;
-            }
-
-            // Send rowId to the backend to print it in the terminal
-            fetch('/debug_log', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: `Updating row: ${rowId}` })
-            });
-
-            let cells = row.getElementsByTagName("td");
-            let updatedData = {};
-
-            // Extract updated values from input fields
-            updatedData['created_date'] = cells[0].innerText;
-            updatedData['ticker_name'] = cells[1].querySelector('input').value;
-            updatedData['entry_price'] = cells[2].querySelector('input').value;
-            updatedData['stop_percent'] = cells[3].querySelector('input').value;
-            updatedData['stop_price'] = cells[4].querySelector('input').value;
-            updatedData['target_1'] = cells[5].querySelector('input').value;
-            updatedData['target_2'] = cells[6].querySelector('input').value;
-            updatedData['target_3'] = cells[7].querySelector('input').value;
-            updatedData['target_4'] = cells[8].querySelector('input').value;
-            updatedData['trail_stop'] = cells[9].querySelector('input').value;
-            updatedData['ticker_status'] = cells[10].querySelector('input').value;
-            updatedData['ticker_notes'] = cells[11].querySelector('input').value;
-
-            // Call the backend to update the data
-            fetch('/update_ticker', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Update successful");
-                    // Replace the input fields with updated text and remove editable class
-                    for (let i = 1; i < cells.length - 1; i++) {
-                        let cell = cells[i];
-                        let input = cell.querySelector('input');
-                        cell.innerText = input.value;
-                        cell.classList.remove("editable");
-                    }
-                } else {
-                    alert("Update failed");
-                }
-            })
-            .catch(error => {
-                console.error("Error updating the row:", error);
-                alert("An error occurred while updating the row");
-            });
-        }
-
-
-
         // Toggle visibility of tables by date
         function toggleTable(tableId) {
             const table = document.getElementById(tableId);
@@ -565,66 +436,63 @@
         }
     </script>
 </head>
-
-
 <body>
-    <div class="container">
+
+    <div style="display: flex; align-items: center;">
+        <div>
+            <h3>Welcome to Swing Trading</h3>
+        </div>
+    
         <!-- Search bar -->
-        <div class="open-popup-btn">
+        <div class="open-popup-btn" style="margin-left: 20px;">
             <input type="text" id="searchInput" placeholder="Search tickers...">
             <button onclick="filterTable()">Search</button>
 
-            <a href="/show_ticker_user_watchlist" ><button>Refresh</button></a>
-        </div>
-        <div>
-        <!-- Display a single table for each date -->
-        {% for date, entries in grouped_tickers.items() %}
-        <h3>
-            <button id="toggle-table-{{ date }}" onclick="toggleTable('table-{{ date }}')">-</button>
-            {{ date }}
-        </h3>
-        <table id="table-{{ date }}" class="ticker-table">
-            <thead>
-                <tr>
-                    <th class="col-1">Date/Time</th>
-                    <th class="col-2">Stock Ticker</th>
-                    <th class="col-3">Entry Price</th>
-                    <!-- <th class="col-4">Stop %</th>
-                    <th class="col-5">Stop Price</th>
-                    <th class="col-6">Target-1</th>
-                    <th class="col-7">Target-2</th>
-                    <th class="col-8">Target-3</th>
-                    <th class="col-9">Target-4</th>
-                    <th class="col-10">Trail Stop</th>
-                    <th class="col-11">Status</th>
-                    <th class="col-12">Ticker-Notes</th> -->
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticker in entries %}
-                <tr id="row-{{ loop.index }}">
-                    <td>{{ ticker.created_date }}</td>
-                    <td>{{ ticker.ticker_name }}</td>
-                    <td>{{ ticker.entry_price }}</td>
-                    <!-- <td>{{ ticker.stop_percent }}</td>
-                    <td>{{ ticker.stop_price }}</td>
-                    <td>{{ ticker.target_1 }}</td>
-                    <td>{{ ticker.target_2 }}</td>
-                    <td>{{ ticker.target_3 }}</td>
-                    <td>{{ ticker.target_4 }}</td>
-                    <td>{{ ticker.trail_stop }}</td>
-                    <td>{{ ticker.ticker_status}}</td>
-                    <td>
-                        <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
-                    </td> -->
-                    
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endfor %}
+            <a href="/show_ticker_user_trading" ><button>Refresh</button></a>
         </div>
     </div>
+    <!-- Display a single table for each date -->
+    {% for date, entries in grouped_tickers.items() %}
+    <h3>
+        <button id="toggle-table-{{ date }}" onclick="toggleTable('table-{{ date }}')">-</button>
+        {{ date }}
+    </h3>
+    <table id="table-{{ date }}" class="ticker-table">
+        <thead>
+            <tr>
+                <th class="col-1">Date/Time</th>
+                <th class="col-2">Stock Ticker</th>
+                <th class="col-3">Entry Price</th>
+                <th class="col-4">Stop Price</th>
+                <th class="col-5">Target 1</th>
+                <th class="col-6">Target 2</th>
+                <th class="col-7">Target 3</th>
+                <th class="col-8">Target 4</th>
+                <th class="col-9">Trailstop</th>
+                <th class="col-10">Ticker-Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticker in entries %}
+            <tr id="row-{{ loop.index }}">
+                <td>{{ ticker.created_date }}</td>
+                <td>{{ ticker.ticker_name }}</td>
+                <td>{{ ticker.entry_price }}</td>
+                <td>{{ ticker.stop_price }}</td>
+                <td>{{ ticker.target_1 }}</td>
+                <td>{{ ticker.target_2 }}</td>
+                <td>{{ ticker.target_3 }}</td>
+                <td>{{ ticker.target_4 }}</td>
+                <td>{{ ticker.trail_stop }}</td>
+                <td>
+                    <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
 </body>
 
 {% endblock %}

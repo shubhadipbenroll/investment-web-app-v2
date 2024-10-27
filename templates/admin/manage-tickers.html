@@ -83,9 +83,9 @@
         }
         /* Set column width percentages */
         .col-1 { width: 13%; }
-        .col-2 { width: 10%; }
+        .col-2 { width: 8%; }
         .col-3 { width: 6%; }
-        .col-4 { width: 6%; }
+        .col-4 { width: 5%; }
         .col-5 { width: 6%; }
         .col-6 { width: 7%; }
         .col-7 { width: 7%; }
@@ -93,9 +93,10 @@
         .col-9 { width: 7%; }
         .col-10 { width: 6%; }
         .col-11 { width: 5%; }
-        .col-12 { width: 6%; }
+        .col-12 { width: 5%; }
         .col-13 { width: 6%; }
         .col-14 { width: 6%; }
+        .col-15 { width: 6%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -321,10 +322,11 @@
                     <th class="col-8">Target 3</th>
                     <th class="col-9">Target 4</th>
                     <th class="col-10">Trailstop</th>
-                    <th class="col-11">Stock Status</th>
-                    <th class="col-12">Active</th>
-                    <th class="col-13">Inactive</th>
-                    <th class="col-14">Delete</th>
+                    <th class="col-11">Type</th>
+                    <th class="col-12">Stock Status</th>
+                    <th class="col-13">Active</th>
+                    <th class="col-14">Inactive</th>
+                    <th class="col-15">Delete</th>
                 </tr>
                 
             </thead>
@@ -341,6 +343,7 @@
                     <td>{{ ticker.target_3 }}</td>
                     <td>{{ ticker.target_4 }}</td>
                     <td>{{ ticker.trail_stop }}</td>
+                    <td>{{ ticker.ticker_type }}</td>
                     <td>{{ ticker.ticker_status }}</td>
                     <td>
                         <form action="{{ url_for('active_ticker') }}" method="POST">
