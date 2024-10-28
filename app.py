@@ -632,7 +632,8 @@ class Ticker(Base):
   # Timestamps
   CreateDate = Column(DateTime, default=func.now())  # On insert
   UpdateDate = Column(DateTime, default=func.now(), onupdate=func.now())  # On insert and update
-  
+
+## THIS METHOS IS NOT IN USE ANYMORE -- WILL REMOVE LATER  
 @app.route('/save_ticker', methods=['POST'])
 def save_ticker():
   username = "Admin" #session['username']
@@ -881,50 +882,18 @@ def update_ticker():
   return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
 
 
-
-@app.route('/delete_ticker', methods=['POST'])
-def delete_ticker():
-  tickername = request.form['ticker_name']
-
-  # Create a session
-  Session = sessionmaker(bind=engine)
-  db_session = Session()
-
-  try:
-      # Query the user by username
-      ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
-
-      if ticker:
-          # Delete the user from the session
-          db_session.delete(ticker)
-
-          # Commit the session to remove the user from the database
-          db_session.commit()
-          #flash('Ticker deleted successfully !', 'info')
-      else:
-          flash('Ticker not found !', 'error')
-  except Exception as e:
-      db_session.rollback()  # Rollback in case of error
-      flash('Problem occured in database while deleting !', 'error')
-      app.logger.error(f'An error occurred in delete_ticker: {e}', exc_info=True)
-      #return f'An error occurred: {e}'
-  finally:
-      db_session.close()  # Close the session
-
-  return redirect(url_for('manageticker'))
-
-
 @app.route('/active_ticker', methods=['POST'])
 def active_ticker():
     tickername = request.form['ticker_name']
-
+    createddate = request.form['created_date']
+   
     # Create a session
     Session = sessionmaker(bind=engine)
     db_session = Session()
 
     try:
         # Query the user by email
-        ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername, CreateDate=createddate).first()
 
         if ticker:
             # Promote the ticker to 'Active'
@@ -951,16 +920,6 @@ def active_ticker():
 #Broadcast email on active ticker
 def send_active_broadcast_email(ticker):
   app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerName))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.EntryPrice))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.StopPercent))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.StopPrice))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target1))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target2))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target3))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.Target4))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TrailStop))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerStatus))
-  #app.logger.info('send_active_broadcast_email for ticker : '+ str(ticker.TickerNotes))
   
   try:
     #get all email address 
@@ -1008,14 +967,14 @@ def send_active_broadcast_email(ticker):
 @app.route('/inactive_ticker', methods=['POST'])
 def inactive_ticker():
     tickername = request.form['ticker_name']
-
+    createddate = request.form['created_date']
     # Create a session
     Session = sessionmaker(bind=engine)
     db_session = Session()
 
     try:
         # Query the user by email
-        ticker = db_session.query(Ticker).filter_by(TickerName=tickername).first()
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername, CreateDate=createddate).first()
 
         if ticker:
             # Promote the ticker to 'Incctive'
@@ -1034,6 +993,37 @@ def inactive_ticker():
         db_session.close()  # Close the session
 
     return redirect(url_for('manageticker'))
+
+@app.route('/delete_ticker', methods=['POST'])
+def delete_ticker():
+  tickername = request.form['ticker_name']
+  createddate = request.form['created_date']
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+  try:
+      # Query the user by username
+      ticker = db_session.query(Ticker).filter_by(TickerName=tickername, CreateDate=createddate).first()
+
+      if ticker:
+          # Delete the user from the session
+          db_session.delete(ticker)
+
+          # Commit the session to remove the user from the database
+          db_session.commit()
+          #flash('Ticker deleted successfully !', 'info')
+      else:
+          flash('Ticker not found !', 'error')
+  except Exception as e:
+      db_session.rollback()  # Rollback in case of error
+      flash('Problem occured in database while deleting !', 'error')
+      app.logger.error(f'An error occurred in delete_ticker: {e}', exc_info=True)
+      #return f'An error occurred: {e}'
+  finally:
+      db_session.close()  # Close the session
+
+  return redirect(url_for('manageticker'))
 
 
 #<<<<<<<<<<<<<<<<========================This method calls when login clicks =========================>>>>>>>>>>>>>>>>>>>>>>>>
