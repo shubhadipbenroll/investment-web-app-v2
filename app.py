@@ -298,91 +298,98 @@ def show_users():
 
 
 #Dashboard modules - Users |||||||||||||||||||||||||||||||||||||||||||||||||||||
-@app.route("/userdashboard")
-def dashboard_user():
-  return render_template('/users/dashboard-user.html')
 
 @app.route("/show_ticker_user_watchlist")
 @login_required
 def show_ticker_user_watchlist():
-  watchlist = load_tickers_for_watchlist()
-  # Convert to dictionary
-  tickers = [
-      {
-          "created_date": row[0],
-          "ticker_name": row[1],
-          "entry_price": row[2],
-          #"stop_price": row[3],
-          #"target_1": row[4],
-          #"target_2": row[5],
-          #"target_3": row[6],
-          #"target_4": row[7],
-          #"trail_stop": row[8],
-          #"ticker_notes": row[9]
-      } for row in watchlist
-  ]
-  # Group tickers by created date
-  grouped_tickers = defaultdict(list)
-  for ticker in tickers:
-    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
-    grouped_tickers[date_only].append(ticker)
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    watchlist = load_tickers_for_watchlist()
+    # Convert to dictionary
+    tickers = [
+        {
+            "created_date": row[0],
+            "ticker_name": row[1],
+            "entry_price": row[2],
+            #"stop_price": row[3],
+            #"target_1": row[4],
+            #"target_2": row[5],
+            #"target_3": row[6],
+            #"target_4": row[7],
+            #"trail_stop": row[8],
+            #"ticker_notes": row[9]
+        } for row in watchlist
+    ]
+    # Group tickers by created date
+    grouped_tickers = defaultdict(list)
+    for ticker in tickers:
+      date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+      grouped_tickers[date_only].append(ticker)
 
-  return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
-
+    return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
+  else:
+    return render_template('login-page.html')
+  
 @app.route("/show_ticker_user_trading")
 @login_required
 def show_ticker_user_trading():
-  ticklist = load_tickers_for_trading()
-  # Convert to dictionary
-  tickers = [
-      {
-          "created_date": row[0],
-          "ticker_name": row[1],
-          "entry_price": row[2],
-          "stop_price": row[3],
-          "target_1": row[4],
-          "target_2": row[5],
-          "target_3": row[6],
-          "target_4": row[7],
-          "trail_stop": row[8],
-          "ticker_notes": row[9]
-      } for row in ticklist
-  ]
-  # Group tickers by created date
-  grouped_tickers = defaultdict(list)
-  for ticker in tickers:
-    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
-    grouped_tickers[date_only].append(ticker)
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    ticklist = load_tickers_for_trading()
+    # Convert to dictionary
+    tickers = [
+        {
+            "created_date": row[0],
+            "ticker_name": row[1],
+            "entry_price": row[2],
+            "stop_price": row[3],
+            "target_1": row[4],
+            "target_2": row[5],
+            "target_3": row[6],
+            "target_4": row[7],
+            "trail_stop": row[8],
+            "ticker_notes": row[9]
+        } for row in ticklist
+    ]
+    # Group tickers by created date
+    grouped_tickers = defaultdict(list)
+    for ticker in tickers:
+      date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+      grouped_tickers[date_only].append(ticker)
 
-  return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+    return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+  else:
+    return render_template('login-page.html')
+  
 
 @app.route("/show_ticker_user_investment")
 @login_required
 def show_ticker_user_investment():
-  ticklist = load_tickers_for_investment()
-  # Convert to dictionary
-  tickers = [
-      {
-          "created_date": row[0],
-          "ticker_name": row[1],
-          "entry_price": row[2],
-          "stop_price": row[3],
-          "target_1": row[4],
-          "target_2": row[5],
-          "target_3": row[6],
-          "target_4": row[7],
-          "trail_stop": row[8],
-          "ticker_notes": row[9]
-      } for row in ticklist
-  ]
-  # Group tickers by created date
-  grouped_tickers = defaultdict(list)
-  for ticker in tickers:
-    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
-    grouped_tickers[date_only].append(ticker)
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    ticklist = load_tickers_for_investment()
+    # Convert to dictionary
+    tickers = [
+        {
+            "created_date": row[0],
+            "ticker_name": row[1],
+            "entry_price": row[2],
+            "stop_price": row[3],
+            "target_1": row[4],
+            "target_2": row[5],
+            "target_3": row[6],
+            "target_4": row[7],
+            "trail_stop": row[8],
+            "ticker_notes": row[9]
+        } for row in ticklist
+    ]
+    # Group tickers by created date
+    grouped_tickers = defaultdict(list)
+    for ticker in tickers:
+      date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+      grouped_tickers[date_only].append(ticker)
 
-  return render_template('/users/show-tickers-investment.html', grouped_tickers=grouped_tickers, user=current_user)
-
+    return render_template('/users/show-tickers-investment.html', grouped_tickers=grouped_tickers, user=current_user)
+  else:
+    return render_template('login-page.html')
+  
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -1049,6 +1056,8 @@ def auth_user():
           app.logger.info('auth_user: Successful Loggin with user email : '+ str(request.form['email']))
           #login_user(user,remember=True, duration=None, force=True, fresh=True) # Flask-Login will now work as expected
           login_user(user,remember=True) # Flask-Login will now work as expected
+
+          session['userloggedinemail'] = email
           # User found, return user details
           if user.UserRole == "Admin":
             return render_template('/admin/dashboard-admin.html', user=current_user)
@@ -1070,27 +1079,22 @@ def auth_user():
 @app.route("/loadadmindashboard")
 @login_required
 def loadadmindashboard():
-  if current_user.is_authenticated:
-    return render_template('/admin/dashboard-admin.html', user=current_user)
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    if current_user.is_authenticated:
+      return render_template('/admin/dashboard-admin.html', user=current_user)
+    else:
+      return render_template('login-page.html')
   else:
-     return render_template('login-page.html')
+    # User is not logged in, redirect to login page
+    return render_template('login-page.html')
   
 @app.route("/loaduserdashboard")
 @login_required
 def loaduserdashboard():
-  if current_user.is_authenticated:
+  if 'userloggedinemail' in session:  # Check if user is logged in
     return render_template('/users/dashboard-user.html', user=current_user)
   else:
      return render_template('login-page.html')
-
-@app.route("/loaduserdashboard2")
-@login_required
-def loaduserdashboard2():
-    response = make_response(render_template('/users/dashboard-user.html'))
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
-    return response
 
 @app.route('/update_pass', methods=['POST', 'GET'])
 def update_pass():
@@ -1187,20 +1191,31 @@ def update_admin_pass():
 #User based
 @app.route("/user_notificatuons")
 def user_notificatuons():
-  return render_template('/users/draft.html', user=current_user)
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    return render_template('/users/draft.html', user=current_user)
+  else:
+    return render_template('login-page.html')
 
 @app.route("/userprofile")
 def userprofile():
-  return render_template('/users/user-profile.html', user=current_user)
-
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    return render_template('/users/user-profile.html', user=current_user)
+  else:
+    return render_template('login-page.html')
+  
 @app.route("/update_user_pass")
 def update_user_pass():
-  return render_template('/users/update-pass.html', user=current_user)
-
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    return render_template('/users/update-pass.html', user=current_user)
+  else:
+    return render_template('login-page.html')
+  
 @app.route("/update_mobile_no")
 def update_mobile_no():
-  return render_template('/users/update-mobileno.html', user=current_user)
-
+  if 'userloggedinemail' in session:  # Check if user is logged in
+    return render_template('/users/update-mobileno.html', user=current_user)
+  else:
+    return render_template('login-page.html')
 
 @app.route('/update_user_pass_db', methods=['POST', 'GET'])
 def update_user_pass_db():
@@ -1285,11 +1300,14 @@ def logout():
     #print("==>", type(session))  # Debugging line to check the session type
     logout_user()
     flask.session.clear()  # Clear all session data
+    # Remove user session data
+    session.pop('userloggedinemail', None)  # Clear user ID from session
+    session.clear()
     flash('You have been logged out successfully!', 'info')
   except Exception as e:
     app.logger.error(f'An error occurred in logout: {e}', exc_info=True)
   
-  print("current_user.is_authenticated : ",current_user.is_authenticated)
+  print("logout:current_user.is_authenticated : ",current_user.is_authenticated)
   #return render_template('login-page.html')
   return redirect(url_for('loginpage'))
 
