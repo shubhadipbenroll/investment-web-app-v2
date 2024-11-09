@@ -139,8 +139,8 @@ def load_tickers_for_watchlist():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes,ticker_type from Tickers ORDER BY CreateDate DESC"))
-      result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select UpdateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes,ticker_type from Tickers ORDER BY CreateDate DESC"))
+      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
       for row in result.all():
@@ -317,7 +317,7 @@ def show_ticker_user_watchlist():
             #"target_4": row[7],
             #"trail_stop": row[8],
             #"ticker_notes": row[9]
-            #"ticker_type": row[10]
+            "ticker_type": row[12]
         } for row in watchlist
     ]
     # Group tickers by created date
