@@ -139,7 +139,7 @@ def load_tickers_for_watchlist():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers WHERE ticker_type='Swing' ORDER BY CreateDate DESC"))
+      #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes,ticker_type from Tickers ORDER BY CreateDate DESC"))
       result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
@@ -317,6 +317,7 @@ def show_ticker_user_watchlist():
             #"target_4": row[7],
             #"trail_stop": row[8],
             #"ticker_notes": row[9]
+            #"ticker_type": row[10]
         } for row in watchlist
     ]
     # Group tickers by created date
@@ -638,7 +639,8 @@ class Ticker(Base):
   #UpdateDate = Column(DateTime)  # On insert and update
   # Timestamps
   CreateDate = Column(DateTime, default=func.now())  # On insert
-  UpdateDate = Column(DateTime, default=func.now(), onupdate=func.now())  # On insert and update
+  #UpdateDate = Column(DateTime, default=func.now(), onupdate=func.now())  # On insert and update
+  UpdateDate = Column(DateTime, default=func.now())  # On insert and update
 
 ## THIS METHOS IS NOT IN USE ANYMORE -- WILL REMOVE LATER  
 @app.route('/save_ticker', methods=['POST'])
@@ -696,6 +698,9 @@ def save_ticker():
 @app.route('/save_ticker_new', methods=['POST'])
 def save_ticker_new():
   username = "Admin" #session['username']
+  trailStop = 0
+  tickerstatus = "Inactive"
+
   tickername = request.form['tickername']
   entryprice = float(request.form['entryprice'].replace('$', '').replace(',', ''))
   stoppercent = float(request.form['stoppercent'].replace('$', '').replace(',', ''))
@@ -705,9 +710,24 @@ def save_ticker_new():
   target3 = float(request.form['target3'].replace('$', '').replace(',', ''))
   target4 = float(request.form['target4'].replace('$', '').replace(',', ''))
   tickertype = request.form['tickertype']
-  tickerstatus = "Inactive"
   notes = request.form['notes']
-  trailStop = 0
+
+  # Retrieve data from request.json
+  """data = request.json
+  
+  # Extract values and store them in variables
+  tickername = data.get('ticker_name')
+  entryprice = float(data.get('entry_price').replace('$', '').replace(',', ''))
+  stoppercent = float(data.get('stop_percent').replace('$', '').replace(',', ''))
+  stopprice = float(data.get('stop_price').replace('$', '').replace(',', ''))
+  target1 = float(data.get('target_1').replace('$', '').replace(',', ''))
+  target2 = float(data.get('target_2').replace('$', '').replace(',', ''))
+  target3 = float(data.get('target_3').replace('$', '').replace(',', ''))
+  target4 = float(data.get('target_4').replace('$', '').replace(',', ''))
+  tickertype = data.get('ticker_type')
+  notes = data.get('ticker_notes')
+  tickerstatus = "Inactive"""
+  
   # Create a session
   Session = sessionmaker(bind=engine)
   db_session = Session()
@@ -831,7 +851,7 @@ def update_ticker():
       else:
          app.logger.info('update_ticker: not sending broadcast email as Ticker Status : '+ str(status))
 
-    else:
+    """else:
       app.logger.info('update_ticker: adding a new ticker : '+ str(ticker_name))
       # Create a new user instance
       new_ticker = Ticker(UserName=username,
@@ -848,10 +868,7 @@ def update_ticker():
                       TickerNotes=ticker_notes)
 
       # Add the new user to the session
-      db_session.add(new_ticker)
-
-    # Commit the session to save changes to the database
-    db_session.commit()
+      db_session.add(new_ticker)"""
 
     return jsonify(success=True)
   except:
@@ -905,7 +922,8 @@ def active_ticker():
         if ticker:
             # Promote the ticker to 'Active'
             ticker.TickerStatus = 'Active'
-
+            #ticker.UpdateDate = datetime.now()
+            ticker.UpdateDate = func.now()
             # Commit the session to save changes to the database
             db_session.commit()
             #flash('Ticker updated : Active!', 'info')
@@ -971,6 +989,7 @@ def send_active_broadcast_email(ticker):
   except Exception as e:
     app.logger.error(f'An error occurred in send_active_broadcast_email: {e}', exc_info=True)
 
+# This function is not in use
 @app.route('/inactive_ticker', methods=['POST'])
 def inactive_ticker():
     tickername = request.form['ticker_name']
@@ -996,6 +1015,66 @@ def inactive_ticker():
         db_session.rollback()  # Rollback in case of error
         flash('Problem occurred in database while makeing Inactive ticker!', 'error')
         app.logger.error(f'An error occurred in inactive_ticker: {e}', exc_info=True)
+    finally:
+        db_session.close()  # Close the session
+
+    return redirect(url_for('manageticker'))
+
+@app.route('/profit_ticker', methods=['POST'])
+def profit_ticker():
+    tickername = request.form['ticker_name']
+    createddate = request.form['created_date']
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    db_session = Session()
+
+    try:
+        # Query the user by email
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername, CreateDate=createddate).first()
+
+        if ticker:
+            # Promote the ticker to 'Incctive'
+            ticker.TickerStatus = 'Profit-Book'
+
+            # Commit the session to save changes to the database
+            db_session.commit()
+            #flash('Ticker updated : Inactive!', 'info')
+        else:
+            flash('Ticker not found!', 'error')
+    except Exception as e:
+        db_session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while makeing profit_ticker !', 'error')
+        app.logger.error(f'An error occurred in profit_ticker: {e}', exc_info=True)
+    finally:
+        db_session.close()  # Close the session
+
+    return redirect(url_for('manageticker'))
+
+@app.route('/loss_ticker', methods=['POST'])
+def loss_ticker():
+    tickername = request.form['ticker_name']
+    createddate = request.form['created_date']
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    db_session = Session()
+
+    try:
+        # Query the user by email
+        ticker = db_session.query(Ticker).filter_by(TickerName=tickername, CreateDate=createddate).first()
+
+        if ticker:
+            # Promote the ticker to 'Incctive'
+            ticker.TickerStatus = 'Loss-Book'
+
+            # Commit the session to save changes to the database
+            db_session.commit()
+            #flash('Ticker updated : Inactive!', 'info')
+        else:
+            flash('Ticker not found!', 'error')
+    except Exception as e:
+        db_session.rollback()  # Rollback in case of error
+        flash('Problem occurred in database while makeing loss_ticker!', 'error')
+        app.logger.error(f'An error occurred in loss_ticker: {e}', exc_info=True)
     finally:
         db_session.close()  # Close the session
 

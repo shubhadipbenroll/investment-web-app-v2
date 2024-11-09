@@ -717,6 +717,19 @@
             document.getElementById("popupedit").style.display = "none";
         }
 
+        function handleCreateTicker() {
+            const createBtn = document.getElementById('create-ticker-btn');
+            
+            // Disable the button after it's clicked
+            createBtn.disabled = true;
+
+            // Call the actual function to update the ticker
+            createTicker();
+
+            // Close the popup after update
+            closePopup();
+        }
+
         function handleUpdateTicker() {
             const updateBtn = document.getElementById('update-ticker-btn');
             
@@ -732,6 +745,45 @@
 
         function closeEditPopup() {
             document.getElementById("popupedit").style.display = "none";
+        }
+
+        // Function to update the row
+        function createTicker() {
+            const createData = {
+                tickername: document.getElementById("tickername").value,
+                entryprice: document.getElementById("entryprice").value,
+                stoppercent: document.getElementById("stoppercent").value,
+                stopprice: document.getElementById("stopprice").value,
+                target1: document.getElementById("target1").value,
+                target2: document.getElementById("target2").value,
+                target3: document.getElementById("target3").value,
+                target4: document.getElementById("target4").value,
+                tickertype: document.getElementById("tickertype").value,
+                notes: document.getElementById("notes").value,
+            };
+
+            // Call the backend to update the data
+            fetch('/save_ticker_new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(createData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Create successful");
+                    closePopup(); // Close popup on successful update
+                    location.reload(); // Reload page to show updated data
+                } else {
+                    alert("Create failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error creating the row:", error);
+                //alert("An error occurred while updating the row");
+            });
         }
 
         // Function to update the row
@@ -787,18 +839,29 @@
             
             <!-- CREATE TICKER-->
             <h3 class="form-title">Create a New Ticker Entry</h3>
-            <form action="/save_ticker_new" method="POST" class="form-grid">
+                    
+            <div class="form-row">
                 <div class="form-group">
                     <label for="fname">Ticker Name</label>
                     <input type="text" id="fname" name="tickername" placeholder="Ticker-Name" required>
                 </div>
+            </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tickertype">Type</label>
+                    <select id="tickertype" name="tickertype">
+                        <option value="Swing">Swing</option>
+                        <option value="Investment">Investment</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="amount">Entry Price ($)</label>
                     <input type="text" id="amount" name="entryprice" placeholder="$USD" 
                             required>
                 </div>
-
+            </div>
+            <div class="form-row">
                 <div class="form-group">
                     <label for="discount">Stop %</label>
                     <input type="text" id="discount" name="stoppercent" placeholder="%" 
@@ -810,7 +873,9 @@
                     <input type="text" id="result" name="stopprice" 
                             oninput="calculatePercentage();" required>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="target1">Target-1 ($)</label>
                     <input type="text" id="target1" name="target1" required>
@@ -820,7 +885,9 @@
                     <label for="target2">Target-2 ($)</label>
                     <input type="text" id="target2" name="target2" required>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="target3">Target-3 ($)</label>
                     <input type="text" id="target3" name="target3" required>
@@ -830,28 +897,19 @@
                     <label for="target4">Target-4 ($)</label>
                     <input type="text" id="target4" name="target4" required>
                 </div>
-
-                <!-- New textarea for notes -->
+            </div>
+            <!-- New textarea for notes -->
+            <div class="form-row">
                 <div class="form-group">
                     <label for="notes">Notes</label>
-                    <textarea id="notes" name="notes" placeholder="Enter notes for the ticker" rows="4"></textarea>
+                    <textarea id="notes" name="notes" placeholder="Enter notes for the ticker" rows="1"></textarea>
                 </div>
-                
-                <div class="form-group">
-                    <label for="tickertype">Type</label>
-                    <select id="tickertype" name="tickertype">
-                        <option value="Swing">Swing</option>
-                        <option value="Investment">Investment</option>
-                    </select>
-                    <div><br></div>
-                    <input type="submit" value="Create" class="btn">
-                </div>
-
-                <!-- <div class="form-group center-btn">
-                    <input type="submit" value="Create" class="btn">
-                </div> -->
-            </form>
+            </div>
+            <div class="form-group center-btn">
+                <button type="button" onclick="handleCreateTicker()" id="create-ticker-btn" class="btn">Create</button>
+            </div>
         </div>
+    
     </div>
 
     <!-- Pop-up Edit container -->
@@ -871,7 +929,13 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Ticker Name</label>
-                    <input type="text" id="edit-ticker-name" readonly>
+                    <input type="text" id="edit-ticker-name" readonly >
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-tickertype">Type</label>
+                    <input type="text" id="edit-tickertype" readonly>
                 </div>
                 <div class="form-group">
                     <label>Entry Price ($)</label>
@@ -918,23 +982,17 @@
                     <label>Trail Stop</label>
                     <input type="text" id="edit-trail-stop" required>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="edit-tickertype">Type</label>
-                    <select id="edit-tickertype" name="edit-tickertype">
-                        <option value="Swing">Swing</option>
-                        <option value="Investment">Investment</option>
-                    </select>
-                </div>
                 <div class="form-group">
                     <label>Status</label>
                     <select id="edit-status">
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
+                        <option value="Profit-Book">Profit-Book</option>
+                        <option value="Loss-Book">Loss-Book</option>
                     </select>
                 </div>
             </div>
+            
 
             <div class="form-row">
                 <div class="form-group">

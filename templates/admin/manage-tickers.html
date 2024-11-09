@@ -82,21 +82,22 @@
             text-align: left;
         }
         /* Set column width percentages */
-        .col-1 { width: 13%; }
+        .col-1 { width: 14%; }
         .col-2 { width: 8%; }
         .col-3 { width: 6%; }
-        .col-4 { width: 5%; }
-        .col-5 { width: 6%; }
-        .col-6 { width: 7%; }
-        .col-7 { width: 7%; }
-        .col-8 { width: 7%; }
-        .col-9 { width: 7%; }
-        .col-10 { width: 6%; }
+        .col-4 { width: 3%; }
+        .col-5 { width: 5%; }
+        .col-6 { width: 5%; }
+        .col-7 { width: 5%; }
+        .col-8 { width: 5%; }
+        .col-9 { width: 5%; }
+        .col-10 { width: 5%; }
         .col-11 { width: 5%; }
         .col-12 { width: 5%; }
-        .col-13 { width: 6%; }
-        .col-14 { width: 6%; }
-        .col-15 { width: 6%; }
+        .col-13 { width: 5%; }
+        .col-14 { width: 5%; }
+        .col-15 { width: 5%; }
+        .col-16 { width: 5%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -199,10 +200,12 @@
             background-color: #73d286;
         }
 
-        .disable-btn {
+        .profit-btn {
+            background-color: #7ebece;
+        }
+        .loss-btn {
             background-color: #ffcc00;
         }
-
         .delete-btn {
             background-color: #ff4d4d;
         }
@@ -250,7 +253,7 @@
                     }
 
                     // Check for status filter
-                    const statusMatch = statusFilter === "" || tdArray[10].innerText === statusFilter; // Adjusted index for Ticker-Status
+                    const statusMatch = statusFilter === "" || tdArray[11].innerText === statusFilter; // Adjusted index for Ticker-Status
 
                     // Show or hide row based on all filters
                     tr[i].style.display = (rowMatchFound && statusMatch) ? "" : "none";
@@ -298,6 +301,8 @@
                 <option value="">Select Status</option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
+                <option value="Profit-Book">Profit-Book</option>
+                <option value="Loss-Book">Loss-Book</option>
             </select>
 
             <a href="/manageticker" ><button>Refresh</button></a>
@@ -317,16 +322,17 @@
                     <th class="col-3">Entry Price</th>
                     <th class="col-4">Stop %</th>
                     <th class="col-5">Stop Price</th>
-                    <th class="col-6">Target 1</th>
-                    <th class="col-7">Target 2</th>
-                    <th class="col-8">Target 3</th>
-                    <th class="col-9">Target 4</th>
+                    <th class="col-6">Target-1</th>
+                    <th class="col-7">Target-2</th>
+                    <th class="col-8">Target-3</th>
+                    <th class="col-9">Target-4</th>
                     <th class="col-10">Trailstop</th>
-                    <th class="col-11">Type</th>
+                    <th class="col-11">Ticker Type</th>
                     <th class="col-12">Stock Status</th>
-                    <th class="col-13">Active</th>
-                    <th class="col-14">Inactive</th>
-                    <th class="col-15">Delete</th>
+                    <th class="col-13">Active-Ticker</th>
+                    <th class="col-14">Profit-Book</th>
+                    <th class="col-15">Loss-Book</th>
+                    <th class="col-16">Delete-Ticker</th>
                 </tr>
                 
             </thead>
@@ -353,10 +359,17 @@
                         </form>
                     </td>
                     <td>
-                        <form action="{{ url_for('inactive_ticker') }}" method="POST">
+                        <form action="{{ url_for('profit_ticker') }}" method="POST">
                             <input type="hidden" name="ticker_name" value="{{ ticker.ticker_name }}">
                             <input type="hidden" name="created_date" value="{{ ticker.created_date }}">
-                            <button type="submit" class="action-btn disable-btn">Inactive</button>
+                            <button type="submit" class="action-btn profit-btn">Profit</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('loss_ticker') }}" method="POST">
+                            <input type="hidden" name="ticker_name" value="{{ ticker.ticker_name }}">
+                            <input type="hidden" name="created_date" value="{{ ticker.created_date }}">
+                            <button type="submit" class="action-btn loss-btn">Loss</button>
                         </form>
                     </td>
                     <td>
