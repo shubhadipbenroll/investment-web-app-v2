@@ -2,9 +2,10 @@ from collections import defaultdict
 import threading
 import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-import flask  # Import Flask explicitly for session handling
+import flask
+from pymysql import TIMESTAMP  # Import Flask explicitly for session handling
 from database import engine
-from sqlalchemy import DateTime, Text, func, text, Column, String, Integer
+from sqlalchemy import DECIMAL, DateTime, Text, func, text, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from flask_login import LoginManager
@@ -118,6 +119,20 @@ def load_users_from_db():
     app.logger.error(f'An error occurred in load_users_from_db: {e}', exc_info=True)
   
   return user_list
+
+def load_targets_from_db():
+  target_list = []
+  try:
+    with engine.connect() as conn:
+      result = conn.execute(text("select ticker_type, target1, target2, target3, target4 from ticker_targets order by ticker_type DESC"))
+      #print("type(result.all())", type(result.all()))
+      #print(result.all())
+      for row in result.all():
+        target_list.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_targets_from_db: {e}', exc_info=True)
+  
+  return target_list
 
 
 def load_tickers_from_db():
@@ -296,6 +311,74 @@ def show_users():
   allusers = load_users_from_db()
   return render_template('/admin/show-users.html', users=allusers, user=current_user)
 
+@app.route('/show_ticker_targets')
+def show_ticker_targets():
+  alltargets = load_targets_from_db()
+  return render_template('/admin/update-targets.html', targets=alltargets, user=current_user)
+
+@app.route('/update_ticker_targets', methods=['POST'])
+@login_required
+def update_ticker_targets():
+  app.logger.error('update_ticker_targets: ')
+  print("update_ticker_targets")
+  
+  swingtickername = request.form['swing-ticker-type']
+  swingtarget1 = float(request.form['swing-target-1'])
+  swingtarget2 = float(request.form['swing-target-2'])
+  swingtarget3 = float(request.form['swing-target-3'])
+  swingtarget4 = float(request.form['swing-target-4'])
+
+  investtickername = request.form['invest-ticker-type']
+  investtarget1 = float(request.form['investment-target-1'])
+  investtarget2 = float(request.form['investment-target-2'])
+  investtarget3 = float(request.form['investment-target-3'])
+  investtarget4 = float(request.form['investment-target-4'])
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+
+  try:
+    target = db_session.query(Targets).filter_by(ticker_type=swingtickername).first()
+    
+    if target:
+      app.logger.info('update_ticker_targets: updating ticker-type : '+ str(swingtickername))
+      
+      target.target1=swingtarget1
+      target.target2=swingtarget2
+      target.target3=swingtarget3
+      target.target4=swingtarget4
+      
+
+    # Commit the session to save changes to the database
+    db_session.commit()
+
+    target = db_session.query(Targets).filter_by(ticker_type=investtickername).first()
+    
+    if target:
+      app.logger.info('update_ticker_targets: updating ticker-type : '+ str(swingtickername))
+      
+      target.target1=investtarget1
+      target.target2=investtarget2
+      target.target3=investtarget3
+      target.target4=investtarget4
+      
+
+    # Commit the session to save changes to the database
+    db_session.commit()
+  except Exception as e:
+    db_session.rollback()  # Rollback in case of error
+    app.logger.error(f'An error occurred in update_ticker_targets: {e}', exc_info=True)
+    #return f'An error occurred while adding ticker in DB: {e}'
+    flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
+    #return render_template('/admin/dashboard-admin.html')
+  finally:
+    db_session.close()  # Close the session
+
+  alltargets = load_targets_from_db()
+  return render_template('/admin/update-targets.html', targets=alltargets, user=current_user)
+
 
 #Dashboard modules - Users |||||||||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -328,6 +411,7 @@ def show_ticker_user_watchlist():
 
     return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
   else:
+    app.logger.error('Session is not valid for show_ticker_user_watchlist')
     return render_template('login-page.html')
   
 @app.route("/show_ticker_user_trading")
@@ -489,7 +573,7 @@ def create_user():
 
       # Commit the session to save changes to the database
       db_session.commit()
-      app.logger.info('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
+      app.logger.debug('create_user: User created with user email : '+ str(request.form['email'])+ " / " +str(request.form['username'])
                     + " / " +str(request.form['psw'])+ " / " +str(role))
       flash('Registration successful! please check your email for further information !', 'info')
       
@@ -641,6 +725,20 @@ class Ticker(Base):
   CreateDate = Column(DateTime, default=func.now())  # On insert
   #UpdateDate = Column(DateTime, default=func.now(), onupdate=func.now())  # On insert and update
   UpdateDate = Column(DateTime, default=func.now())  # On insert and update
+
+
+class Targets(Base):
+    __tablename__ = 'ticker_targets'
+    
+    ticker_type = Column(String(255), primary_key=True, nullable=False, default='Unknown')
+    target1 = Column(DECIMAL(10, 2), nullable=False, default=0.00)
+    target2 = Column(DECIMAL(10, 2), nullable=False, default=0.00)
+    target3 = Column(DECIMAL(10, 2), nullable=False, default=0.00)
+    target4 = Column(DECIMAL(10, 2), nullable=False, default=0.00)
+    created_by = Column(String(255), nullable=False, default='Admin')
+    created_date = Column(DateTime, default=func.now())
+    updated_date = Column(DateTime, default=func.now())
+
 
 ## THIS METHOS IS NOT IN USE ANYMORE -- WILL REMOVE LATER  
 @app.route('/save_ticker', methods=['POST'])
@@ -1139,11 +1237,15 @@ def auth_user():
           session['userloggedinemail'] = email
           # User found, return user details
           if user.UserRole == "Admin":
-            return render_template('/admin/dashboard-admin.html', user=current_user)
+            #return render_template('/admin/dashboard-admin.html', user=current_user)
             #return redirect(url_for('loadadmindashboard'))
+            response = make_response(render_template('/admin/dashboard-admin.html', user=current_user))
+            return clear_cache(response)
           else:
-            return render_template('/users/dashboard-user.html', user=current_user)
+            #return render_template('/users/dashboard-user.html', user=current_user)
             #return redirect(url_for('loaduserdashboard'))
+            response = make_response(render_template('/users/dashboard-user.html', user=current_user))
+            return clear_cache(response)
       else:
           app.logger.info('auth_user: Failed Loggin with user email : '+ str(request.form['email']))
           flash('Wrong username or password! Please Try again !', 'error')
@@ -1375,6 +1477,7 @@ def update_mobile_no_db():
 @app.route('/logout')
 @login_required
 def logout():
+  app.logger.info('logout: Successful Logout with user email : ' + str(current_user))
   try:
     #print("==>", type(session))  # Debugging line to check the session type
     logout_user()
@@ -1386,11 +1489,21 @@ def logout():
   except Exception as e:
     app.logger.error(f'An error occurred in logout: {e}', exc_info=True)
   
-  print("logout:current_user.is_authenticated : ",current_user.is_authenticated)
+  app.logger.info("logout:current_user.is_authenticated : ",current_user.is_authenticated)
   #return render_template('login-page.html')
-  return redirect(url_for('loginpage'))
+  response = make_response(redirect(url_for('loginpage')))
+  return clear_cache(response)
+  #return redirect(url_for('loginpage'))
 
 # Menu Bar functions ENDs |||||||||||||||||||||||||| MENU BAR ||||||||||||||||||||||||||||||||||||||||||
+
+def clear_cache(response):
+    """Set headers to clear the cache and ensure fresh content is loaded."""
+    app.logger.info('clear_cache: Set headers to clear the cache.'+ str(response))
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 @app.after_request
 def add_header(response):
