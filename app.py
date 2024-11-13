@@ -371,7 +371,7 @@ def update_ticker_targets():
     db_session.rollback()  # Rollback in case of error
     app.logger.error(f'An error occurred in update_ticker_targets: {e}', exc_info=True)
     #return f'An error occurred while adding ticker in DB: {e}'
-    flash('An error occurred while creating new Ticker, Seems like same Ticker Name exists!', 'error')
+    flash('An error occurred while creating new Target, Seems like same Ticker Type exists!', 'error')
     #return render_template('/admin/dashboard-admin.html')
   finally:
     db_session.close()  # Close the session

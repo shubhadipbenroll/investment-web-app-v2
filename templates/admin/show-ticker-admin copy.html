@@ -377,7 +377,8 @@
             let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             let discountPercentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
             let stopPrice = parseFloat(document.getElementById("result").value.replace('%', ''));
-
+            let tickerType = document.getElementById("tickertype").value;
+            
             if (!isNaN(amount) && !isNaN(discountPercentage)) {
                 let discountValue = (amount * discountPercentage) / 100;
                 let finalAmount = amount - discountValue;
@@ -390,65 +391,102 @@
                 discountPercentage = parseFloat(document.getElementById("discount").value.replace('$', ''));
             }
 
-            calculatePercentageTarget1(amount,discountPercentage);
-            calculatePercentageTarget2(amount,discountPercentage);
-            calculatePercentageTarget3(amount,discountPercentage);
-            calculatePercentageTarget4(amount,discountPercentage);
+            calculatePercentageTarget1(amount,discountPercentage,tickerType);
+            calculatePercentageTarget2(amount,discountPercentage,tickerType);
+            calculatePercentageTarget3(amount,discountPercentage,tickerType);
+            calculatePercentageTarget4(amount,discountPercentage,tickerType);
         }
 
 
         // Calculate Target 1 (6%)
-        function calculatePercentageTarget1(amount,discountPercentage) {
+        function calculatePercentageTarget1(amount,discountPercentage,tickerType) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
-
-            if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                let target1Value = (amount * discountPercentage) / 100;
-                //let finalAmount = amount + target1Value;
-                let finalAmount = amount + (target1Value * 3);
-                document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
+            if (tickerType == "Investment") {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 6);
+                    document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
+                }
+            }
+            else {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 3);
+                    document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
+                }
             }
         }
 
         // Calculate Target 2 (12%)
-        function calculatePercentageTarget2(amount,discountPercentage) {
+        function calculatePercentageTarget2(amount,discountPercentage,tickerType) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             // let target2Percentage = 12;
             //let target2Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
-            if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                let target2Value = (amount * discountPercentage) / 100;
-                //let finalAmount = amount + target2Value;
-                let finalAmount = amount + (target2Value * 5);
-                document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
+            if (tickerType == "Investment") {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target2Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target2Value * 10);
+                    document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
+                }
+            }
+            else {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target2Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target2Value;
+                    let finalAmount = amount + (target2Value * 5);
+                    document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
+                }
             }
         }
 
         // Calculate Target 3 (6%)
-        function calculatePercentageTarget3(amount,discountPercentage) {
+        function calculatePercentageTarget3(amount,discountPercentage,tickerType) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
-
-            if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                let target1Value = (amount * discountPercentage) / 100;
-                //let finalAmount = amount + target1Value;
-                let finalAmount = amount + (target1Value * 7);
-                document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
+            if (tickerType == "Investment") {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 14);
+                    document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
+                }
+            }
+            else {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 7);
+                    document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
+                }
             }
         }
 
         // Calculate Target 4 (6%)
-        function calculatePercentageTarget4(amount,discountPercentage) {
+        function calculatePercentageTarget4(amount,discountPercentage,tickerType) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
-
-            if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                let target1Value = (amount * discountPercentage) / 100;
-                //let finalAmount = amount + target1Value;
-                let finalAmount = amount + (target1Value * 10);
-                document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
+            if (tickerType == "Investment") {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 20);
+                    document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
+                }
+            }
+            else {
+                if (!isNaN(amount) && !isNaN(discountPercentage)) {
+                    let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + target1Value;
+                    let finalAmount = amount + (target1Value * 10);
+                    document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
+                }
             }
         }
 
@@ -717,6 +755,19 @@
             document.getElementById("popupedit").style.display = "none";
         }
 
+        function handleCreateTicker() {
+            const createBtn = document.getElementById('create-ticker-btn');
+            
+            // Disable the button after it's clicked
+            createBtn.disabled = true;
+
+            // Call the actual function to update the ticker
+            createTicker();
+
+            // Close the popup after update
+            closePopup();
+        }
+
         function handleUpdateTicker() {
             const updateBtn = document.getElementById('update-ticker-btn');
             
@@ -732,6 +783,45 @@
 
         function closeEditPopup() {
             document.getElementById("popupedit").style.display = "none";
+        }
+
+        // Function to update the row
+        function createTicker() {
+            const createData = {
+                tickername: document.getElementById("tickername").value,
+                entryprice: document.getElementById("entryprice").value,
+                stoppercent: document.getElementById("stoppercent").value,
+                stopprice: document.getElementById("stopprice").value,
+                target1: document.getElementById("target1").value,
+                target2: document.getElementById("target2").value,
+                target3: document.getElementById("target3").value,
+                target4: document.getElementById("target4").value,
+                tickertype: document.getElementById("tickertype").value,
+                notes: document.getElementById("notes").value,
+            };
+
+            // Call the backend to update the data
+            fetch('/save_ticker_new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(createData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Create successful");
+                    closePopup(); // Close popup on successful update
+                    location.reload(); // Reload page to show updated data
+                } else {
+                    alert("Create failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error creating the row:", error);
+                //alert("An error occurred while updating the row");
+            });
         }
 
         // Function to update the row
@@ -794,6 +884,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="tickertype">Type</label>
+                    <select id="tickertype" name="tickertype">
+                        <option value="Swing">Swing</option>
+                        <option value="Investment">Investment</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="amount">Entry Price ($)</label>
                     <input type="text" id="amount" name="entryprice" placeholder="$USD" 
                             required>
@@ -808,6 +906,11 @@
                 <div class="form-group">
                     <label for="result">Stop Price ($)</label>
                     <input type="text" id="result" name="stopprice" 
+                            oninput="calculatePercentage();" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="hidden" id="result" name="stopprice" 
                             oninput="calculatePercentage();" required>
                 </div>
 
@@ -834,16 +937,14 @@
                 <!-- New textarea for notes -->
                 <div class="form-group">
                     <label for="notes">Notes</label>
-                    <textarea id="notes" name="notes" placeholder="Enter notes for the ticker" rows="4"></textarea>
+                    <textarea id="notes" name="notes" placeholder="Notes for the ticker" rows="2"></textarea>
                 </div>
-                
                 <div class="form-group">
-                    <label for="tickertype">Type</label>
-                    <select id="tickertype" name="tickertype">
-                        <option value="Swing">Swing</option>
-                        <option value="Investment">Investment</option>
-                    </select>
-                    <div><br></div>
+                    <input type="hidden" id="result" name="stopprice" 
+                            oninput="calculatePercentage();" required>
+                </div>
+                <div class="form-group">
+                    
                     <input type="submit" value="Create" class="btn">
                 </div>
 
@@ -871,7 +972,13 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Ticker Name</label>
-                    <input type="text" id="edit-ticker-name" readonly>
+                    <input type="text" id="edit-ticker-name" readonly style="color: blue;">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-tickertype">Type</label>
+                    <input type="text" id="edit-tickertype" readonly style="color: blue;">
                 </div>
                 <div class="form-group">
                     <label>Entry Price ($)</label>
@@ -918,23 +1025,17 @@
                     <label>Trail Stop</label>
                     <input type="text" id="edit-trail-stop" required>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="edit-tickertype">Type</label>
-                    <select id="edit-tickertype" name="edit-tickertype">
-                        <option value="Swing">Swing</option>
-                        <option value="Investment">Investment</option>
-                    </select>
-                </div>
                 <div class="form-group">
                     <label>Status</label>
                     <select id="edit-status">
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
+                        <option value="Profit-Book">Profit-Book</option>
+                        <option value="Loss-Book">Loss-Book</option>
                     </select>
                 </div>
             </div>
+            
 
             <div class="form-row">
                 <div class="form-group">
@@ -979,7 +1080,7 @@
                 <th class="col-8">Target 3</th>
                 <th class="col-9">Target 4</th>
                 <th class="col-10">Trailstop</th>
-                <th class="col-11">Type</th>
+                <th class="col-11">Ticker Type</th>
                 <th class="col-12">Stock Status</th>
                 <th class="col-13">Ticker-Notes</th>
                 <th class="col-14">Edit</th>

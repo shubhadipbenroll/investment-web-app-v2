@@ -746,6 +746,28 @@
             document.getElementById("update-row-id").value = data.row_id;
         }
 
+        // Function to open the pop-up
+        function openRiskPopup(data) {
+            //document.getElementById("popupedit").style.display = "flex";
+
+            const popupedit = document.getElementById("popuprisk");
+            popupedit.style.display = "flex";
+
+            // Fill in the popup fields with data
+            document.getElementById("edit-created-date").value = data.created_date;
+            document.getElementById("edit-ticker-name").value = data.ticker_name;
+            document.getElementById("edit-entry-price").value = data.entry_price;
+            document.getElementById("edit-stop-percent").value = data.stop_percent;
+            
+
+            // Store the rowId for updating
+            document.getElementById("update-row-id").value = data.row_id;
+        }
+
+        // Function to close the pop-up
+        function closeRiskPopup() {
+            document.getElementById("popuprisk").style.display = "none";
+        }
         // Function to close the pop-up
         function closePopup() {
             document.getElementById("popup").style.display = "none";
@@ -1051,6 +1073,30 @@
         </div>
     </div>
 
+    <!-- Pop-up Edit container -->
+    <!-- UPDATE RISK-APT TICKER-->
+    <div class="popup-overlay" id="popuprisk">
+        <div class="form-container">
+            <span class="close-btn" onclick="closeRiskPopup()">&times;</span>
+            <h3 class="form-title">Calculate Risk Apetite</h3>
+            
+            <div class="form-row">
+                
+                <div class="form-group">
+                    <label>Total Price ($)</label>
+                    <input type="text" id="edit-entry-price" placeholder="$USD" 
+                        oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit(); calculatePercentageTarget3Edit(); calculatePercentageTarget4Edit()" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Stop %</label>
+                    <input type="text" id="edit-stop-percent" placeholder="%" 
+                        oninput="calculatePercentageEdit(); calculatePercentageTarget1Edit(); calculatePercentageTarget2Edit(); calculatePercentageTarget3Edit(); calculatePercentageTarget4Edit()" required>
+                </div>
+            </div>
+        </div>    
+    </div>
+
     <div class="open-popup-btn">
         <!-- Button to open the pop-up -->
         <button onclick="openPopup()">Create Ticker</button>
@@ -1111,6 +1157,7 @@
                 <!--</td> -->
                 <td class="action-icons">
                     <span onclick='openEditPopup({ "row_id": "{{ loop.index }}", "created_date": "{{ ticker.created_date }}", "ticker_name": "{{ ticker.ticker_name }}", "entry_price": "{{ ticker.entry_price }}", "stop_percent": "{{ ticker.stop_percent }}", "stop_price": "{{ ticker.stop_price }}", "target_1": "{{ ticker.target_1 }}", "target_2": "{{ ticker.target_2 }}", "target_3": "{{ ticker.target_3 }}", "target_4": "{{ ticker.target_4 }}", "trail_stop": "{{ ticker.trail_stop }}", "ticker_type": "{{ ticker.ticker_type }}", "ticker_status": "{{ ticker.ticker_status }}", "ticker_notes": "{{ ticker.ticker_notes }}" });'>✏️ </span>
+                    <span onclick='openRiskPopup({ "row_id": "{{ loop.index }}", "created_date": "{{ ticker.created_date }}", "ticker_name": "{{ ticker.ticker_name }}", "entry_price": "{{ ticker.entry_price }}", "stop_percent": "{{ ticker.stop_percent }}", "stop_price": "{{ ticker.stop_price }}", "target_1": "{{ ticker.target_1 }}", "target_2": "{{ ticker.target_2 }}", "target_3": "{{ ticker.target_3 }}", "target_4": "{{ ticker.target_4 }}", "trail_stop": "{{ ticker.trail_stop }}", "ticker_type": "{{ ticker.ticker_type }}", "ticker_status": "{{ ticker.ticker_status }}", "ticker_notes": "{{ ticker.ticker_notes }}" });'>✅ </span>
                 </td>
             </tr>
             {% endfor %}
