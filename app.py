@@ -279,6 +279,7 @@ def create_ticker():
 @login_required
 def show_tickers_admin():
   admintickers = load_tickers_for_admin()
+  alltargets = load_targets_from_db()
   # Convert to dictionary
   tickers = [
       {
@@ -303,7 +304,7 @@ def show_tickers_admin():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, targets=alltargets, user=current_user)
 
   
 @app.route("/showusers")
@@ -320,7 +321,7 @@ def show_ticker_targets():
 @login_required
 def update_ticker_targets():
   app.logger.error('update_ticker_targets: ')
-  print("update_ticker_targets")
+  
   
   swingtickername = request.form['swing-ticker-type']
   swingtarget1 = float(request.form['swing-target-1'])

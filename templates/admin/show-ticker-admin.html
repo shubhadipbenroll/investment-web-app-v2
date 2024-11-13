@@ -379,6 +379,17 @@
             let stopPrice = parseFloat(document.getElementById("result").value.replace('%', ''));
             let tickerType = document.getElementById("tickertype").value;
             
+            let swingTarget1 = document.getElementById("swing-target-1").value;
+            let swingTarget2 = document.getElementById("swing-target-2").value;
+            let swingTarget3 = document.getElementById("swing-target-3").value;
+            let swingTarget4 = document.getElementById("swing-target-4").value;
+
+            let investTarget1 = document.getElementById("investment-target-1").value;
+            let investTarget2 = document.getElementById("investment-target-2").value;
+            let investTarget3 = document.getElementById("investment-target-3").value;
+            let investTarget4 = document.getElementById("investment-target-4").value;
+            
+            
             if (!isNaN(amount) && !isNaN(discountPercentage)) {
                 let discountValue = (amount * discountPercentage) / 100;
                 let finalAmount = amount - discountValue;
@@ -391,15 +402,15 @@
                 discountPercentage = parseFloat(document.getElementById("discount").value.replace('$', ''));
             }
 
-            calculatePercentageTarget1(amount,discountPercentage,tickerType);
-            calculatePercentageTarget2(amount,discountPercentage,tickerType);
-            calculatePercentageTarget3(amount,discountPercentage,tickerType);
-            calculatePercentageTarget4(amount,discountPercentage,tickerType);
+            calculatePercentageTarget1(amount,discountPercentage,tickerType,swingTarget1,investTarget1);
+            calculatePercentageTarget2(amount,discountPercentage,tickerType,swingTarget2,investTarget2);
+            calculatePercentageTarget3(amount,discountPercentage,tickerType,swingTarget3,investTarget3);
+            calculatePercentageTarget4(amount,discountPercentage,tickerType,swingTarget4,investTarget4);
         }
 
 
         // Calculate Target 1 (6%)
-        function calculatePercentageTarget1(amount,discountPercentage,tickerType) {
+        function calculatePercentageTarget1(amount,discountPercentage,tickerType,swingTarget1,investTarget1) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
@@ -407,7 +418,7 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 6);
+                    let finalAmount = amount + (target1Value * investTarget1);
                     document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -415,14 +426,14 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 3);
+                    let finalAmount = amount + (target1Value * swingTarget1);
                     document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
                 }
             }
         }
 
         // Calculate Target 2 (12%)
-        function calculatePercentageTarget2(amount,discountPercentage,tickerType) {
+        function calculatePercentageTarget2(amount,discountPercentage,tickerType,swingTarget2,investTarget2) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             // let target2Percentage = 12;
             //let target2Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
@@ -430,7 +441,7 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target2Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target2Value * 10);
+                    let finalAmount = amount + (target2Value * investTarget2);
                     document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -438,14 +449,14 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target2Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target2Value;
-                    let finalAmount = amount + (target2Value * 5);
+                    let finalAmount = amount + (target2Value * swingTarget2);
                     document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
                 }
             }
         }
 
         // Calculate Target 3 (6%)
-        function calculatePercentageTarget3(amount,discountPercentage,tickerType) {
+        function calculatePercentageTarget3(amount,discountPercentage,tickerType,swingTarget3,investTarget3) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
@@ -453,7 +464,7 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 14);
+                    let finalAmount = amount + (target1Value * investTarget3);
                     document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -461,14 +472,14 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 7);
+                    let finalAmount = amount + (target1Value * swingTarget3);
                     document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
                 }
             }
         }
 
         // Calculate Target 4 (6%)
-        function calculatePercentageTarget4(amount,discountPercentage,tickerType) {
+        function calculatePercentageTarget4(amount,discountPercentage,tickerType,swingTarget4,investTarget4) {
             //let amount = parseFloat(document.getElementById("amount").value.replace('$', ''));
             //let target1Percentage = 6;
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
@@ -476,7 +487,7 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 20);
+                    let finalAmount = amount + (target1Value * investTarget4);
                     document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -484,7 +495,7 @@
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
                     let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * 10);
+                    let finalAmount = amount + (target1Value * swingTarget4);
                     document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -973,6 +984,14 @@
                 <!-- <div class="form-group center-btn">
                     <input type="submit" value="Create" class="btn">
                 </div> -->
+                    <input type="hidden" id="swing-target-1" name="swing-target-1" value="{{ targets[0].target1 }}">
+                    <input type="hidden" id="swing-target-2" name="swing-target-2" value="{{ targets[0].target2 }}">
+                    <input type="hidden" id="swing-target-3" name="swing-target-3" value="{{ targets[0].target3 }}">
+                    <input type="hidden" id="swing-target-4" name="swing-target-4" value="{{ targets[0].target4 }}">
+                    <input type="hidden" id="investment-target-1" name="investment-target-1" value="{{ targets[1].target1 }}">
+                    <input type="hidden" id="investment-target-2" name="investment-target-2" value="{{ targets[1].target2 }}">
+                    <input type="hidden" id="investment-target-3" name="investment-target-3" value="{{ targets[1].target3 }}">
+                    <input type="hidden" id="investment-target-4" name="investment-target-4" value="{{ targets[1].target4 }}">
             </form>
         </div>
     </div>
