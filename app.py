@@ -3,6 +3,7 @@ import threading
 import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import flask
+from flask_mail import Message
 from pymysql import TIMESTAMP  # Import Flask explicitly for session handling
 from database import engine
 from sqlalchemy import DECIMAL, DateTime, Text, func, text, Column, String, Integer
@@ -14,7 +15,7 @@ from flask import make_response
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import date, datetime, timedelta
-from mailconfig import configure_mail, send_email  # Importing email functions
+from mailconfig import configure_mail, send_email, send_email_to_users  # Importing email functions
 import os
 from database import DB_ENV
 
@@ -605,6 +606,37 @@ def create_user():
   #return 'User created successfully'
 
 
+# Admin will send email to all users
+@app.route('/send_email_to_all', methods=['POST'])
+def send_email_to_all():
+    app.logger.info("send_email_to_all")
+    data = request.json
+    subject = data.get("subject")
+    body = data.get("body")  # HTML content, including pasted images
+    
+    try:
+        #get all email address 
+        allusers = load_users_details_from_db()
+
+        for user in allusers:
+          #Email send...
+          app.logger.info('Preparing email for registered email : '+ str(user.Email))
+          #email = request.form['email']
+          to_email = user.Email
+
+          #to_email = "chatterjee.paromita9@gmail.com"
+          app.logger.info('Sending personalized email to registered email : '+ str(to_email))
+
+          try:
+            send_status = send_email_to_users(mail, to_email, subject, body)
+            #return jsonify({"status": "success", "email_status": send_status})
+          except Exception as e:
+            app.logger.error(f'An error occurred in send_email_to_all send_email: {e}', exc_info=True)
+
+        return jsonify({"message": send_status})
+    except Exception as e:
+      app.logger.error(f"An error occurred in send_email_to_all while sending emails: {e}", exc_info=True)
+      return jsonify({"status": "error"}), 500
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -1323,7 +1355,7 @@ def update_pass():
 #Admin based
 @app.route("/adminpanel")
 def adminpanel():
-  return render_template('/admin/draft.html', user=current_user)
+  return render_template('/admin/send-email.html', user=current_user)
 
 @app.route("/manageticker")
 def manageticker():

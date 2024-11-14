@@ -1,0 +1,60 @@
+{% extends "/admin/base-template-admin.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<style>
+    /* Container and Table styles */
+    .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+</style>
+<div>
+    <div class="container">
+        <h2>Send Email to All Users</h2>
+        <div class="form-group">
+            <label for="email-subject">Email Subject:</label>
+            <input type="text" id="email-subject" class="form-control" placeholder="Enter email subject" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email-body">Email Body:</label>
+            <div id="email-body" class="form-control" contenteditable="true" style="min-height: 200px; border: 1px solid #ccc;">
+                <!-- Users can paste text and images here -->
+            </div>
+            <small>Note: Paste images directly into the body.</small>
+        </div>
+
+        <button type="button" onclick="sendEmail()" class="btn btn-primary">Send Email</button>
+        <a href="/adminpanel" ><button>Reload</button></a>
+    </div>
+</div>
+
+<script>
+    function sendEmail() {
+        const subject = document.getElementById("email-subject").value;
+        const bodyContent = document.getElementById("email-body").innerHTML; // Capture as HTML
+
+        fetch('/send_email_to_all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ subject: subject, body: bodyContent })
+        })
+        .then(response => response.json())
+        .then(data => alert(data.message || 'Email sent successfully'))
+        .catch(error => alert("An error occurred while sending the email: " + error));
+    }
+    
+</script>
+{% endblock %}
