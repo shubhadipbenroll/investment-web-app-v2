@@ -620,7 +620,7 @@ def send_email_to_all():
 
         for user in allusers:
           #Email send...
-          app.logger.info('Preparing email for registered email : '+ str(user.Email))
+          #app.logger.info('Preparing email for registered email : '+ str(user.Email))
           #email = request.form['email']
           to_email = user.Email
 

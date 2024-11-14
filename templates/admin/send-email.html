@@ -40,6 +40,17 @@
 </div>
 
 <script>
+    // Resize pasted images in the email body to a maximum width of 500px
+    document.getElementById("email-body").addEventListener("paste", function (event) {
+        setTimeout(() => {
+            const images = document.querySelectorAll("#email-body img");
+            images.forEach(img => {
+                img.style.maxWidth = "600px";  // Sets a max width for pasted images
+                img.style.height = "auto";     // Adjusts the height proportionally
+            });
+        }, 100); // Delay to allow the paste event to complete
+    });
+
     function sendEmail() {
         const subject = document.getElementById("email-subject").value;
         const bodyContent = document.getElementById("email-body").innerHTML; // Capture as HTML
