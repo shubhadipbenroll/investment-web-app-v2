@@ -478,6 +478,26 @@
         function closeRiskPopup() {
             document.getElementById("popuprisk").style.display = "none";
         }
+        
+        // Wait for the DOM to load before adding the event listener
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById('riskForm');
+            const submitButton = document.getElementById('update-button');
+
+            if (form && submitButton) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault(); // Prevent the form from submitting immediately
+
+                    submitButton.disabled = true; // Disable the button
+                    submitButton.value = 'Processing...'; // Change button text
+
+                    // Now, let the form proceed after the button is disabled
+                    setTimeout(() => {
+                        form.submit(); // Submit the form after disabling the button
+                    }, 100); // Small delay ensures the UI update happens
+                });
+            }
+        });
     </script>
 </head>
 <body>
@@ -487,7 +507,7 @@
         <div class="form-container">
             <span class="close-btn" onclick="closeRiskPopup()">&times;</span>
             <h3 class="form-title">Calculate Risk Apetite</h3>
-            <form action="/update_risk_apetite_for_trading" method="POST" class="form-grid">
+            <form action="/update_risk_apetite_for_trading" method="POST" class="form-grid" id="riskForm">
                 <div class="form-row">
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                         <label>Total Capital ($)</label>
@@ -496,7 +516,7 @@
                         <label>Risk Apetite %</label>
                         <input type="text" id="risk-apetite-percent" name="risk-apetite-percent" placeholder="%" maxlength="10" required style="width: 100px;">
                     
-                        <input type="submit" value="Update" class="btn" style="width: 100px;">
+                        <input type="submit" value="Update" class="btn" id="update-button" style="width: 100px;">
                     </div>
                 </div>
             </form>
