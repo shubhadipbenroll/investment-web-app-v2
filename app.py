@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import ROUND_HALF_UP, Decimal
 import threading
 import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
@@ -173,7 +174,7 @@ def load_tickers_for_trading():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Swing' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop, ticker_qty, TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Swing' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -387,7 +388,7 @@ def update_ticker_targets():
 @app.route("/show_ticker_user_watchlist")
 @login_required
 def show_ticker_user_watchlist():
-  if 'userloggedinemail' in session:  # Check if user is logged in
+  if DB_ENV == 'NP':
     watchlist = load_tickers_for_watchlist()
     # Convert to dictionary
     tickers = [
@@ -413,13 +414,39 @@ def show_ticker_user_watchlist():
 
     return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
   else:
-    app.logger.error('Session is not valid for show_ticker_user_watchlist')
-    return render_template('login-page.html')
+    if 'userloggedinemail' in session:  # Check if user is logged in
+      watchlist = load_tickers_for_watchlist()
+      # Convert to dictionary
+      tickers = [
+          {
+              "created_date": row[0],
+              "ticker_name": row[1],
+              "entry_price": row[2],
+              #"stop_price": row[3],
+              #"target_1": row[4],
+              #"target_2": row[5],
+              #"target_3": row[6],
+              #"target_4": row[7],
+              #"trail_stop": row[8],
+              #"ticker_notes": row[9]
+              "ticker_type": row[12]
+          } for row in watchlist
+      ]
+      # Group tickers by created date
+      grouped_tickers = defaultdict(list)
+      for ticker in tickers:
+        date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+        grouped_tickers[date_only].append(ticker)
+
+      return render_template('/users/show-tickers-watchlist.html', grouped_tickers=grouped_tickers, user=current_user)
+    else:
+      app.logger.error('Session is not valid for show_ticker_user_watchlist')
+      return render_template('login-page.html')
   
 @app.route("/show_ticker_user_trading")
 @login_required
 def show_ticker_user_trading():
-  if 'userloggedinemail' in session:  # Check if user is logged in
+  if DB_ENV == 'NP':
     ticklist = load_tickers_for_trading()
     # Convert to dictionary
     tickers = [
@@ -433,7 +460,8 @@ def show_ticker_user_trading():
             "target_3": row[6],
             "target_4": row[7],
             "trail_stop": row[8],
-            "ticker_notes": row[9]
+            "ticker_qty": row[9],
+          "ticker_notes": row[10]
         } for row in ticklist
     ]
     # Group tickers by created date
@@ -444,13 +472,39 @@ def show_ticker_user_trading():
 
     return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
   else:
-    return render_template('login-page.html')
+    if 'userloggedinemail' in session:  # Check if user is logged in
+      ticklist = load_tickers_for_trading()
+      # Convert to dictionary
+      tickers = [
+          {
+              "created_date": row[0],
+              "ticker_name": row[1],
+              "entry_price": row[2],
+              "stop_price": row[3],
+              "target_1": row[4],
+              "target_2": row[5],
+              "target_3": row[6],
+              "target_4": row[7],
+              "trail_stop": row[8],
+              "ticker_qty": row[9],
+              "ticker_notes": row[10]
+          } for row in ticklist
+      ]
+      # Group tickers by created date
+      grouped_tickers = defaultdict(list)
+      for ticker in tickers:
+        date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+        grouped_tickers[date_only].append(ticker)
+
+      return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+    else:
+      return render_template('login-page.html')
   
 
 @app.route("/show_ticker_user_investment")
 @login_required
 def show_ticker_user_investment():
-  if 'userloggedinemail' in session:  # Check if user is logged in
+  if DB_ENV == 'NP':
     ticklist = load_tickers_for_investment()
     # Convert to dictionary
     tickers = [
@@ -475,8 +529,113 @@ def show_ticker_user_investment():
 
     return render_template('/users/show-tickers-investment.html', grouped_tickers=grouped_tickers, user=current_user)
   else:
-    return render_template('login-page.html')
+    if 'userloggedinemail' in session:  # Check if user is logged in
+      ticklist = load_tickers_for_investment()
+      # Convert to dictionary
+      tickers = [
+          {
+              "created_date": row[0],
+              "ticker_name": row[1],
+              "entry_price": row[2],
+              "stop_price": row[3],
+              "target_1": row[4],
+              "target_2": row[5],
+              "target_3": row[6],
+              "target_4": row[7],
+              "trail_stop": row[8],
+              "ticker_notes": row[9]
+          } for row in ticklist
+      ]
+      # Group tickers by created date
+      grouped_tickers = defaultdict(list)
+      for ticker in tickers:
+        date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+        grouped_tickers[date_only].append(ticker)
+
+      return render_template('/users/show-tickers-investment.html', grouped_tickers=grouped_tickers, user=current_user)
+    else:
+      return render_template('login-page.html')
+
+
+# RISK APETITE !!!!!!
+@app.route('/update_risk_apetite_for_trading', methods=['POST'])
+def update_risk_apetite_for_trading():
+  app.logger.info('update_risk_apetite_for_trading calling ...')
+  ticklist = load_tickers_for_trading()
   
+  if not ticklist:
+    app.logger.error("No tickers found for trading.")
+  
+  capital = request.form['total-capital-price']
+  risk_apt_percent = float(request.form['risk-apetite-percent'].replace('$', '').replace(',', ''))
+  
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+  
+  try:
+    for row in ticklist:
+      app.logger.info('update_risk_apetite_for_trading: Ticker details : '+ str(row[1])+' / '+ str(row[2])+' / '+ str(row[3]))
+      
+      #calculation for risk apetite - quantity for each ticker
+      risk_value = float(row[2]) / float(row[3])
+      risk_apt = (float(capital) * float(risk_apt_percent)) / 100
+      qty = risk_apt/risk_value
+
+      print("=capital=>>", capital)
+      print("=risk_apt_percent=>>", risk_apt_percent)
+      print("=risk_apt=>>", risk_apt)
+      print("=risk_value=>>", risk_value)
+      print("=qty=>>", Decimal(qty))
+
+      ticker = db_session.query(Ticker).filter_by(TickerName=row[1], UpdateDate=row[0]).first()
+      
+      if ticker:
+        if qty is not None:
+          app.logger.info('update_risk_apetite_for_trading: Updating Risk Apetite quantity for Ticker : '+ str(row[1]))
+          formatted_qty = Decimal(qty).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+          ticker.ticker_qty = formatted_qty
+          # Commit the session to save changes to the database
+          #db_session.commit()
+        else:
+          app.logger.error("Error: Risk qty is None")
+
+    # Commit all changes at once
+    db_session.commit()
+    app.logger.info("All updates committed successfully.")  
+  except (ZeroDivisionError, ValueError) as calc_error:
+    app.logger.error(f"Error in calculation for Ticker: {row[1]} - {calc_error}")
+  except Exception as e:
+    app.logger.error(f'An error occurred in update_risk_apetite_for_trading: {e}', exc_info=True)
+    db_session.rollback()
+  finally:
+    db_session.close()  # Close the session
+  
+  
+  # Convert to dictionary
+  tickers = [
+      {
+          "created_date": row[0],
+          "ticker_name": row[1],
+          "entry_price": row[2],
+          "stop_price": row[3],
+          "target_1": row[4],
+          "target_2": row[5],
+          "target_3": row[6],
+          "target_4": row[7],
+          "trail_stop": row[8],
+          "ticker_qty": row[9],
+          "ticker_notes": row[10]
+      } for row in ticklist
+  ]
+  # Group tickers by created date
+  grouped_tickers = defaultdict(list)
+  for ticker in tickers:
+    date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
+    grouped_tickers[date_only].append(ticker)
+
+  return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -748,6 +907,7 @@ class Ticker(Base):
   Target3 = Column(Integer, nullable=False)
   Target4 = Column(Integer, nullable=False)
   TrailStop  = Column(Integer, nullable=False)
+  ticker_qty  = Column(DECIMAL(10, 2), nullable=False, default=0.00)
   TickerStatus  = Column(String, nullable=False)
   TickerNotes = Column(Text, nullable=True)  # New column for storing notes
   ticker_type  = Column(String, nullable=False)
@@ -896,6 +1056,7 @@ def save_ticker_new():
 
   #added:
   admintickers = load_tickers_for_admin()
+  alltargets = load_targets_from_db()
   # Convert to dictionary
   tickers = [
       {
@@ -920,7 +1081,7 @@ def save_ticker_new():
     date_only = ticker['created_date'].date()  # Assuming CreateDate is a datetime object
     grouped_tickers[date_only].append(ticker)
 
-  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, user=current_user)
+  return render_template('/admin/show-ticker-admin.html', grouped_tickers=grouped_tickers, targets=alltargets, user=current_user)
 
 
 @app.route('/update_ticker', methods=['POST'])
@@ -1305,10 +1466,13 @@ def loadadmindashboard():
 @app.route("/loaduserdashboard")
 @login_required
 def loaduserdashboard():
-  if 'userloggedinemail' in session:  # Check if user is logged in
-    return render_template('/users/dashboard-user.html', user=current_user)
+  if DB_ENV == 'NP':
+     return render_template('/users/dashboard-user.html', user=current_user)
   else:
-     return render_template('login-page.html')
+    if 'userloggedinemail' in session:  # Check if user is logged in
+      return render_template('/users/dashboard-user.html', user=current_user)
+    else:
+      return render_template('login-page.html')
 
 @app.route('/update_pass', methods=['POST', 'GET'])
 def update_pass():

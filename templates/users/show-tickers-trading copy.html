@@ -111,8 +111,7 @@
         .col-7 { width: 6%; }
         .col-8 { width: 6%; }
         .col-9 { width: 6%; }
-        .col-10 { width: 6%; }
-        .col-11 { width: 20%; }
+        .col-10 { width: 20%; }
         th {
             background-color: orange; /* Change header background color */
             color: black; /* White text for header */
@@ -218,8 +217,8 @@
 
         .form-group input[type="submit"] {
             grid-column: span 2;
-            background-color: orange;
-            color: black;
+            background-color: #4682B4;
+            color: white;
             padding: 10px;
             border: none;
             border-radius: 5px;
@@ -231,8 +230,8 @@
         .open-popup-btn {
             display: inline-block;
             padding: 10px 20px;
-            background-color: orange;
-            color: black;
+            background-color: #007bff;
+            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -309,7 +308,7 @@
         }
 
         .btn:hover {
-            background-color: #e67e22;
+            background-color: #0056b3;
         }
 
         .open-popup-btn {
@@ -335,7 +334,7 @@
             color: #000;
         }
         .form-group input[type="submit"]:hover {
-            background-color: orange;
+            background-color: #4169E1;
         }
 
         @media (max-width: 768px) {
@@ -435,75 +434,10 @@
         function closePopup() {
             document.getElementById("popup").style.display = "none";
         }
-
-        // Function to open the pop-up
-        function openRiskApetitePopup(data) {
-            //document.getElementById("popupedit").style.display = "flex";
-
-            const popupedit = document.getElementById("popuprisk");
-            popupedit.style.display = "flex";
-        }
-
-        // Function to update the row
-        function updateRiskApetite() {
-            const createData = {
-                totalcapital: document.getElementById("total-capital-price").value,
-                riskpercent: document.getElementById("risk-apetite-percent").value,
-            };
-
-            // Call the backend to update the data
-            fetch('/update_risk_apetite_for_trading', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(createData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Risk apetite updated");
-                    closePopup(); // Close popup on successful update
-                    location.reload(); // Reload page to show updated data
-                } else {
-                    alert("Risk apetite failed");
-                }
-            })
-            .catch(error => {
-                console.error("Error creating the row:", error);
-                //alert("An error occurred while updating the row");
-            });
-        }
-        // Function to close the pop-up
-        function closeRiskPopup() {
-            document.getElementById("popuprisk").style.display = "none";
-        }
     </script>
 </head>
 <body>
-    <!-- Pop-up Edit container -->
-    <!-- UPDATE RISK-APT TICKER-->
-    <div class="popup-overlay" id="popuprisk">
-        <div class="form-container">
-            <span class="close-btn" onclick="closeRiskPopup()">&times;</span>
-            <h3 class="form-title">Calculate Risk Apetite</h3>
-            <form action="/update_risk_apetite_for_trading" method="POST" class="form-grid">
-                <div class="form-row">
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                        <label>Total Capital ($)</label>
-                        <input type="text" id="total-capital-price" name="total-capital-price" placeholder="$USD" maxlength="10" required style="width: 100px;">
-                        
-                        <label>Risk Apetite %</label>
-                        <input type="text" id="risk-apetite-percent" name="risk-apetite-percent" placeholder="%" maxlength="10" required style="width: 100px;">
-                    
-                        <input type="submit" value="Update" class="btn" style="width: 100px;">
-                    </div>
-                </div>
-            </form>
-        </div>    
-    </div>
-    
-    
+
     <div style="display: flex; align-items: center;">
         <div>
             <h3>Welcome to Swing Trading</h3>
@@ -511,12 +445,8 @@
     
         <!-- Search bar -->
         <div class="open-popup-btn" style="margin-left: 20px;">
-
             <input type="text" id="searchInput" placeholder="Search tickers...">
             <button onclick="filterTable()">Search</button>
-
-            
-            <button onclick="openRiskApetitePopup()">Risk Apetite</button>
 
             <a href="/show_ticker_user_trading" ><button>Refresh</button></a>
         </div>
@@ -539,8 +469,7 @@
                 <th class="col-7">Target 3</th>
                 <th class="col-8">Target 4</th>
                 <th class="col-9">Trailstop</th>
-                <th class="col-10">Quantity</th>
-                <th class="col-11">Ticker-Notes</th>
+                <th class="col-10">Ticker-Notes</th>
             </tr>
         </thead>
         <tbody>
@@ -555,7 +484,6 @@
                 <td>{{ ticker.target_3 }}</td>
                 <td>{{ ticker.target_4 }}</td>
                 <td>{{ ticker.trail_stop }}</td>
-                <td>{{ ticker.ticker_qty }}</td>
                 <td>
                     <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
                 </td>
