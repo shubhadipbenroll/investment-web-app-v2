@@ -1,0 +1,91 @@
+{% extends "/users/base-template-user.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<style>
+  /* General button styles */
+  .dashboard-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: orange;
+      color: black;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      width: 200px; /* Set equal width */
+      height: 20px; /* Set equal height */
+      text-align: center;
+  }
+  /* Table styling */
+  .target-info-table {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto; /* Center the table horizontally */
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden; /* For rounded corners */
+  }
+
+  .target-info-table th, .target-info-table td {
+    padding: 12px 20px;
+    text-align: left;
+  }
+
+  .target-info-table th {
+    background-color: orange;
+    color: black;
+    font-weight: bold;
+  }
+
+  .target-info-table td {
+    background-color: #fff;
+    color: #333;
+  }
+  /* Button style to open the form */
+  .open-popup-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: orange;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+  }
+  /* Optional: Adding borders to rows */
+  .target-info-table tr:nth-child(even) td {
+    background-color: #f4f4f4;
+  }
+</style>
+<body>
+    <form action="/update_risk_apetite_for_trading" method="POST" class="form-grid">
+        
+        
+        <!-- Dashboard content -->
+        <div class="dashboard-container">
+             <!--<div class="open-popup-btn">
+                <a href="/show_ticker_targets" ><button>Refresh</button></a>
+            </div>-->
+        <table class="target-info-table">
+            <tr>
+            <th></th><th>Total Capital ($)</th><th>Risk Apetite %</th>
+            </tr>
+            <tr>
+                <td><input type="text" id="swing-ticker-type" name="swing-ticker-type" value="Swing" size="10" maxlength="10" readonly style="color: blue;"></td>
+                <td><input type="text" id="total-capital-price" name="total-capital-price" value="{{ user_risk[0].swing_capital }}" size="6" maxlength="6" required></td>
+                <td><input type="text" id="risk-apetite-percent" name="risk-apetite-percent" value="{{ user_risk[0].swing_percent }}" size="6" maxlength="6" required></td>
+            </tr>
+            
+        </table>
+        <!-- Middle of the Page Buttons -->
+        <input type="submit" value="Update Risk Apetite" class="btn">
+        </div>
+    </form>
+  </body>
+{% endblock %}

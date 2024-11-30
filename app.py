@@ -198,6 +198,25 @@ def load_tickers_for_investment():
   
   return ticker_list
 
+
+def load_risk_apt_from_db(user_email_id,type):
+  user_risk = []
+  try:
+    with engine.connect() as conn:
+      if type == 'Swing':
+        query = text("SELECT swing_capital, swing_percent FROM user_risk_apt WHERE user_email = :user_email AND ticker_type = :type")
+      else:
+        query = text("SELECT invest_capital, invest_percent FROM user_risk_apt WHERE user_email = :user_email AND ticker_type = :type")
+    
+      result = conn.execute(query, {"user_email": user_email_id, "type": type})
+    
+      for row in result.all():
+        user_risk.append(row)
+  except Exception as e:
+    app.logger.error(f'An error occurred in load_risk_apt_from_db: {e}', exc_info=True)
+  
+  return user_risk
+
 # DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
@@ -605,6 +624,19 @@ def show_ticker_user_investment():
 
 
 # RISK APETITE !!!!!! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  !!!!!! 
+@app.route('/show_user_trading_risk_apt')
+def show_user_risk_apt():
+  if DB_ENV == 'NP':
+    user_email_id = 'test@gmail.com'
+  else:
+    user_email_id = session['userloggedinemail']
+
+  user_risk_apt = load_risk_apt_from_db(user_email_id,"Swing")
+  print(user_risk_apt)
+  print(user_risk_apt[0].swing_capital)
+  print(user_risk_apt[0].swing_percent)
+  return render_template('/users/update-risk-apt.html', user_risk=user_risk_apt, user=current_user)
+
 @app.route('/update_risk_apetite_for_trading', methods=['POST'])
 def update_risk_apetite_for_trading():
   app.logger.info('update_risk_apetite_for_trading calling ...')
