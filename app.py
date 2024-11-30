@@ -7,9 +7,10 @@ import flask
 from flask_mail import Message
 from pymysql import TIMESTAMP  # Import Flask explicitly for session handling
 from database import engine
-from sqlalchemy import DECIMAL, DateTime, Text, func, text, Column, String, Integer
+from sqlalchemy import DECIMAL, DateTime, Float, Text, func, text, Column, String, Integer, TIMESTAMP
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import make_response
@@ -446,6 +447,52 @@ def show_ticker_user_watchlist():
 @app.route("/show_ticker_user_trading")
 @login_required
 def show_ticker_user_trading():
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+  if DB_ENV == 'NP':
+    user_email_id = 'test@gmail.com'
+    # Get capital and risk for the user from table
+    try:
+      risk_apt = db_session.query(UserRiskApt).filter_by(user_email=user_email_id).first()
+    
+      if risk_apt:
+        app.logger.info('show_ticker_user_trading: risk-apt found for user  : '+ str(user_email_id)) 
+        capital = risk_apt.swing_capital
+        risk_apt_percent = risk_apt.swing_percent
+      else:
+        app.logger.info('show_ticker_user_trading: risk-apt not found for user  : '+ str(user_email_id)) 
+        capital = 0
+        risk_apt_percent = 0
+
+    except Exception as e:
+      app.logger.error(f'An error occurred in show_ticker_user_trading: {e}', exc_info=True)
+    finally:
+      db_session.close()  # Close the session
+  
+  else:
+    user_email_id = session['userloggedinemail']
+
+    # Get capital and risk for the user from table
+    try:
+      risk_apt = db_session.query(UserRiskApt).filter_by(user_email=user_email_id).first()
+    
+      if risk_apt:
+        app.logger.info('show_ticker_user_trading: risk-apt found for user  : '+ str(user_email_id)) 
+        capital = risk_apt.swing_capital
+        risk_apt_percent = risk_apt.swing_percent
+      else:
+        app.logger.info('show_ticker_user_trading: risk-apt not found for user  : '+ str(user_email_id)) 
+        capital = 0
+        risk_apt_percent = 0
+
+    except Exception as e:
+      app.logger.error(f'An error occurred in show_ticker_user_trading: {e}', exc_info=True)
+    finally:
+      db_session.close()  # Close the session
+
   if DB_ENV == 'NP':
     ticklist = load_tickers_for_trading()
     # Convert to dictionary
@@ -460,7 +507,7 @@ def show_ticker_user_trading():
             "target_3": row[6],
             "target_4": row[7],
             "trail_stop": row[8],
-            "ticker_qty": row[9],
+            "ticker_qty": round(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))),
           "ticker_notes": row[10]
         } for row in ticklist
     ]
@@ -486,7 +533,7 @@ def show_ticker_user_trading():
               "target_3": row[6],
               "target_4": row[7],
               "trail_stop": row[8],
-              "ticker_qty": row[9],
+              "ticker_qty": round(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))),
               "ticker_notes": row[10]
           } for row in ticklist
       ]
@@ -557,7 +604,7 @@ def show_ticker_user_investment():
       return render_template('login-page.html')
 
 
-# RISK APETITE !!!!!!
+# RISK APETITE !!!!!! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  !!!!!! 
 @app.route('/update_risk_apetite_for_trading', methods=['POST'])
 def update_risk_apetite_for_trading():
   app.logger.info('update_risk_apetite_for_trading calling ...')
@@ -566,52 +613,63 @@ def update_risk_apetite_for_trading():
   if not ticklist:
     app.logger.error("No tickers found for trading.")
   
+  ticker_type = 'Swing'
   capital = request.form['total-capital-price']
   risk_apt_percent = float(request.form['risk-apetite-percent'].replace('$', '').replace(',', ''))
-  
+  #app.logger.info("=ticker_qty=>>"+ str(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))))
+
   # Create a session
   Session = sessionmaker(bind=engine)
   db_session = Session()
-  
-  try:
-    for row in ticklist:
-      app.logger.info('update_risk_apetite_for_trading: Ticker details : '+ str(row[1])+' / '+ str(row[2])+' / '+ str(row[3]))
-      
-      #calculation for risk apetite - quantity for each ticker
-      risk_value = float(row[2]) / float(row[3])
-      risk_apt = (float(capital) * float(risk_apt_percent)) / 100
-      qty = risk_apt/risk_value
 
-      print("=capital=>>", capital)
-      print("=risk_apt_percent=>>", risk_apt_percent)
-      print("=risk_apt=>>", risk_apt)
-      print("=risk_value=>>", risk_value)
-      print("=qty=>>", Decimal(qty))
+  if DB_ENV == 'NP':
+    user_email_id = 'test@gmail.com'
+    # Update DB with user defined risk apetite
+    update_risk_apt_table(user_email_id,ticker_type,capital,risk_apt_percent)
+    # Get capital and risk for the user from table
+    try:
+      risk_apt = db_session.query(UserRiskApt).filter_by(user_email=user_email_id).first()
+    
+      if risk_apt:
+        app.logger.info('update_risk_apetite_for_trading: risk-apt found for user  : '+ str(user_email_id)) 
+        capital = risk_apt.swing_capital
+        risk_apt_percent = risk_apt.swing_percent
+      else:
+        app.logger.info('update_risk_apetite_for_trading: risk-apt not found for user  : '+ str(user_email_id)) 
+        capital = 0
+        risk_apt_percent = 0
 
-      ticker = db_session.query(Ticker).filter_by(TickerName=row[1], UpdateDate=row[0]).first()
-      
-      if ticker:
-        if qty is not None:
-          app.logger.info('update_risk_apetite_for_trading: Updating Risk Apetite quantity for Ticker : '+ str(row[1]))
-          formatted_qty = Decimal(qty).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-          ticker.ticker_qty = formatted_qty
-          # Commit the session to save changes to the database
-          #db_session.commit()
-        else:
-          app.logger.error("Error: Risk qty is None")
+    except Exception as e:
+      app.logger.error(f'An error occurred in update_risk_apetite_for_trading: {e}', exc_info=True)
+    finally:
+      db_session.close()  # Close the session
+  else:
+    user_email_id = session['userloggedinemail']
+    # Update DB with user defined risk apetite
+    update_risk_apt_table(user_email_id,ticker_type,capital,risk_apt_percent)
+    
+    # Get capital and risk for the user from table
+    try:
+      risk_apt = db_session.query(UserRiskApt).filter_by(user_email=user_email_id).first()
+    
+      if risk_apt:
+        app.logger.info('update_risk_apetite_for_trading: risk-apt found for user  : '+ str(user_email_id)) 
+        capital = risk_apt.swing_capital
+        risk_apt_percent = risk_apt.swing_percent
+      else:
+        app.logger.info('update_risk_apetite_for_trading: risk-apt not found for user  : '+ str(user_email_id)) 
+        capital = 0
+        risk_apt_percent = 0
 
-    # Commit all changes at once
-    db_session.commit()
-    app.logger.info("All updates committed successfully.")  
-  except (ZeroDivisionError, ValueError) as calc_error:
-    app.logger.error(f"Error in calculation for Ticker: {row[1]} - {calc_error}")
-  except Exception as e:
-    app.logger.error(f'An error occurred in update_risk_apetite_for_trading: {e}', exc_info=True)
-    db_session.rollback()
-  finally:
-    db_session.close()  # Close the session
+    except Exception as e:
+      app.logger.error(f'An error occurred in update_risk_apetite_for_trading: {e}', exc_info=True)
+    finally:
+      db_session.close()  # Close the session
+
   
   
+  #round() will round 5.9 to 6 and 5.4 to 5.
+  #int() will 5.9 becomes 5
   # Convert to dictionary
   tickers = [
       {
@@ -624,7 +682,7 @@ def update_risk_apetite_for_trading():
           "target_3": row[6],
           "target_4": row[7],
           "trail_stop": row[8],
-          "ticker_qty": row[9],
+          "ticker_qty": round(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))),
           "ticker_notes": row[10]
       } for row in ticklist
   ]
@@ -635,6 +693,60 @@ def update_risk_apetite_for_trading():
     grouped_tickers[date_only].append(ticker)
 
   return render_template('/users/show-tickers-trading.html', grouped_tickers=grouped_tickers, user=current_user)
+
+
+#### UPDATE RISK APT TABLE
+
+def update_risk_apt_table(user_email_id,ticker_type,capital,risk_apt_percent):
+  app.logger.info('update_risk_apt_table for user : '+ str(user_email_id))
+
+  # Create a session
+  Session = sessionmaker(bind=engine)
+  db_session = Session()
+
+  try:
+    risk_apt = db_session.query(UserRiskApt).filter_by(user_email=user_email_id).first()
+    
+    if risk_apt:
+      app.logger.info('update_ticker_targets: updating ticker-type : '+ str(user_email_id))
+      
+      if ticker_type == 'Swing':
+        risk_apt.ticker_type=ticker_type
+        risk_apt.swing_capital=capital
+        risk_apt.swing_percent=risk_apt_percent
+      else:
+        risk_apt.ticker_type=ticker_type
+        risk_apt.invest_capital=capital
+        risk_apt.invest_percent=risk_apt_percent
+    else:
+      app.logger.info('update_ticker_targets: adding risk_apt for user : '+ str(user_email_id))
+
+      if ticker_type == 'Swing':
+        new_user_risk_apt = UserRiskApt(user_email=user_email_id,
+                                        ticker_type=ticker_type,
+                                        swing_capital=capital,
+                                        swing_percent=risk_apt_percent)
+      else:
+        new_user_risk_apt = UserRiskApt(user_email=user_email_id,
+                                        ticker_type=ticker_type,
+                                        invest_capital=capital,
+                                        invest_percent=risk_apt_percent)
+
+      # Add the new user to the session
+      db_session.add(new_user_risk_apt)
+
+    # Commit the session to save changes to the database
+    db_session.commit()
+
+  except Exception as e:
+    db_session.rollback()  # Rollback in case of error
+    app.logger.error(f'An error occurred in update_ticker_targets: {e}', exc_info=True)
+    #return f'An error occurred while adding ticker in DB: {e}'
+    flash('An error occurred while creating new Target, Seems like same Ticker Type exists!', 'error')
+    #return render_template('/admin/dashboard-admin.html')
+  finally:
+    db_session.close()  # Close the session
+
 
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # Method based implementation for DB updates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -907,7 +1019,7 @@ class Ticker(Base):
   Target3 = Column(Integer, nullable=False)
   Target4 = Column(Integer, nullable=False)
   TrailStop  = Column(Integer, nullable=False)
-  ticker_qty  = Column(DECIMAL(10, 2), nullable=False, default=0.00)
+  ticker_qty  = Column(Integer, nullable=False)
   TickerStatus  = Column(String, nullable=False)
   TickerNotes = Column(Text, nullable=True)  # New column for storing notes
   ticker_type  = Column(String, nullable=False)
@@ -931,6 +1043,25 @@ class Targets(Base):
     created_by = Column(String(255), nullable=False, default='Admin')
     created_date = Column(DateTime, default=func.now())
     updated_date = Column(DateTime, default=func.now())
+
+class UserRiskApt(Base):
+    __tablename__ = 'user_risk_apt'
+
+    # Columns
+    user_email = Column(String, primary_key=True, nullable=False)
+    ticker_type = Column(String, primary_key=True, nullable=False)
+    swing_capital = Column(Integer, nullable=False, default=0)
+    swing_percent = Column(Float, nullable=False, default=0.0)
+    invest_capital = Column(Integer, nullable=False, default=0)
+    invest_percent = Column(Float, nullable=False, default=0.0)
+    updated_time = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+
+    def __repr__(self):
+        return (f"<UserRiskApt(user_email={self.user_email}, "
+                f"ticker_type={self.ticker_type}, swing_capital={self.swing_capital}, "
+                f"swing_percent={self.swing_percent}, invest_capital={self.invest_capital}, "
+                f"invest_percent={self.invest_percent}, "
+                f"updated_time={self.updated_time})>")
 
 
 ## THIS METHOS IS NOT IN USE ANYMORE -- WILL REMOVE LATER  
@@ -990,6 +1121,7 @@ def save_ticker():
 def save_ticker_new():
   username = "Admin" #session['username']
   trailStop = 0
+  tickerQty = 0
   tickerstatus = "Inactive"
 
   tickername = request.form['tickername']
@@ -1036,6 +1168,7 @@ def save_ticker_new():
                     Target4=target4,
                     TrailStop=trailStop,
                     ticker_type=tickertype,
+                    ticker_qty=tickerQty,
                     TickerStatus=tickerstatus,
                     TickerNotes=notes
                     )
