@@ -215,7 +215,7 @@ def load_risk_apt_from_db(user_email_id,type):
   except Exception as e:
     app.logger.error(f'An error occurred in load_risk_apt_from_db: {e}', exc_info=True)
   
-  return user_risk
+  return user_risk or []
 
 # DB related functions ENDS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -632,9 +632,12 @@ def show_user_risk_apt():
     user_email_id = session['userloggedinemail']
 
   user_risk_apt = load_risk_apt_from_db(user_email_id,"Swing")
-  print(user_risk_apt)
-  print(user_risk_apt[0].swing_capital)
-  print(user_risk_apt[0].swing_percent)
+  
+  if not user_risk_apt:
+    app.logger.info("No user risk data returned from the database.")
+    update_risk_apt_table(user_email_id,"Swing","0","0.00")
+    user_risk_apt = load_risk_apt_from_db(user_email_id,"Swing")
+    
   return render_template('/users/update-risk-apt.html', user_risk=user_risk_apt, user=current_user)
 
 @app.route('/update_risk_apetite_for_trading', methods=['POST'])
@@ -1417,17 +1420,17 @@ def send_active_broadcast_email(ticker):
       # Create the welcome message
       subject = f"Team Investinbulls Stock update {ticker.TickerName} - {today}"
 
-      message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+      message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTrailstop : {ticker.TrailStop}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       
       #message_body = f"Dear {username},\n\nThank you for joining us! \n\nEach morning, you’ll receive a list of stocks that have the potential to breakout during the day. \nOnce the breakout happens, we will send you an alert directly to your email or text message. \nThis alert will include important details such as the breakout price, target levels, and a predefined stop loss to manage your risk effectively..\n\nBest Regards,\nInvestinbulls.net"
       if ticker.Target3 == 0.00 and ticker.Target4 == 0.00:
-        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : TBD \nTrailstop : {ticker.TrailStop}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       elif ticker.Target3 != 0.00 and ticker.Target4 == 0.00:
-        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : TBD \nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : TBD \nTrailstop : {ticker.TrailStop}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       elif ticker.Target3 == 0.00 and ticker.Target4 != 0.00:
-        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : TBD \nTarget-4 : {ticker.Target4}\nTrailstop : {ticker.TrailStop}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       else:
-        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
+        message_body = f"Dear {user.UserName},\n\nStock {ticker.TickerName} is active to trade now.\nEntry Price : {ticker.EntryPrice}\nStop Price : {ticker.StopPrice}\nTarget-1 : {ticker.Target1}\nTarget-2 : {ticker.Target2}\nTarget-3 : {ticker.Target3}\nTarget-4 : {ticker.Target4}\nTrailstop : {ticker.TrailStop}\nTicker Notes : {ticker.TickerNotes}\n\nPlease login to www.investinbulls.net for more details.\n\n\nBest Regards,\nInvestinbulls.net\nwww.investinbulls.net"
       
       try:
         #app.logger.info('Subject: '+ str(subject))
