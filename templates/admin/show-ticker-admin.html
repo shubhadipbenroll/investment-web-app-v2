@@ -416,9 +416,10 @@
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
             if (tickerType == "Investment") {
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                    let target1Value = (amount * discountPercentage) / 100;
-                    //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * investTarget1);
+                    //let target1Value = (amount * discountPercentage) / 100;
+                    //let finalAmount = amount + (target1Value * investTarget1);
+                    let target1Value = (amount * investTarget1) / 100;
+                    let finalAmount = (amount + target1Value);
                     document.getElementById("target1").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -439,9 +440,11 @@
             //let target2Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
             if (tickerType == "Investment") {
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                    let target2Value = (amount * discountPercentage) / 100;
+                    //let target2Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target2Value * investTarget2);
+                    //let finalAmount = amount + (target2Value * investTarget2);
+                    let target1Value = (amount * investTarget2) / 100;
+                    let finalAmount = (amount + target1Value);
                     document.getElementById("target2").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -462,9 +465,11 @@
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
             if (tickerType == "Investment") {
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                    let target1Value = (amount * discountPercentage) / 100;
+                    //let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * investTarget3);
+                    //let finalAmount = amount + (target1Value * investTarget3);
+                    let target1Value = (amount * investTarget3) / 100;
+                    let finalAmount = (amount + target1Value);
                     document.getElementById("target3").value = '$' + finalAmount.toFixed(2);
                 }
             }
@@ -485,9 +490,11 @@
             //let target1Percentage = parseFloat(document.getElementById("discount").value.replace('%', ''));
             if (tickerType == "Investment") {
                 if (!isNaN(amount) && !isNaN(discountPercentage)) {
-                    let target1Value = (amount * discountPercentage) / 100;
+                    //let target1Value = (amount * discountPercentage) / 100;
                     //let finalAmount = amount + target1Value;
-                    let finalAmount = amount + (target1Value * investTarget4);
+                    //let finalAmount = amount + (target1Value * investTarget4);
+                    let target1Value = (amount * investTarget4) / 100;
+                    let finalAmount = (amount + target1Value);
                     document.getElementById("target4").value = '$' + finalAmount.toFixed(2);
                 }
             }

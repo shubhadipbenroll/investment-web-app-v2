@@ -157,7 +157,7 @@ def load_tickers_for_watchlist():
   ticker_list = []
   try:
     with engine.connect() as conn:
-      result = conn.execute(text("select UpdateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes,ticker_type from Tickers ORDER BY CreateDate DESC"))
+      result = conn.execute(text("select UpdateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes,ticker_type from Tickers WHERE TickerStatus in ('Active','Profit-Book','Loss-Book') ORDER BY CreateDate DESC"))
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TrailStop,TickerStatus,TickerNotes from Tickers ORDER BY CreateDate DESC"))
       #print("type(result.all())", type(result.all()))
       #print(result.all())
@@ -190,7 +190,7 @@ def load_tickers_for_investment():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Investment' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus in ('Active','Profit-Book','Loss-Book') and ticker_type='Investment' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
