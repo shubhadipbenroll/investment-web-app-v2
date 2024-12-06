@@ -596,6 +596,7 @@
                     <th class="col-2">Stock Ticker</th>
                     <th class="col-3">Entry Price</th>
                     <th class="col-4">Ticker-Type</th>
+                    <th class="col-5">Status</th>
                     <!-- <th class="col-4">Stop %</th>
                     <th class="col-5">Stop Price</th>
                     <th class="col-6">Target-1</th>
@@ -603,7 +604,7 @@
                     <th class="col-8">Target-3</th>
                     <th class="col-9">Target-4</th>
                     <th class="col-10">Trail Stop</th>
-                    <th class="col-11">Status</th>
+                    
                     <th class="col-12">Ticker-Notes</th> -->
                 </tr>
             </thead>
@@ -614,6 +615,7 @@
                     <td>{{ ticker.ticker_name }}</td>
                     <td>{{ ticker.entry_price }}</td>
                     <td>{{ ticker.ticker_type }}</td>
+                    <td>{{ ticker.TickerStatus}}</td>
                     <!-- <td>{{ ticker.stop_percent }}</td>
                     <td>{{ ticker.stop_price }}</td>
                     <td>{{ ticker.target_1 }}</td>
@@ -621,7 +623,7 @@
                     <td>{{ ticker.target_3 }}</td>
                     <td>{{ ticker.target_4 }}</td>
                     <td>{{ ticker.trail_stop }}</td>
-                    <td>{{ ticker.ticker_status}}</td>
+                    
                     <td>
                         <div class="ticker-notes">{{ ticker.ticker_notes }}</div>
                     </td> -->

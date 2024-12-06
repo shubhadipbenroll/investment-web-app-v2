@@ -190,7 +190,7 @@ def load_tickers_for_investment():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerNotes FROM Tickers WHERE TickerStatus in ('Active','Profit-Book','Loss-Book') and ticker_type='Investment' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus in ('Active','Profit-Book','Loss-Book') and ticker_type='Investment' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -423,6 +423,7 @@ def show_ticker_user_watchlist():
             #"target_4": row[7],
             #"trail_stop": row[8],
             #"ticker_notes": row[9]
+            "TickerStatus": row[10],
             "ticker_type": row[12]
         } for row in watchlist
     ]
@@ -448,7 +449,7 @@ def show_ticker_user_watchlist():
               #"target_3": row[6],
               #"target_4": row[7],
               #"trail_stop": row[8],
-              #"ticker_notes": row[9]
+              "TickerStatus": row[10],
               "ticker_type": row[12]
           } for row in watchlist
       ]
@@ -584,7 +585,8 @@ def show_ticker_user_investment():
             "target_3": row[6],
             "target_4": row[7],
             "trail_stop": row[8],
-            "ticker_notes": row[9]
+            "TickerStatus": row[9],
+            "ticker_notes": row[10]
         } for row in ticklist
     ]
     # Group tickers by created date
@@ -609,7 +611,8 @@ def show_ticker_user_investment():
               "target_3": row[6],
               "target_4": row[7],
               "trail_stop": row[8],
-              "ticker_notes": row[9]
+              "TickerStatus": row[9],
+              "ticker_notes": row[10]
           } for row in ticklist
       ]
       # Group tickers by created date
