@@ -175,7 +175,7 @@ def load_tickers_for_trading():
       #result = conn.execute(text("select CreateDate,TickerName,EntryPrice,StopPercent,StopPrice,Target1,Target2,Target3,Target4,TickerStatus,TickerNotes from Tickers WHERE DATE(CreateDate) = CURDATE() ORDER BY CreateDate DESC"))
       #Only show last date data
       #result = conn.execute(text("SELECT CreateDate, TickerName, EntryPrice, StopPercent, StopPrice, Target1, Target2, Target3, Target4, TickerStatus,TickerNotes FROM Tickers WHERE TickerStatus='Active' AND DATE(CreateDate) = ( SELECT MAX(DATE(CreateDate)) FROM Tickers ) ORDER BY CreateDate DESC"))
-      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop, ticker_qty, TickerNotes FROM Tickers WHERE TickerStatus='Active' and ticker_type='Swing' ORDER BY CreateDate DESC"))
+      result = conn.execute(text("SELECT UpdateDate, TickerName, EntryPrice, StopPrice, Target1, Target2, Target3, Target4, TrailStop,TickerStatus, ticker_qty, TickerNotes FROM Tickers WHERE TickerStatus in ('Active','Profit-Book','Loss-Book') and ticker_type='Swing' ORDER BY CreateDate DESC"))
       for row in result.all():
         ticker_list.append(row)
   except Exception as e:
@@ -527,8 +527,9 @@ def show_ticker_user_trading():
             "target_3": row[6],
             "target_4": row[7],
             "trail_stop": row[8],
+            "TickerStatus": row[9],
             "ticker_qty": round(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))),
-          "ticker_notes": row[10]
+          "ticker_notes": row[11]
         } for row in ticklist
     ]
     # Group tickers by created date
@@ -553,8 +554,9 @@ def show_ticker_user_trading():
               "target_3": row[6],
               "target_4": row[7],
               "trail_stop": row[8],
+              "TickerStatus": row[9],
               "ticker_qty": round(((float(capital) * float(risk_apt_percent)) / 100) / (float(row[2]) - float(row[3]))),
-              "ticker_notes": row[10]
+              "ticker_notes": row[11]
           } for row in ticklist
       ]
       # Group tickers by created date
