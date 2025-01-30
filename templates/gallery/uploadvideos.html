@@ -1,0 +1,19 @@
+{% extends "/admin/base-template-admin.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<head>
+    <title>Video Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Upload Video</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="video/*"><br><br>
+        <input type="submit" value="Upload">
+    </form>
+</br>
+    <a href="{{ url_for('gallery') }}">Go to Video Gallery</a>
+</body>
+{% endblock %}

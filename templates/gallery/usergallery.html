@@ -1,0 +1,60 @@
+{% extends "/users/base-template-user.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<head>
+    <title>User Video Gallery</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Video Gallery</h1>
+        
+    {% if public_videos %}
+        <div class="gallery">
+            {% for video in public_videos %}
+                <div class="video-item">
+                    <video width="300" controls>
+                        <source src="{{ url_for('static', filename='uploads/' + video) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                     <p>
+                         <b>{{ video }}</b>
+                       <a href="{{ url_for('play_video', filename=video) }}"> Play</a>
+                     </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No videos available yet.</p>
+    {% endif %}
+    
+    <h2>Video Folders</h2>
+      {% if public_folders %}
+        <ul>
+            {% for folder in public_folders %}
+               <li>{{ folder }}
+               <ul>
+                   {% for file in os.listdir(app.config['UPLOAD_FOLDER']+'/'+folder) if allowed_file(file)  and load_privacy_data().get(file, 'private') == 'public' %}
+                        <li>
+                            <video width="200" controls>
+                                <source src="{{ url_for('static', filename='uploads/' + folder + '/'+ file) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <p>
+                                <b>{{ file }}</b>
+                                <a href="{{ url_for('play_video', filename= folder + '/'+ file) }}"> Play</a>
+                            </p>
+                        </li>
+                    {% endfor %}
+                 </ul>
+               </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+      <p> No folders available yet.</p>
+    {% endif %}
+
+     
+</body>
+{% endblock %}

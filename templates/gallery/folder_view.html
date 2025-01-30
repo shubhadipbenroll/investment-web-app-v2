@@ -1,0 +1,83 @@
+{% extends "/admin/base-template-admin.html" %}
+
+{% block title %}Investinbulls.net{% endblock %}
+
+{% block content %}
+<head>
+    <title>Videos in {{ folder_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Videos in Folder: {{ folder_name }}</h1>
+
+    {% if video_files %}
+         <div class="gallery">
+            {% for video in video_files %}
+                 <div class="video-item">
+                    <video width="200" height="150" controls>
+                        <source src="{{ url_for('static', filename='uploads/' + folder_name + '/' + video.name) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>
+                        <b>{{ video.name }}</b>
+                        <div class="button-group">
+                            <form method="GET" action="{{ url_for('play_video', filename=folder_name + '/' + video.name) }}">
+                                <input type="submit" value="Play"/>
+                            </form>
+                            <form method="POST" action="{{ url_for('rename_video') }}">
+                                <input type="hidden" name="old_filename" value="{{ video.name }}">
+                                <input type="hidden" name="folder_name" value="{{ folder_name }}">
+                                <input type="text" name="new_filename" placeholder="New Name" required>
+                                <input type="submit" value="Rename"/>
+                            </form>
+
+                            <form method="POST" action="{{ url_for('delete_video') }}">
+                                <input type="hidden" name="filename" value="{{ video.name }}">
+                                <input type="hidden" name="folder_name" value="{{ folder_name }}">
+                                <input type="submit" value="Delete" onclick="return confirm('Are you sure you want to delete this video?');"/>
+                            </form>
+                           <form method="POST" action="{{ url_for('toggle_privacy') }}">
+                                <input type="hidden" name="filename" value="{{ video.name }}">
+                                <input type="hidden" name="folder_name" value="{{ folder_name }}">
+                                <input type="submit" value="File Type: {{ 'Private' if video.is_private else 'Public' }}"/>
+                            </form>
+                        </div>
+                        <br/>
+                        Move Video to Folder:
+                        <form method="POST" action="{{ url_for('move_video') }}">
+                            <input type="hidden" name="video_to_move" value="{{ video.name }}" />
+                             <select name="folder_name" id="folder_select">
+                                <option value="">Select a Folder</option>
+                                <option value="new_folder">New Folder</option>
+                                {% for folder in video_folders %}
+                                   <option value="{{ folder.name }}">{{ folder.name }}</option>
+                                {% endfor %}
+                             </select>
+                             <input type="text" name="new_folder_name" id="new_folder_input" placeholder="New Folder Name" style="display:none;"/>
+
+                            <input type="submit" value="Move" />
+                        </form>
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No videos in this folder.</p>
+    {% endif %}
+
+     <br/><br/>
+     <a href="{{ url_for('gallery') }}">Back to Gallery</a>
+<script>
+    const folderSelect = document.getElementById('folder_select');
+    const newFolderInput = document.getElementById('new_folder_input');
+
+    folderSelect.addEventListener('change', function() {
+        if (folderSelect.value === 'new_folder') {
+            newFolderInput.style.display = 'inline';
+        } else {
+            newFolderInput.style.display = 'none';
+        }
+    });
+</script>
+</body>
+{% endblock %}
